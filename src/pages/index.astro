@@ -1,0 +1,83 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Yokai Web - Astro & Sanity">
+	<main>
+		<div class="hero">
+			<h1>Yokai <span class="text-gradient">Web</span></h1>
+			<p class="tagline">Built with Astro & Sanity</p>
+			<div class="actions">
+				<a href="/admin" class="btn primary">Go to Sanity Studio</a>
+				<a href="https://docs.astro.build" class="btn secondary">Astro Docs</a>
+			</div>
+		</div>
+	</main>
+</Layout>
+
+<style>
+	main {
+		margin: auto;
+		padding: 1rem;
+		width: 800px;
+		max-width: calc(100% - 2rem);
+		color: white;
+		font-size: 20px;
+		line-height: 1.6;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		min-height: 100vh;
+	}
+	.hero {
+		text-align: center;
+	}
+	h1 {
+		font-size: 4rem;
+		font-weight: 800;
+		line-height: 1;
+		margin-bottom: 0.5em;
+	}
+	.text-gradient {
+		background-image: var(--accent-gradient);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		background-size: 400%;
+		background-position: 0%;
+	}
+	.tagline {
+		font-size: 1.5rem;
+		color: #94a3b8;
+		margin-bottom: 2rem;
+	}
+	.actions {
+		display: flex;
+		gap: 1rem;
+		justify-content: center;
+	}
+	.btn {
+		padding: 0.8rem 1.5rem;
+		border-radius: 8px;
+		font-weight: 600;
+		text-decoration: none;
+		transition: all 0.2s;
+	}
+	.btn.primary {
+		background: white;
+		color: black;
+	}
+	.btn.primary:hover {
+		background: #e2e8f0;
+		transform: translateY(-2px);
+	}
+	.btn.secondary {
+		background: rgba(255, 255, 255, 0.1);
+		color: white;
+		border: 1px solid rgba(255, 255, 255, 0.2);
+	}
+	.btn.secondary:hover {
+		background: rgba(255, 255, 255, 0.2);
+		transform: translateY(-2px);
+	}
+</style>
+
