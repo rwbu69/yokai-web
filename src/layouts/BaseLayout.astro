@@ -1,0 +1,41 @@
+---
+import Layout from './Layout.astro';
+import Navbar from '../components/Navbar.astro';
+
+interface Props {
+  title: string;
+  activePage: string;
+}
+
+const { title, activePage } = Astro.props;
+---
+
+<Layout title={title}>
+  <div class="relative min-h-screen flex flex-col selection:bg-yokai-purple selection:text-white">
+    <!-- Navbar Component -->
+    <Navbar activePage={activePage} />
+    
+    <!-- Main Content Container. Remove padding-top on home so hero fills the screen -->
+    <main class={`flex-grow ${activePage === 'home' ? '' : 'pt-24'}`}>
+      <slot />
+    </main>
+  </div>
+</Layout>
+
+<script define:vars={{ activePage }}>
+  // Scroll background theme transition on landing page
+  if (activePage === 'home') {
+    const handleScrollTransition = () => {
+      // Transition theme when scroll distance is past 450px
+      if (window.scrollY > 450) {
+        document.body.classList.add('light-theme');
+      } else {
+        document.body.classList.remove('light-theme');
+      }
+    };
+
+    // Run immediately and on scroll
+    window.addEventListener('scroll', handleScrollTransition);
+    handleScrollTransition();
+  }
+</script>

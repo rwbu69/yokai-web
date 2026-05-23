@@ -1,0 +1,140 @@
+@import "tailwindcss";
+
+@theme {
+  --color-yokai-purple: #A045BB;
+  --color-yokai-dark-purple: #3C0F36;
+  --color-yokai-dark-blue: #2A1E52;
+  --color-yokai-light-white: #EBE0E8;
+  --color-yokai-white: #FDFFFD;
+  
+  --font-inter: "Inter", sans-serif;
+  --font-jakarta: "Plus Jakarta Sans", sans-serif;
+  --font-outfit: "Outfit", sans-serif;
+}
+
+:root {
+  --yokai-purple: #A045BB;
+  --yokai-dark-purple: #3C0F36;
+  --yokai-dark-blue: #2A1E52;
+  --yokai-light-white: #EBE0E8;
+  --yokai-white: #FDFFFD;
+}
+
+/* Base Body Configuration */
+html {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+html::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Opera */
+}
+
+body {
+  font-family: var(--font-outfit);
+  background-color: var(--yokai-dark-blue);
+  color: var(--yokai-light-white);
+  margin: 0;
+  overflow-x: hidden;
+  transition: background-color 0.3s cubic-bezier(0.25, 1, 0.5, 1), color 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Headings utilize Plus Jakarta Sans */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-jakarta);
+  color: var(--yokai-white);
+  transition: color 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  font-weight: 900; /* BOLD */
+  letter-spacing: -0.02em; /* Tighter tracking for bold editorial look */
+}
+
+/* Smooth Light Theme Scroll Transition Classes */
+body.light-theme {
+  background-color: var(--yokai-white);
+  color: var(--yokai-dark-blue);
+}
+
+body.light-theme h1, 
+body.light-theme h2, 
+body.light-theme h3, 
+body.light-theme h4, 
+body.light-theme h5, 
+body.light-theme h6 {
+  color: var(--yokai-dark-blue);
+}
+
+body.light-theme #main-header {
+  border-color: rgba(42, 30, 82, 0.15);
+}
+
+body.light-theme #main-header.bg-yokai-dark-purple\/80 {
+  background-color: rgba(253, 255, 253, 0.9); /* yokai-white with higher opacity for sharper contrast */
+  border-color: rgba(160, 69, 187, 0.3);
+}
+
+body.light-theme #main-header a,
+body.light-theme #main-header button {
+  color: var(--yokai-dark-blue);
+}
+
+body.light-theme #main-header a:hover,
+body.light-theme #main-header button:hover {
+  color: var(--yokai-purple);
+}
+
+body.light-theme #main-header a.text-yokai-purple,
+body.light-theme #main-header button.text-yokai-purple {
+  color: var(--yokai-purple);
+}
+
+body.light-theme #main-header .hamburger-line {
+  background-color: var(--yokai-dark-blue);
+}
+
+body.light-theme #mobile-menu {
+  background-color: var(--yokai-white);
+}
+
+body.light-theme #mobile-menu a,
+body.light-theme #mobile-menu button {
+  color: var(--yokai-dark-blue);
+  border-color: rgba(42, 30, 82, 0.15);
+}
+
+body.light-theme #mobile-menu a.text-yokai-purple,
+body.light-theme #mobile-menu button.text-yokai-purple {
+  color: var(--yokai-purple);
+}
+
+/* Strict Design Rule: NO AI-like neon glows, shiny shadows, or cheap cyberpunk lights.
+   Rely on clean boundaries, sharp borders, typography, and spacious whitespace. */
+.border-yokai {
+  border: 1px solid var(--yokai-purple);
+}
+
+.underline-yokai {
+  text-decoration: none;
+  border-bottom: 2px solid var(--yokai-purple);
+}
+
+@keyframes slide-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes slide-right {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+.animate-slide-left {
+  animation: slide-left 120s linear infinite;
+}
+
+.animate-slide-left-fast {
+  animation: slide-left 80s linear infinite;
+}
+
+.animate-slide-right {
+  animation: slide-right 100s linear infinite;
+}

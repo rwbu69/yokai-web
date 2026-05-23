@@ -1,0 +1,209 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+import hero1 from '../assets/hero-images/1.jpg';
+import hero2 from '../assets/hero-images/2.jpg';
+import hero3 from '../assets/hero-images/3.jpg';
+import hero4 from '../assets/hero-images/4.jpg';
+import hero5 from '../assets/hero-images/5.jpg';
+import hero6 from '../assets/hero-images/6.jpg';
+import hero7 from '../assets/hero-images/7.jpg';
+import hero8 from '../assets/hero-images/8.jpg';
+import hero9 from '../assets/hero-images/9.jpg';
+import hero10 from '../assets/hero-images/10.jpg';
+import hero11 from '../assets/hero-images/11.jpg';
+import hero12 from '../assets/hero-images/12.jpg';
+
+const allImages = [
+  hero1.src, hero2.src, hero3.src, hero4.src,
+  hero5.src, hero6.src, hero7.src, hero8.src,
+  hero9.src, hero10.src, hero11.src, hero12.src,
+];
+
+const values = [
+  {
+    num: "01",
+    title: "Authenticity",
+    body: "We do not perform — we embody. Every movement, every breath on stage is a sincere expression of who we are.",
+  },
+  {
+    num: "02",
+    title: "Mastery",
+    body: "Rooted in the discipline of Wotagei, we push technique to its limit. Precision is not optional; it is the baseline.",
+  },
+  {
+    num: "03",
+    title: "Evolution",
+    body: "The underground gave us our foundation. The stage demands constant reinvention. We honour both without apology.",
+  },
+  {
+    num: "04",
+    title: "Collective",
+    body: "No single spotlight. No solo hierarchies. YOKAI is the sum of each individual's absolute commitment to the whole.",
+  },
+];
+---
+
+<BaseLayout title="About | Yokai Performance Art" activePage="about">
+
+  <!-- ─── HERO ─── -->
+  <section class="relative w-full min-h-[70vh] bg-yokai-dark-blue overflow-hidden flex items-end pb-24">
+
+    <!-- Mosaic background strip -->
+    <div class="absolute inset-0 z-0 pointer-events-none">
+      <div class="flex h-full w-max animate-slide-left opacity-20">
+        {allImages.map((src) => (
+          <img src={src} alt="" class="h-full w-[200px] flex-shrink-0 object-cover grayscale" />
+        ))}
+        {allImages.map((src) => (
+          <img src={src} alt="" class="h-full w-[200px] flex-shrink-0 object-cover grayscale" />
+        ))}
+      </div>
+    </div>
+
+    <!-- Gradient overlay -->
+    <div class="absolute inset-0 z-0 bg-gradient-to-t from-yokai-dark-blue via-yokai-dark-blue/70 to-yokai-dark-blue/40 pointer-events-none"></div>
+
+    <!-- Hero text -->
+    <div class="relative z-10 w-full max-w-[90vw] mx-auto px-6 lg:px-12">
+      <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-[1px] bg-yokai-purple"></div>
+        <span class="font-inter text-[10px] tracking-[0.5em] uppercase text-yokai-purple font-bold">Who We Are</span>
+      </div>
+      <h1 class="font-jakarta text-6xl md:text-8xl lg:text-[10vw] font-black uppercase tracking-tighter text-yokai-white leading-none">
+        About<br/><span class="text-yokai-purple italic font-outfit font-light tracking-widest">Yokai</span>
+      </h1>
+    </div>
+  </section>
+
+  <!-- ─── MANIFESTO ─── -->
+  <section class="w-full bg-yokai-dark-blue border-t border-yokai-white/10">
+    <div class="max-w-[90vw] mx-auto px-6 lg:px-12 py-32 grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+
+      <!-- Left: Label + rule -->
+      <div class="lg:col-span-4 flex flex-col gap-4 lg:pt-2">
+        <div class="flex items-center gap-4">
+          <div class="w-8 h-[1px] bg-yokai-purple"></div>
+          <span class="font-inter text-[10px] tracking-[0.5em] uppercase text-yokai-purple font-bold">The Manifesto</span>
+        </div>
+        <div class="w-full h-[1px] bg-yokai-white/10 mt-4 hidden lg:block"></div>
+      </div>
+
+      <!-- Right: Statement text -->
+      <div class="lg:col-span-8">
+        <p class="font-outfit text-2xl md:text-3xl lg:text-4xl font-light text-yokai-white leading-relaxed tracking-wide">
+          YOKAI is not a group — it is a <strong class="font-black text-yokai-white">declaration</strong>. Born from the raw culture of underground Wotagei, we took the discipline of the fanbase and turned it into performance art.
+        </p>
+        <p class="font-outfit text-lg md:text-xl text-yokai-light-white/60 leading-relaxed font-light mt-10 max-w-2xl">
+          We bridge the gap between idol culture and contemporary performance — light, sound, and body moving as a single organism. Every show is a ritual. Every rehearsal, a sacrifice.
+        </p>
+        <div class="mt-16 flex items-center gap-6">
+          <a href="/members" class="group inline-flex items-center gap-4 font-inter text-[10px] tracking-[0.4em] uppercase text-yokai-white font-bold hover:text-yokai-purple transition-colors duration-300">
+            Meet the Members
+            <span class="w-8 h-[1px] bg-current group-hover:w-16 transition-all duration-300"></span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── CORE VALUES ─── -->
+  <section class="w-full bg-yokai-white text-yokai-dark-blue py-32 px-6 lg:px-12">
+    <div class="max-w-[90vw] mx-auto">
+      <!-- Section header -->
+      <div class="flex flex-col md:flex-row justify-between items-end border-b border-yokai-dark-blue/20 pb-8 mb-20">
+        <h2 class="font-jakarta text-5xl lg:text-7xl font-black uppercase tracking-tighter leading-none">
+          Core<br/><span class="italic font-outfit font-light tracking-widest text-yokai-purple">Values</span>
+        </h2>
+        <p class="font-inter text-[10px] tracking-[0.4em] uppercase text-yokai-dark-blue/40 font-bold mt-6 md:mt-0">The Pillars of YOKAI</p>
+      </div>
+
+      <!-- Values grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-0">
+        {values.map((v) => (
+          <div class="group border-b border-r-0 md:even:border-r-0 border-yokai-dark-blue/10 py-12 px-0 md:pr-16 flex gap-8 items-start hover:bg-yokai-dark-blue/3 transition-colors duration-300">
+            <span class="font-inter text-[10px] tracking-[0.4em] text-yokai-purple font-black flex-shrink-0 mt-1">{v.num}</span>
+            <div>
+              <h3 class="font-jakarta text-2xl md:text-3xl font-black uppercase tracking-tight text-yokai-dark-blue mb-4">{v.title}</h3>
+              <p class="font-outfit text-base text-yokai-dark-blue/70 leading-relaxed font-light">{v.body}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── IMAGE EDITORIAL STRIP ─── -->
+  <section class="w-full bg-yokai-dark-blue py-32">
+    <div class="max-w-[90vw] mx-auto px-6 lg:px-12 mb-16">
+      <div class="flex items-center gap-4">
+        <div class="w-10 h-[1px] bg-yokai-purple"></div>
+        <span class="font-inter text-[10px] tracking-[0.5em] uppercase text-yokai-purple font-bold">In Action</span>
+      </div>
+    </div>
+
+    <!-- 3-row mosaic strip -->
+    <div class="flex flex-col gap-1 overflow-hidden">
+      <!-- Row 1 → left -->
+      <div class="overflow-hidden h-[220px]">
+        <div class="flex w-max animate-slide-left h-full gap-1">
+          {[hero1,hero2,hero3,hero4,hero5,hero6].map((img) => (
+            <img src={img.src} alt="Yokai Performance" class="h-full w-[300px] flex-shrink-0 object-cover grayscale hover:grayscale-0 transition-all duration-700" />
+          ))}
+          {[hero1,hero2,hero3,hero4,hero5,hero6].map((img) => (
+            <img src={img.src} alt="Yokai Performance" class="h-full w-[300px] flex-shrink-0 object-cover grayscale hover:grayscale-0 transition-all duration-700" />
+          ))}
+        </div>
+      </div>
+      <!-- Row 2 → right -->
+      <div class="overflow-hidden h-[220px]">
+        <div class="flex w-max animate-slide-right h-full gap-1">
+          {[hero7,hero8,hero9,hero10,hero11,hero12].map((img) => (
+            <img src={img.src} alt="Yokai Performance" class="h-full w-[300px] flex-shrink-0 object-cover grayscale hover:grayscale-0 transition-all duration-700" />
+          ))}
+          {[hero7,hero8,hero9,hero10,hero11,hero12].map((img) => (
+            <img src={img.src} alt="Yokai Performance" class="h-full w-[300px] flex-shrink-0 object-cover grayscale hover:grayscale-0 transition-all duration-700" />
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── CTA ─── -->
+  <section class="w-full bg-yokai-dark-blue border-t border-yokai-white/10 py-32 px-6 lg:px-12">
+    <div class="max-w-[90vw] mx-auto flex flex-col lg:flex-row items-center lg:items-end justify-between gap-12">
+      <h2 class="font-jakarta text-5xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter text-yokai-white leading-none">
+        See Us<br/><span class="text-yokai-purple">Perform.</span>
+      </h2>
+      <div class="flex flex-col gap-6 items-start lg:items-end">
+        <p class="font-outfit text-lg text-yokai-light-white/60 font-light max-w-sm text-left lg:text-right leading-relaxed">
+          Check our upcoming live performances and be part of the ritual.
+        </p>
+        <a href="/gallery" class="group inline-flex items-center gap-4 font-inter text-[10px] tracking-[0.4em] uppercase text-yokai-white font-bold hover:text-yokai-purple transition-colors duration-300 border border-yokai-white/20 hover:border-yokai-purple px-8 py-4">
+          View Gallery
+          <span class="w-4 h-[1px] bg-current group-hover:w-8 transition-all duration-300"></span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ─── -->
+  <footer class="w-full bg-yokai-dark-blue border-t border-yokai-white/10">
+    <div class="max-w-[90vw] mx-auto px-6 lg:px-12 py-8 flex flex-col md:flex-row justify-between items-center gap-6">
+      <div class="flex items-center gap-6">
+        <span class="font-jakarta text-lg font-black uppercase tracking-tighter text-yokai-white">YOKAI</span>
+        <span class="w-[1px] h-4 bg-yokai-white/20"></span>
+        <span class="font-inter text-[9px] tracking-[0.4em] uppercase text-yokai-light-white/40">Yogyakarta Wotagei Team</span>
+      </div>
+      <nav class="flex items-center gap-8">
+        <a href="/" class="font-inter text-[9px] tracking-[0.3em] uppercase text-yokai-light-white/40 hover:text-yokai-white transition-colors duration-300">Home</a>
+        <a href="/about" class="font-inter text-[9px] tracking-[0.3em] uppercase text-yokai-white transition-colors duration-300">About</a>
+        <a href="/library" class="font-inter text-[9px] tracking-[0.3em] uppercase text-yokai-light-white/40 hover:text-yokai-white transition-colors duration-300">Library</a>
+        <a href="/gallery" class="font-inter text-[9px] tracking-[0.3em] uppercase text-yokai-light-white/40 hover:text-yokai-white transition-colors duration-300">Gallery</a>
+        <a href="/shop" class="font-inter text-[9px] tracking-[0.3em] uppercase text-yokai-light-white/40 hover:text-yokai-white transition-colors duration-300">Shop</a>
+      </nav>
+      <p class="font-inter text-[9px] tracking-[0.3em] uppercase text-yokai-light-white/30">&copy; 2026 Yokai</p>
+    </div>
+  </footer>
+
+</BaseLayout>

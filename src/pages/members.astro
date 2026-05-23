@@ -1,0 +1,210 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+import hero1 from '../assets/hero-images/1.jpg';
+import hero2 from '../assets/hero-images/2.jpg';
+import hero3 from '../assets/hero-images/3.jpg';
+import hero4 from '../assets/hero-images/4.jpg';
+import hero5 from '../assets/hero-images/5.jpg';
+import hero6 from '../assets/hero-images/6.jpg';
+import hero7 from '../assets/hero-images/7.jpg';
+import hero8 from '../assets/hero-images/8.jpg';
+import hero9 from '../assets/hero-images/9.jpg';
+import hero10 from '../assets/hero-images/10.jpg';
+import hero11 from '../assets/hero-images/11.jpg';
+import hero12 from '../assets/hero-images/12.jpg';
+
+// Member data — swap photos & details once real assets are available
+const members = [
+  {
+    id: "01",
+    name: "Arata",
+    role: "Center / Lead Performer",
+    bio: "The axis of YOKAI's formations. Arata's precision in Wotagei technique is unmatched — five years of underground training distilled into every motion.",
+    specialty: ["Center Position", "Wotagei", "Choreography"],
+    image: hero1.src,
+    since: "2021",
+  },
+  {
+    id: "02",
+    name: "Ryusei",
+    role: "Sub-Leader / Lighting Sync",
+    bio: "Ryusei reads the stage like a battlefield. His role bridges physical performance with light programming — the pulse that keeps YOKAI synchronized.",
+    specialty: ["Light Sync", "Stage Mapping", "Sub-Leader"],
+    image: hero3.src,
+    since: "2021",
+  },
+  {
+    id: "03",
+    name: "Kaito",
+    role: "Sound Designer",
+    bio: "Behind every track YOKAI performs, Kaito has dissected the frequencies, rebuilt the arrangements, and shaped the sonic identity of the collective.",
+    specialty: ["Sound Design", "Arrangement", "Production"],
+    image: hero5.src,
+    since: "2022",
+  },
+  {
+    id: "04",
+    name: "Sora",
+    role: "Visual Director",
+    bio: "Costumes, color language, and motion vocabulary — Sora translates YOKAI's ethos into everything the audience sees before a note is played.",
+    specialty: ["Visual Direction", "Costume", "Motion Design"],
+    image: hero7.src,
+    since: "2022",
+  },
+  {
+    id: "05",
+    name: "Haru",
+    role: "Performer",
+    bio: "Raw power balanced with delicacy. Haru joined YOKAI from the competitive underground circuit, bringing an intensity that elevates every group formation.",
+    specialty: ["Wotagei", "Formation", "Stamina"],
+    image: hero9.src,
+    since: "2023",
+  },
+  {
+    id: "06",
+    name: "Nagi",
+    role: "Performer",
+    bio: "The newest voice in the collective, Nagi's background in contemporary dance gives YOKAI a dimension of fluidity rarely seen in the Wotagei space.",
+    specialty: ["Contemporary Dance", "Flexibility", "Expression"],
+    image: hero11.src,
+    since: "2024",
+  },
+];
+
+const allImages = [
+  hero1.src, hero2.src, hero3.src, hero4.src,
+  hero5.src, hero6.src, hero7.src, hero8.src,
+  hero9.src, hero10.src, hero11.src, hero12.src,
+];
+---
+
+<BaseLayout title="Members | Yokai Performance Art" activePage="about">
+
+  <!-- ─── HERO ─── -->
+  <section class="relative w-full min-h-[60vh] bg-yokai-dark-blue overflow-hidden flex items-end pb-24">
+    <!-- Mosaic bg -->
+    <div class="absolute inset-0 z-0 pointer-events-none">
+      <div class="flex h-full w-max animate-slide-right opacity-15">
+        {allImages.map((src) => (
+          <img src={src} alt="" class="h-full w-[200px] flex-shrink-0 object-cover grayscale" />
+        ))}
+        {allImages.map((src) => (
+          <img src={src} alt="" class="h-full w-[200px] flex-shrink-0 object-cover grayscale" />
+        ))}
+      </div>
+    </div>
+    <div class="absolute inset-0 z-0 bg-gradient-to-t from-yokai-dark-blue via-yokai-dark-blue/75 to-yokai-dark-blue/40"></div>
+
+    <div class="relative z-10 w-full max-w-[90vw] mx-auto px-6 lg:px-12">
+      <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-[1px] bg-yokai-purple"></div>
+        <span class="font-inter text-[10px] tracking-[0.5em] uppercase text-yokai-purple font-bold">The Collective</span>
+      </div>
+      <h1 class="font-jakarta text-6xl md:text-8xl lg:text-[10vw] font-black uppercase tracking-tighter text-yokai-white leading-none">
+        The<br/>
+        <span class="text-yokai-purple italic font-outfit font-light tracking-widest">Members</span>
+      </h1>
+      <p class="font-outfit text-lg md:text-xl text-yokai-light-white/50 font-light mt-6 max-w-lg leading-relaxed">
+        Six individuals. One organism. No hierarchy — only absolute commitment.
+      </p>
+    </div>
+  </section>
+
+  <!-- ─── MEMBER GRID ─── -->
+  <section class="w-full bg-yokai-dark-blue border-t border-yokai-white/10 py-24 px-6 lg:px-12">
+    <div class="max-w-[90vw] mx-auto">
+
+      <!-- Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-0">
+        {members.map((member) => (
+          <article class="group relative border-b border-r-0 xl:border-r border-yokai-white/10 xl:[&:nth-child(3n)]:border-r-0 md:[&:nth-child(2n)]:border-r-0 xl:[&:nth-child(2n)]:border-r overflow-hidden">
+
+            <!-- Image container -->
+            <div class="relative w-full aspect-[3/4] overflow-hidden bg-yokai-dark-blue/50">
+              <img
+                src={member.image}
+                alt={member.name}
+                class="w-full h-full object-cover object-top grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
+              />
+              <!-- Gradient over image -->
+              <div class="absolute inset-0 bg-gradient-to-t from-yokai-dark-blue via-yokai-dark-blue/40 to-transparent"></div>
+
+              <!-- Number badge -->
+              <div class="absolute top-6 right-6">
+                <span class="font-inter text-[9px] tracking-[0.4em] uppercase text-yokai-purple font-black">{member.id}</span>
+              </div>
+
+              <!-- Since badge -->
+              <div class="absolute top-6 left-6">
+                <span class="font-inter text-[8px] tracking-[0.3em] uppercase text-yokai-light-white/40">Since {member.since}</span>
+              </div>
+            </div>
+
+            <!-- Member info -->
+            <div class="p-8 border-t border-yokai-white/10">
+              <div class="flex items-start justify-between mb-3">
+                <h2 class="font-jakarta text-3xl font-black uppercase tracking-tight text-yokai-white">{member.name}</h2>
+              </div>
+              <p class="font-inter text-[9px] tracking-[0.4em] uppercase text-yokai-purple font-bold mb-5">{member.role}</p>
+              <p class="font-outfit text-sm text-yokai-light-white/60 leading-relaxed font-light mb-6">{member.bio}</p>
+
+              <!-- Specialties -->
+              <div class="flex flex-wrap gap-2">
+                {member.specialty.map((s) => (
+                  <span class="font-inter text-[8px] tracking-[0.3em] uppercase text-yokai-light-white/30 border border-yokai-white/10 px-3 py-1 group-hover:border-yokai-purple/30 group-hover:text-yokai-purple/60 transition-colors duration-300">{s}</span>
+                ))}
+              </div>
+            </div>
+
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── JOIN CTA ─── -->
+  <section class="w-full bg-yokai-white text-yokai-dark-blue py-32 px-6 lg:px-12">
+    <div class="max-w-[90vw] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-end">
+      <div class="lg:col-span-7">
+        <div class="flex items-center gap-4 mb-8">
+          <div class="w-10 h-[1px] bg-yokai-purple"></div>
+          <span class="font-inter text-[10px] tracking-[0.5em] uppercase text-yokai-purple font-bold">Auditions</span>
+        </div>
+        <h2 class="font-jakarta text-5xl md:text-7xl font-black uppercase tracking-tighter leading-none">
+          Think You<br/>
+          <span class="italic font-outfit font-light tracking-widest text-yokai-purple">Belong Here?</span>
+        </h2>
+      </div>
+      <div class="lg:col-span-5 lg:border-l border-yokai-dark-blue/15 lg:pl-16">
+        <p class="font-outfit text-lg text-yokai-dark-blue/70 leading-relaxed font-light mb-10">
+          YOKAI is selective — not exclusive. We are always watching for individuals who carry both the discipline and the fire. When auditions open, you will know.
+        </p>
+        <a href="/updates" class="group inline-flex items-center gap-4 font-inter text-[10px] tracking-[0.4em] uppercase text-yokai-dark-blue font-bold hover:text-yokai-purple transition-colors duration-300">
+          Follow Updates
+          <span class="w-8 h-[1px] bg-current group-hover:w-16 transition-all duration-300"></span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ─── -->
+  <footer class="w-full bg-yokai-dark-blue border-t border-yokai-white/10">
+    <div class="max-w-[90vw] mx-auto px-6 lg:px-12 py-8 flex flex-col md:flex-row justify-between items-center gap-6">
+      <div class="flex items-center gap-6">
+        <span class="font-jakarta text-lg font-black uppercase tracking-tighter text-yokai-white">YOKAI</span>
+        <span class="w-[1px] h-4 bg-yokai-white/20"></span>
+        <span class="font-inter text-[9px] tracking-[0.4em] uppercase text-yokai-light-white/40">Yogyakarta Wotagei Team</span>
+      </div>
+      <nav class="flex items-center gap-8">
+        <a href="/" class="font-inter text-[9px] tracking-[0.3em] uppercase text-yokai-light-white/40 hover:text-yokai-white transition-colors duration-300">Home</a>
+        <a href="/about" class="font-inter text-[9px] tracking-[0.3em] uppercase text-yokai-light-white/40 hover:text-yokai-white transition-colors duration-300">About</a>
+        <a href="/members" class="font-inter text-[9px] tracking-[0.3em] uppercase text-yokai-white transition-colors duration-300">Members</a>
+        <a href="/gallery" class="font-inter text-[9px] tracking-[0.3em] uppercase text-yokai-light-white/40 hover:text-yokai-white transition-colors duration-300">Gallery</a>
+        <a href="/shop" class="font-inter text-[9px] tracking-[0.3em] uppercase text-yokai-light-white/40 hover:text-yokai-white transition-colors duration-300">Shop</a>
+      </nav>
+      <p class="font-inter text-[9px] tracking-[0.3em] uppercase text-yokai-light-white/30">&copy; 2026 Yokai</p>
+    </div>
+  </footer>
+
+</BaseLayout>

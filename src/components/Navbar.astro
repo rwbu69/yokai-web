@@ -1,0 +1,205 @@
+---
+interface Props {
+  activePage?: string;
+}
+
+const { activePage = 'home' } = Astro.props;
+
+const navItems = [
+  { name: 'Home', path: '/', key: 'home' },
+  {
+    name: 'About',
+    key: 'about',
+    dropdown: [
+      { name: 'Members', path: '/members' },
+      { name: 'About Us', path: '/about' }
+    ]
+  },
+  { name: 'Updates', path: '/updates', key: 'updates' },
+  {
+    name: 'Library',
+    key: 'library',
+    dropdown: [
+      { name: 'Original', path: '/library/original' },
+      { name: 'Wotagei', path: '/library/wotagei' }
+    ]
+  },
+  {
+    name: 'Gallery',
+    key: 'gallery',
+    dropdown: [
+      { name: 'Photos', path: '/gallery/photos' },
+      { name: 'Videos', path: '/gallery/videos' }
+    ]
+  },
+  {
+    name: 'Shop',
+    key: 'shop',
+    dropdown: [
+      { name: 'Cheki', path: '/shop/cheki' },
+      { name: 'Merch', path: '/shop/merch' }
+    ]
+  }
+];
+---
+
+<header id="editorial-nav" class="fixed top-0 left-0 w-full z-50 transition-all duration-700 ease-in-out py-6 bg-gradient-to-b from-yokai-dark-blue/60 to-transparent">
+  <div class="max-w-[90%] mx-auto flex justify-between items-center">
+    
+    <!-- Logo -->
+    <a href="/" class="z-50 group flex items-center gap-3">
+      <img
+        src="/icon-navbar.svg"
+        alt="Yokai"
+        class="h-16 w-16 object-contain drop-shadow-sm group-hover:opacity-70 transition-opacity duration-300 brightness-200"
+      />
+      <span class="flex flex-col">
+        <span class="text-xl font-black font-jakarta text-yokai-white tracking-[0.15em] uppercase leading-none group-hover:opacity-70 transition-opacity duration-300">
+          YOKAI
+        </span>
+        <span class="text-[8px] font-inter text-yokai-light-white tracking-[0.3em] uppercase opacity-70">
+          Yogyakarta Wotagei Team
+        </span>
+      </span>
+    </a>
+
+    <!-- Desktop Nav -->
+    <nav class="hidden lg:flex items-center gap-10">
+      {navItems.map((item, idx) => {
+        const isActive = activePage === item.key;
+        const isRightAligned = idx > 3;
+        
+        if (item.dropdown) {
+          return (
+            <div class="relative group py-4">
+              <button class={`flex items-center gap-2 text-[11px] font-semibold tracking-[0.2em] uppercase transition-colors duration-300 drop-shadow-md ${isActive ? 'text-yokai-white' : 'text-yokai-light-white/80 hover:text-yokai-white'}`}>
+                {item.name}
+                {isActive && <span class="w-[3px] h-[3px] bg-yokai-purple inline-block rounded-full"></span>}
+                <!-- Chevron icon -->
+                <svg class="w-2.5 h-2.5 opacity-40 group-hover:opacity-100 group-hover:rotate-180 transition-all duration-300" fill="none" viewBox="0 0 10 6" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M1 1l4 4 4-4"/>
+                </svg>
+              </button>
+
+              <!-- Sharp Editorial Dropdown -->
+              <div class={`absolute ${isRightAligned ? 'right-0' : 'left-0'} top-full pt-3 opacity-0 invisible -translate-y-2 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-400 ease-[cubic-bezier(0.19,1,0.22,1)] z-40`}>
+                <div class="relative min-w-[200px]">
+                  <!-- Top accent line -->
+                  <div class="w-full h-[1px] bg-gradient-to-r from-yokai-purple to-transparent mb-0"></div>
+                  <!-- Panel -->
+                  <div class="bg-yokai-dark-blue/95 backdrop-blur-sm border border-yokai-white/8 border-t-0 p-0 flex flex-col">
+                    {item.dropdown.map((subItem, subIdx) => (
+                      <a href={subItem.path} class="group/sub relative flex items-center justify-between px-5 py-4 border-b border-yokai-white/5 last:border-b-0 hover:bg-yokai-purple/10 transition-colors duration-200">
+                        <span class="font-inter text-[10px] font-bold tracking-[0.3em] uppercase text-yokai-light-white/60 group-hover/sub:text-yokai-white transition-colors duration-200">
+                          {subItem.name}
+                        </span>
+                        <span class="font-inter text-[8px] text-yokai-purple/50 group-hover/sub:text-yokai-purple transition-colors duration-200 ml-6">
+                          0{subIdx + 1}
+                        </span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        return (
+          <a href={item.path} class="relative py-4 group/link flex items-center gap-2 drop-shadow-md">
+            <span class={`text-[11px] font-semibold tracking-[0.2em] uppercase transition-colors duration-300 ${isActive ? 'text-yokai-white' : 'text-yokai-light-white/80 group-hover/link:text-yokai-white'}`}>
+              {item.name}
+            </span>
+            {isActive && <span class="w-[3px] h-[3px] bg-yokai-purple inline-block rounded-full"></span>}
+          </a>
+        );
+      })}
+    </nav>
+
+    <!-- Mobile Hamburger -->
+    <button id="nav-trigger" class="lg:hidden flex flex-col gap-2 z-50 p-2 cursor-pointer drop-shadow-md">
+      <span class="w-8 h-[1px] bg-yokai-white transition-transform duration-500 origin-right line-1"></span>
+      <span class="w-8 h-[1px] bg-yokai-white transition-transform duration-500 origin-right line-2"></span>
+    </button>
+  </div>
+
+  <!-- Mobile Overlay -->
+  <div id="mobile-overlay" class="fixed inset-0 bg-yokai-dark-blue/95 backdrop-blur-lg z-40 flex flex-col justify-center items-center opacity-0 pointer-events-none transition-opacity duration-700">
+    <nav class="flex flex-col items-center gap-8 text-center w-full max-w-sm px-6">
+      {navItems.map((item) => {
+        const isActive = activePage === item.key;
+        if (item.dropdown) {
+          return (
+            <div class="w-full flex flex-col items-center gap-4">
+              <span class={`text-sm font-bold tracking-[0.3em] uppercase ${isActive ? 'text-yokai-purple' : 'text-yokai-light-white/50'}`}>
+                {item.name}
+              </span>
+              <div class="flex flex-col gap-3">
+                {item.dropdown.map((subItem) => (
+                  <a href={subItem.path} class="text-[11px] font-medium tracking-[0.2em] uppercase text-yokai-white hover:text-yokai-purple transition-colors duration-300">
+                    {subItem.name}
+                  </a>
+                ))}
+              </div>
+            </div>
+          );
+        }
+        return (
+          <a href={item.path} class={`text-sm font-bold tracking-[0.3em] uppercase transition-colors duration-300 ${isActive ? 'text-yokai-purple' : 'text-yokai-white'}`}>
+            {item.name}
+          </a>
+        );
+      })}
+    </nav>
+  </div>
+</header>
+
+<script>
+  // Scroll Logic
+  const header = document.getElementById('editorial-nav');
+  let isScrolled = false;
+  
+  window.addEventListener('scroll', () => {
+    const shouldBeScrolled = window.scrollY > 80;
+    
+    if (shouldBeScrolled !== isScrolled) {
+      isScrolled = shouldBeScrolled;
+      if (isScrolled) {
+        // Scrolled state: subtle blur, semi-transparent background, smaller padding
+        header?.classList.remove('bg-gradient-to-b', 'from-yokai-dark-blue/60', 'to-transparent', 'py-6');
+        header?.classList.add('bg-yokai-dark-blue/70', 'backdrop-blur-[10px]', 'py-4', 'border-b-[1px]', 'border-yokai-white/10');
+      } else {
+        // Top state: subtle color hint gradient
+        header?.classList.add('bg-gradient-to-b', 'from-yokai-dark-blue/60', 'to-transparent', 'py-6');
+        header?.classList.remove('bg-yokai-dark-blue/70', 'backdrop-blur-[10px]', 'py-4', 'border-b-[1px]', 'border-yokai-white/10');
+      }
+    }
+  });
+
+  // Mobile Menu Logic
+  const trigger = document.getElementById('nav-trigger');
+  const overlay = document.getElementById('mobile-overlay');
+  const line1 = document.querySelector('.line-1');
+  const line2 = document.querySelector('.line-2');
+  let isMenuOpen = false;
+
+  trigger?.addEventListener('click', () => {
+    isMenuOpen = !isMenuOpen;
+    if (isMenuOpen) {
+      overlay?.classList.remove('opacity-0', 'pointer-events-none');
+      overlay?.classList.add('opacity-100', 'pointer-events-auto');
+      document.body.style.overflow = 'hidden';
+      
+      // Animate to simple X (thin lines crossing)
+      line1?.classList.add('-rotate-45', '-translate-x-1');
+      line2?.classList.add('rotate-45', '-translate-x-1');
+    } else {
+      overlay?.classList.add('opacity-0', 'pointer-events-none');
+      overlay?.classList.remove('opacity-100', 'pointer-events-auto');
+      document.body.style.overflow = '';
+      
+      line1?.classList.remove('-rotate-45', '-translate-x-1');
+      line2?.classList.remove('rotate-45', '-translate-x-1');
+    }
+  });
+</script>

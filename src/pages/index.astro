@@ -1,83 +1,424 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+// Import local assets from hero-images folder
+import hero1 from '../assets/hero-images/1.jpg';
+import hero2 from '../assets/hero-images/2.jpg';
+import hero3 from '../assets/hero-images/3.jpg';
+import hero4 from '../assets/hero-images/4.jpg';
+import hero5 from '../assets/hero-images/5.jpg';
+import hero6 from '../assets/hero-images/6.jpg';
+import hero7 from '../assets/hero-images/7.jpg';
+import hero8 from '../assets/hero-images/8.jpg';
+import hero9 from '../assets/hero-images/9.jpg';
+import hero10 from '../assets/hero-images/10.jpg';
+import hero11 from '../assets/hero-images/11.jpg';
+import hero12 from '../assets/hero-images/12.jpg';
+
+// Set A, B, and C for the Hero dynamic panel tracks (4 images per set, totaling 12)
+const imagesA = [
+  hero1.src,
+  hero2.src,
+  hero3.src,
+  hero4.src
+];
+
+const imagesB = [
+  hero5.src,
+  hero6.src,
+  hero7.src,
+  hero8.src
+];
+
+const imagesC = [
+  hero9.src,
+  hero10.src,
+  hero11.src,
+  hero12.src
+];
+
+// Carousel images for "Who Are We?" section (All 12 images looping!)
+const carouselImages = [
+  ...imagesA,
+  ...imagesB,
+  ...imagesC
+];
 ---
 
-<Layout title="Yokai Web - Astro & Sanity">
-	<main>
-		<div class="hero">
-			<h1>Yokai <span class="text-gradient">Web</span></h1>
-			<p class="tagline">Built with Astro & Sanity</p>
-			<div class="actions">
-				<a href="/admin" class="btn primary">Go to Sanity Studio</a>
-				<a href="https://docs.astro.build" class="btn secondary">Astro Docs</a>
-			</div>
-		</div>
-	</main>
-</Layout>
+<BaseLayout title="Yokai | Performance Art" activePage="home">
+  <!-- TAHAP 2: HERO SECTION -->
+  <section class="relative w-full h-screen overflow-hidden bg-yokai-dark-blue flex">
+    
+    <!-- Panel 1 (Up) -->
+    <div class="relative w-1/4 h-full overflow-hidden border-r-[1px] border-yokai-white/10 group">
+      <div class="panel-track-1 absolute w-full h-[300%] top-0 left-0 flex flex-col">
+        <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all duration-700" style={`background-image: url('${imagesA[0]}')`}></div>
+        <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all duration-700" style={`background-image: url('${imagesB[0]}')`}></div>
+        <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all duration-700" style={`background-image: url('${imagesC[0]}')`}></div>
+      </div>
+    </div>
 
-<style>
-	main {
-		margin: auto;
-		padding: 1rem;
-		width: 800px;
-		max-width: calc(100% - 2rem);
-		color: white;
-		font-size: 20px;
-		line-height: 1.6;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		min-height: 100vh;
-	}
-	.hero {
-		text-align: center;
-	}
-	h1 {
-		font-size: 4rem;
-		font-weight: 800;
-		line-height: 1;
-		margin-bottom: 0.5em;
-	}
-	.text-gradient {
-		background-image: var(--accent-gradient);
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-		background-size: 400%;
-		background-position: 0%;
-	}
-	.tagline {
-		font-size: 1.5rem;
-		color: #94a3b8;
-		margin-bottom: 2rem;
-	}
-	.actions {
-		display: flex;
-		gap: 1rem;
-		justify-content: center;
-	}
-	.btn {
-		padding: 0.8rem 1.5rem;
-		border-radius: 8px;
-		font-weight: 600;
-		text-decoration: none;
-		transition: all 0.2s;
-	}
-	.btn.primary {
-		background: white;
-		color: black;
-	}
-	.btn.primary:hover {
-		background: #e2e8f0;
-		transform: translateY(-2px);
-	}
-	.btn.secondary {
-		background: rgba(255, 255, 255, 0.1);
-		color: white;
-		border: 1px solid rgba(255, 255, 255, 0.2);
-	}
-	.btn.secondary:hover {
-		background: rgba(255, 255, 255, 0.2);
-		transform: translateY(-2px);
-	}
-</style>
+    <!-- Panel 2 (Down) -->
+    <div class="relative w-1/4 h-full overflow-hidden border-r-[1px] border-yokai-white/10 group">
+      <div class="panel-track-2 absolute w-full h-[300%] bottom-0 left-0 flex flex-col-reverse">
+        <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all duration-700" style={`background-image: url('${imagesA[1]}')`}></div>
+        <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all duration-700" style={`background-image: url('${imagesB[1]}')`}></div>
+        <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all duration-700" style={`background-image: url('${imagesC[1]}')`}></div>
+      </div>
+    </div>
 
+    <!-- Panel 3 (Up) -->
+    <div class="relative w-1/4 h-full overflow-hidden border-r-[1px] border-yokai-white/10 group">
+      <div class="panel-track-3 absolute w-full h-[300%] top-0 left-0 flex flex-col">
+        <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all duration-700" style={`background-image: url('${imagesA[2]}')`}></div>
+        <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all duration-700" style={`background-image: url('${imagesB[2]}')`}></div>
+        <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all duration-700" style={`background-image: url('${imagesC[2]}')`}></div>
+      </div>
+    </div>
+
+    <!-- Panel 4 (Down) -->
+    <div class="relative w-1/4 h-full overflow-hidden group">
+      <div class="panel-track-4 absolute w-full h-[300%] bottom-0 left-0 flex flex-col-reverse">
+        <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all duration-700" style={`background-image: url('${imagesA[3]}')`}></div>
+        <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all duration-700" style={`background-image: url('${imagesB[3]}')`}></div>
+        <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all duration-700" style={`background-image: url('${imagesC[3]}')`}></div>
+      </div>
+    </div>
+
+    <!-- Subtle Color Overlay for Cinematic Grading -->
+    <div class="absolute inset-0 bg-gradient-to-br from-yokai-dark-purple/40 to-yokai-dark-blue/40 mix-blend-multiply pointer-events-none z-[5]"></div>
+
+    <!-- Asymmetrical Typography Overlay -->
+    <div class="absolute inset-0 pointer-events-none flex flex-col justify-center items-center z-10 px-8">
+      <h1 class="text-[12vw] leading-[0.8] font-black font-jakarta text-yokai-white tracking-tighter uppercase text-center [text-shadow:0_4px_24px_rgba(42,30,82,0.8)] mix-blend-overlay opacity-90">
+        YOKAI<br/>
+        <span class="text-yokai-purple italic font-outfit tracking-[0.2em]">WOTAGEI</span>
+      </h1>
+      <p class="absolute bottom-16 right-12 text-xs font-inter font-bold tracking-[0.4em] uppercase text-yokai-white/80 [text-shadow:0_1px_4px_rgba(0,0,0,0.8)]">
+        Yogyakarta Wotagei Team
+      </p>
+    </div>
+
+  </section>
+
+  <!-- TAHAP 2.5: MOTTO / QUOTES SECTION -->
+  <section class="w-full bg-yokai-white text-yokai-dark-blue py-40 px-6 lg:px-24 flex items-center justify-center relative overflow-hidden">
+    <div class="max-w-6xl w-full relative z-10">
+      <h2 class="text-5xl md:text-7xl lg:text-8xl font-black font-jakarta uppercase tracking-tighter leading-[0.9] max-w-4xl">
+        WE DO NOT JUST <span class="bg-yokai-purple text-yokai-white px-2 py-1 inline-block -rotate-2 transform translate-y-1 shadow-lg">PERFORM.</span><br/>
+        <span class="text-yokai-purple">WE INOVATE.</span>
+      </h2>
+      <div class="mt-16 flex flex-col md:flex-row gap-8 justify-between items-start md:items-end border-t-2 border-yokai-dark-blue/20 pt-8">
+        <p class="font-outfit font-bold text-lg md:text-xl uppercase tracking-widest max-w-lg text-yokai-dark-blue/80">
+          Bridging the raw energy of Wotagei with premium contemporary artistry.
+        </p>
+        <span class="font-inter text-xs tracking-[0.3em] font-bold uppercase text-yokai-purple border-2 border-yokai-purple px-4 py-2">
+          The Yokai Manifesto
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAHAP 3: WHO ARE WE (Carousel Background) -->
+  <section class="w-full bg-yokai-dark-blue py-40 relative overflow-hidden flex flex-col items-center justify-center min-h-screen">
+    
+    <!-- Mosaic Marquee Background: 3 rows, alternating direction -->
+    <div class="absolute inset-0 z-0 pointer-events-none opacity-35 flex flex-col gap-1 justify-center">
+
+      <!-- Row 1: imagesA → slides LEFT (slow) -->
+      <div class="overflow-hidden h-1/3 flex-shrink-0">
+        <div class="flex w-max animate-slide-left h-full gap-1">
+          <!-- Set A -->
+          {imagesA.map((src) => (
+            <img src={src} alt="Yokai" class="h-full w-[240px] flex-shrink-0 object-cover grayscale" />
+          ))}
+          {imagesA.map((src) => (
+            <img src={src} alt="Yokai" class="h-full w-[240px] flex-shrink-0 object-cover grayscale" />
+          ))}
+          {imagesA.map((src) => (
+            <img src={src} alt="Yokai" class="h-full w-[240px] flex-shrink-0 object-cover grayscale" />
+          ))}
+          {imagesA.map((src) => (
+            <img src={src} alt="Yokai" class="h-full w-[240px] flex-shrink-0 object-cover grayscale" />
+          ))}
+          {imagesA.map((src) => (
+            <img src={src} alt="Yokai" class="h-full w-[240px] flex-shrink-0 object-cover grayscale" />
+          ))}
+          {imagesA.map((src) => (
+            <img src={src} alt="Yokai" class="h-full w-[240px] flex-shrink-0 object-cover grayscale" />
+          ))}
+        </div>
+      </div>
+
+      <!-- Row 2: imagesB → slides RIGHT (medium) -->
+      <div class="overflow-hidden h-1/3 flex-shrink-0">
+        <div class="flex w-max animate-slide-right h-full gap-1">
+          {imagesB.map((src) => (
+            <img src={src} alt="Yokai" class="h-full w-[240px] flex-shrink-0 object-cover grayscale" />
+          ))}
+          {imagesB.map((src) => (
+            <img src={src} alt="Yokai" class="h-full w-[240px] flex-shrink-0 object-cover grayscale" />
+          ))}
+          {imagesB.map((src) => (
+            <img src={src} alt="Yokai" class="h-full w-[240px] flex-shrink-0 object-cover grayscale" />
+          ))}
+          {imagesB.map((src) => (
+            <img src={src} alt="Yokai" class="h-full w-[240px] flex-shrink-0 object-cover grayscale" />
+          ))}
+          {imagesB.map((src) => (
+            <img src={src} alt="Yokai" class="h-full w-[240px] flex-shrink-0 object-cover grayscale" />
+          ))}
+          {imagesB.map((src) => (
+            <img src={src} alt="Yokai" class="h-full w-[240px] flex-shrink-0 object-cover grayscale" />
+          ))}
+        </div>
+      </div>
+
+      <!-- Row 3: imagesC → slides LEFT (fast) -->
+      <div class="overflow-hidden h-1/3 flex-shrink-0">
+        <div class="flex w-max animate-slide-left-fast h-full gap-1">
+          {imagesC.map((src) => (
+            <img src={src} alt="Yokai" class="h-full w-[240px] flex-shrink-0 object-cover grayscale" />
+          ))}
+          {imagesC.map((src) => (
+            <img src={src} alt="Yokai" class="h-full w-[240px] flex-shrink-0 object-cover grayscale" />
+          ))}
+          {imagesC.map((src) => (
+            <img src={src} alt="Yokai" class="h-full w-[240px] flex-shrink-0 object-cover grayscale" />
+          ))}
+          {imagesC.map((src) => (
+            <img src={src} alt="Yokai" class="h-full w-[240px] flex-shrink-0 object-cover grayscale" />
+          ))}
+          {imagesC.map((src) => (
+            <img src={src} alt="Yokai" class="h-full w-[240px] flex-shrink-0 object-cover grayscale" />
+          ))}
+          {imagesC.map((src) => (
+            <img src={src} alt="Yokai" class="h-full w-[240px] flex-shrink-0 object-cover grayscale" />
+          ))}
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Gradient Overlay for Cinematic Readability -->
+    <div class="absolute inset-0 z-0 bg-gradient-to-t from-yokai-dark-blue via-yokai-dark-blue/60 to-transparent pointer-events-none"></div>
+    <div class="absolute inset-0 z-0 bg-yokai-dark-blue/20 pointer-events-none mix-blend-multiply"></div>
+
+    <!-- Overlapping Editorial Content Container -->
+    <div class="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-end mt-auto mb-auto py-20">
+      <!-- Sisi Kiri (Col Span 7) -->
+      <div class="lg:col-span-7 flex flex-col justify-end items-start text-left pointer-events-none w-full">
+        <div class="flex items-center gap-4 mb-8">
+          <div class="w-12 h-[2px] bg-yokai-purple"></div>
+          <span class="font-inter text-xs md:text-sm font-bold tracking-[0.5em] uppercase text-yokai-purple">
+            The Origin
+          </span>
+        </div>
+        <span class="font-outfit text-3xl md:text-4xl lg:text-4xl xl:text-5xl font-light uppercase tracking-widest text-yokai-white leading-none mb-2 drop-shadow-2xl">
+          BORN IN THE
+        </span>
+        <span class="font-jakarta text-4xl md:text-5xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-black uppercase tracking-tighter text-white leading-none mb-6 drop-shadow-2xl break-words max-w-full">
+          UNDERGROUND.
+        </span>
+        <span class="font-inter text-base md:text-lg lg:text-xl italic font-light tracking-[0.3em] xl:tracking-[0.4em] uppercase text-yokai-light-white drop-shadow-lg leading-tight">
+          REFINED FOR THE STAGE.
+        </span>
+      </div>
+      
+      <!-- Sisi Kanan (Col Span 5) -->
+      <div class="lg:col-span-5 flex flex-col justify-end items-start text-left lg:border-l-[1px] border-yokai-white/20 lg:pl-16 pt-10 lg:pt-0 pointer-events-auto w-full">
+        <!-- Deskripsi -->
+        <p class="font-outfit text-lg md:text-xl lg:text-2xl text-yokai-light-white/80 leading-relaxed font-light tracking-wide drop-shadow-md mb-12">
+          <strong class="font-bold text-yokai-white tracking-widest uppercase">Yokai</strong> is a collective of performance artists transcending the boundaries of traditional idol culture. We don't just dance; we orchestrate light, sound, and raw human emotion. 
+        </p>
+        
+        <!-- Button Discover Our Origin -->
+        <div class="w-full flex justify-start lg:justify-end">
+          <a href="/about" class="group relative inline-flex items-center gap-4 text-xs md:text-sm font-inter font-bold tracking-[0.3em] uppercase text-yokai-white hover:text-yokai-purple transition-colors duration-300">
+            <span>Discover Our Origin</span>
+            <span class="w-8 h-[1px] bg-yokai-white group-hover:bg-yokai-purple group-hover:w-16 transition-all duration-300"></span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAHAP 4: PROJECTS -->
+  <section class="w-full bg-yokai-white text-yokai-dark-blue py-32 px-6 lg:px-12">
+    <div class="max-w-[90vw] mx-auto">
+      <div class="flex flex-col md:flex-row justify-between items-end border-b-2 border-yokai-dark-blue pb-6 mb-16">
+        <h3 class="text-5xl lg:text-7xl font-black font-jakarta uppercase tracking-tighter">Projects</h3>
+        <a href="/library/original" class="text-xs font-inter font-bold tracking-[0.3em] uppercase text-yokai-purple hover:text-yokai-dark-blue transition-colors duration-300">View Full Archive</a>
+      </div>
+      
+      <!-- Asymmetrical Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16">
+        <!-- Main Project -->
+        <div class="lg:col-span-8 group cursor-pointer">
+          <div class="w-full aspect-video overflow-hidden bg-yokai-dark-blue/10 mb-6">
+            <iframe class="w-full h-full opacity-90 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" src="https://www.youtube.com/embed/dQw4w9WgXcQ?controls=0&mute=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          </div>
+          <div class="flex justify-between items-start">
+            <h4 class="text-3xl font-black font-jakarta uppercase tracking-tight max-w-xl">The Awakening: Original Waza Showcase</h4>
+            <span class="text-[10px] font-inter font-bold tracking-[0.2em] uppercase text-yokai-dark-blue/60 mt-2">2026.10.14</span>
+          </div>
+        </div>
+        
+        <!-- Side Projects Stack -->
+        <div class="lg:col-span-4 flex flex-col gap-16 justify-center">
+          <!-- Sub Project 1 -->
+          <div class="group cursor-pointer">
+            <div class="w-full aspect-video overflow-hidden bg-yokai-dark-blue/10 mb-4">
+              <iframe class="w-full h-full opacity-90 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" src="https://www.youtube.com/embed/dQw4w9WgXcQ?controls=0&mute=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+            <h4 class="text-xl font-bold font-outfit uppercase tracking-wider">Concept Film #01</h4>
+            <span class="text-[9px] font-inter font-semibold tracking-[0.2em] uppercase text-yokai-dark-blue/60 block mt-1">2026.08.22</span>
+          </div>
+          
+          <!-- Sub Project 2 -->
+          <div class="group cursor-pointer">
+            <div class="w-full aspect-video overflow-hidden bg-yokai-dark-blue/10 mb-4">
+              <iframe class="w-full h-full opacity-90 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" src="https://www.youtube.com/embed/dQw4w9WgXcQ?controls=0&mute=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+            <h4 class="text-xl font-bold font-outfit uppercase tracking-wider">Behind The Scenes</h4>
+            <span class="text-[9px] font-inter font-semibold tracking-[0.2em] uppercase text-yokai-dark-blue/60 block mt-1">2026.07.05</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAHAP 4: LIVE PERFORMANCES -->
+  <section class="w-full bg-yokai-dark-blue py-32 px-6 lg:px-12 relative">
+    <div class="max-w-[90vw] mx-auto">
+      <h3 class="text-4xl lg:text-6xl font-black font-jakarta uppercase tracking-tighter text-yokai-white mb-20 text-center">
+        <span class="text-yokai-white font-black font-jakarta">Live</span> <span class="text-yokai-purple italic font-outfit font-light tracking-widest">Performances</span>
+      </h3>
+      
+      <!-- Masonry Hierarchy -->
+      <div class="flex flex-col gap-24">
+        
+        <!-- Featured Performance (Dominates Screen) -->
+        <div class="w-full flex flex-col items-center group cursor-pointer relative">
+          <div class="w-full max-w-5xl aspect-video overflow-hidden z-10 relative">
+            <iframe class="w-full h-full grayscale group-hover:grayscale-0 transition-all duration-700 pointer-events-none" src="https://www.youtube.com/embed/dQw4w9WgXcQ?controls=0&mute=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          </div>
+          <!-- Editorial Caption -->
+          <div class="mt-8 text-center z-20">
+            <h4 class="text-4xl md:text-5xl font-black font-jakarta uppercase tracking-tighter text-yokai-white mb-4">Zepp Jakarta: The First Ritual</h4>
+            <p class="font-inter text-xs tracking-[0.4em] uppercase text-yokai-purple font-bold">Main Stage &bull; 2026.12.31</p>
+          </div>
+        </div>
+
+        <!-- Secondary Performances Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20 max-w-6xl mx-auto mt-12 border-t-[1px] border-yokai-white/10 pt-24">
+          <!-- Perf 1 -->
+          <div class="group cursor-pointer">
+            <div class="w-full aspect-video overflow-hidden mb-6 relative">
+              <iframe class="w-full h-full opacity-80 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" src="https://www.youtube.com/embed/dQw4w9WgXcQ?controls=0&mute=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+              <div class="absolute inset-0 bg-yokai-purple mix-blend-multiply opacity-20 group-hover:opacity-0 transition-opacity duration-300 pointer-events-none"></div>
+            </div>
+            <h4 class="text-2xl font-bold font-jakarta uppercase tracking-tight text-yokai-white mb-2">Underground Fes vol.4</h4>
+            <p class="font-inter text-[10px] tracking-[0.2em] uppercase text-yokai-light-white/50 font-semibold">Shibuya, Tokyo &bull; 2026.09.15</p>
+          </div>
+          <!-- Perf 2 -->
+          <div class="group cursor-pointer">
+            <div class="w-full aspect-video overflow-hidden mb-6 relative">
+              <iframe class="w-full h-full opacity-80 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" src="https://www.youtube.com/embed/dQw4w9WgXcQ?controls=0&mute=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+              <div class="absolute inset-0 bg-yokai-purple mix-blend-multiply opacity-20 group-hover:opacity-0 transition-opacity duration-300 pointer-events-none"></div>
+            </div>
+            <h4 class="text-2xl font-bold font-jakarta uppercase tracking-tight text-yokai-white mb-2">Anisong Matsuri</h4>
+            <p class="font-inter text-[10px] tracking-[0.2em] uppercase text-yokai-light-white/50 font-semibold">JIExpo Kemayoran &bull; 2026.05.20</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="w-full bg-yokai-dark-blue border-t border-yokai-white/10">
+    <div class="max-w-[90vw] mx-auto px-6 lg:px-12 py-8 flex flex-col md:flex-row justify-between items-center gap-6">
+      <!-- Left: Brand -->
+      <div class="flex items-center gap-6">
+        <span class="font-jakarta text-lg font-black uppercase tracking-tighter text-yokai-white">YOKAI</span>
+        <span class="w-[1px] h-4 bg-yokai-white/20"></span>
+        <span class="font-inter text-[9px] tracking-[0.4em] uppercase text-yokai-light-white/40">Yogyakarta Wotagei Team</span>
+      </div>
+      <!-- Center: Nav -->
+      <nav class="flex items-center gap-8">
+        <a href="/" class="font-inter text-[9px] tracking-[0.3em] uppercase text-yokai-light-white/40 hover:text-yokai-white transition-colors duration-300">Home</a>
+        <a href="/about" class="font-inter text-[9px] tracking-[0.3em] uppercase text-yokai-light-white/40 hover:text-yokai-white transition-colors duration-300">About</a>
+        <a href="/library" class="font-inter text-[9px] tracking-[0.3em] uppercase text-yokai-light-white/40 hover:text-yokai-white transition-colors duration-300">Library</a>
+        <a href="/gallery" class="font-inter text-[9px] tracking-[0.3em] uppercase text-yokai-light-white/40 hover:text-yokai-white transition-colors duration-300">Gallery</a>
+        <a href="/shop" class="font-inter text-[9px] tracking-[0.3em] uppercase text-yokai-light-white/40 hover:text-yokai-white transition-colors duration-300">Shop</a>
+      </nav>
+      <!-- Right: Copyright -->
+      <p class="font-inter text-[9px] tracking-[0.3em] uppercase text-yokai-light-white/30">&copy; 2026 Yokai</p>
+    </div>
+  </footer></BaseLayout>
+
+<script>
+  import anime from 'animejs/lib/anime.es.js';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // We have 4 tracks. 
+    // Track 1 & 3: height 300%, top 0. Slide up means translateY(0) -> translateY(-33.333%) -> translateY(-66.666%)
+    // Track 2 & 4: height 300%, bottom 0. Slide down means translateY(0) -> translateY(33.333%) -> translateY(66.666%)
+
+    let state = 0; // 0 = Set A, 1 = Set B, 2 = Set C
+
+    const getTranslateUp = (st: number) => {
+      if (st === 0) return '0%';
+      if (st === 1) return '-33.333%';
+      return '-66.666%';
+    };
+
+    const getTranslateDown = (st: number) => {
+      if (st === 0) return '0%';
+      if (st === 1) return '33.333%';
+      return '66.666%';
+    };
+
+    setInterval(() => {
+      state = (state + 1) % 3;
+
+      // Track 1 (Up)
+      anime({
+        targets: '.panel-track-1',
+        translateY: getTranslateUp(state),
+        duration: 1800,
+        easing: 'easeInOutExpo',
+        delay: 0
+      });
+
+      // Track 2 (Down)
+      anime({
+        targets: '.panel-track-2',
+        translateY: getTranslateDown(state),
+        duration: 1800,
+        easing: 'easeInOutExpo',
+        delay: 150 // Stagger
+      });
+
+      // Track 3 (Up)
+      anime({
+        targets: '.panel-track-3',
+        translateY: getTranslateUp(state),
+        duration: 1800,
+        easing: 'easeInOutExpo',
+        delay: 300 // Stagger
+      });
+
+      // Track 4 (Down)
+      anime({
+        targets: '.panel-track-4',
+        translateY: getTranslateDown(state),
+        duration: 1800,
+        easing: 'easeInOutExpo',
+        delay: 450 // Stagger
+      });
+
+    }, 5000); // Swap every 5 seconds
+  });
+</script>
