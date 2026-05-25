@@ -4,7 +4,7 @@
  *
  * Props are passed from about.astro which fetches them from Sanity.
  */
-import bgImageFallback from '../../assets/about-us/hero-image.webp';
+import bgImageFallback from "../../assets/about-us/hero-image.webp";
 
 interface Props {
   label: string;
@@ -39,9 +39,15 @@ const { label, line1, line2, sub, footerText, bgImage } = Astro.props;
     YOKAI
   </span>
 
-  <div class="about-hero-label relative z-10 flex items-center gap-4" style="opacity: 0; transform: translateY(10px);">
+  <div
+    class="about-hero-label relative z-10 flex items-center gap-4"
+    style="opacity: 0; transform: translateY(10px);"
+  >
     <div class="w-8 h-[1px] bg-yokai-purple"></div>
-    <span class="font-inter text-[9px] tracking-[0.55em] uppercase text-yokai-purple">{label}</span>
+    <span
+      class="font-inter text-[9px] tracking-[0.55em] uppercase text-yokai-purple"
+      >{label}</span
+    >
   </div>
 
   <div class="relative z-10 mt-auto pt-12">
@@ -72,8 +78,13 @@ const { label, line1, line2, sub, footerText, bgImage } = Astro.props;
     </div>
   </div>
 
-  <div class="about-hero-footer relative z-10 flex items-center justify-between mt-12" style="opacity: 0;">
-    <span class="font-inter text-[8px] tracking-[0.5em] uppercase text-white/25">
+  <div
+    class="about-hero-footer relative z-10 flex items-center justify-between mt-12"
+    style="opacity: 0;"
+  >
+    <span
+      class="font-inter text-[8px] tracking-[0.5em] uppercase text-white/25"
+    >
       {footerText}
     </span>
     <a
@@ -82,40 +93,55 @@ const { label, line1, line2, sub, footerText, bgImage } = Astro.props;
       style="transition: color 0.3s cubic-bezier(0.4,0,0.2,1);"
     >
       Scroll
-      <span class="w-6 h-[1px] bg-current" style="transition: width 0.4s cubic-bezier(0.4,0,0.2,1);"></span>
+      <span
+        class="w-6 h-[1px] bg-current"
+        style="transition: width 0.4s cubic-bezier(0.4,0,0.2,1);"></span>
     </a>
   </div>
 </section>
 
 <script>
-  import anime from 'animejs/lib/anime.es.js';
+  import anime from "animejs/lib/anime.es.js";
 
-  anime.timeline({ easing: 'easeOutQuart' })
+  anime
+    .timeline({ easing: "easeOutQuart" })
     .add({
-      targets: '.about-hero-label',
+      targets: ".about-hero-label",
       opacity: [0, 1],
       translateY: [10, 0],
       duration: 600,
     })
-    .add({
-      targets: '.about-hero-line-1',
-      translateY: ['105%', '0%'],
-      duration: 750,
-    }, '-=300')
-    .add({
-      targets: '.about-hero-line-2',
-      translateY: ['105%', '0%'],
-      duration: 750,
-    }, '-=580')
-    .add({
-      targets: '.about-hero-sub',
-      opacity: [0, 1],
-      translateY: [10, 0],
-      duration: 600,
-    }, '-=400')
-    .add({
-      targets: '.about-hero-footer',
-      opacity: [0, 1],
-      duration: 500,
-    }, '-=300');
+    .add(
+      {
+        targets: ".about-hero-line-1",
+        translateY: ["105%", "0%"],
+        duration: 750,
+      },
+      "-=300",
+    )
+    .add(
+      {
+        targets: ".about-hero-line-2",
+        translateY: ["105%", "0%"],
+        duration: 750,
+      },
+      "-=580",
+    )
+    .add(
+      {
+        targets: ".about-hero-sub",
+        opacity: [0, 1],
+        translateY: [10, 0],
+        duration: 600,
+      },
+      "-=400",
+    )
+    .add(
+      {
+        targets: ".about-hero-footer",
+        opacity: [0, 1],
+        duration: 500,
+      },
+      "-=300",
+    );
 </script>
