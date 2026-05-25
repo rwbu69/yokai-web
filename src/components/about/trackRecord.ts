@@ -28,14 +28,14 @@
 // Gambar diimport dari src/assets/hero-images/ menggunakan Vite/Astro.
 // Gunakan `.src` untuk mendapatkan URL string yang diproses.
 
-import img1 from '../../assets/hero-images/1.jpg';
-import img2 from '../../assets/hero-images/2.jpg';
-import img3 from '../../assets/hero-images/3.jpg';
-import img4 from '../../assets/hero-images/4.jpg';
-import img5 from '../../assets/hero-images/5.jpg';
-import img6 from '../../assets/hero-images/6.jpg';
-import img7 from '../../assets/hero-images/7.jpg';
-import img8 from '../../assets/hero-images/8.jpg';
+import img1 from '../../assets/hero-images/1.webp';
+import img2 from '../../assets/hero-images/2.webp';
+import img3 from '../../assets/hero-images/3.webp';
+import img4 from '../../assets/hero-images/4.webp';
+import img5 from '../../assets/hero-images/5.webp';
+import img6 from '../../assets/hero-images/6.webp';
+import img7 from '../../assets/hero-images/7.webp';
+import img8 from '../../assets/hero-images/8.webp';
 
 // ── Public interface ──────────────────────────────────────────────────────────
 export interface TrackRecord {

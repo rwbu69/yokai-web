@@ -1,39 +1,50 @@
 ---
-import { getCollection, type CollectionEntry, render } from 'astro:content';
 import BaseLayout from '@layouts/BaseLayout.astro';
 import PostHeader from '@components/blog/PostHeader.astro';
 import PostLayout from '@components/blog/PostLayout.astro';
 import { meta } from '@data/articles-meta';
+import { sanityClient, urlFor } from '../../../lib/sanity';
+import { PortableText } from 'astro-portabletext';
 
 export async function getStaticPaths() {
-  const posts = await getCollection(
-    'articles',
-    ({ data }) => data.draft !== true
-  );
-  return posts.map((post) => ({
-    params: { slug: post.id },
-    props: { post },
+  const query = `*[_type == "article" && draft != true] {
+    "slug": slug.current
+  }`;
+  const posts = await sanityClient.fetch(query) || [];
+  return posts.map((post: any) => ({
+    params: { slug: post.slug }
   }));
 }
 
-interface Props {
-  post: CollectionEntry<'articles'>;
+const { slug } = Astro.params;
+
+const query = `*[_type == "article" && slug.current == $slug][0] {
+  title,
+  date,
+  coverImage,
+  tags,
+  body
+}`;
+
+const post = await sanityClient.fetch(query, { slug });
+
+if (!post) {
+  return Astro.redirect('/404');
 }
 
-const { post } = Astro.props;
-const { Content } = await render(post);
+const coverImageUrl = post.coverImage ? urlFor(post.coverImage).width(1200).url() : '';
 ---
 
-<BaseLayout title={`${post.data.title} | ${meta.title}`} activePage="library">
+<BaseLayout title={`${post.title} | ${meta.title}`} activePage="library">
   <main class="min-h-screen bg-yokai-dark-blue">
     <PostHeader
-      title={post.data.title}
-      coverImage={post.data.coverImage}
-      date={post.data.date}
-      tags={post.data.tags}
+      title={post.title}
+      coverImage={coverImageUrl}
+      date={post.date}
+      tags={post.tags}
     />
     <PostLayout backUrl="/library/articles" backText={`Kembali ke ${meta.title}`}>
-      <Content />
+      <PortableText value={post.body} />
     </PostLayout>
   </main>
 </BaseLayout>

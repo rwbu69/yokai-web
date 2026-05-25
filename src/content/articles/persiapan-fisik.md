@@ -1,7 +1,7 @@
 ---
 title: "Persiapan Fisik Sebelum Perform"
 description: "Tips menjaga stamina dan menghindari cedera saat melakukan wotagei."
-coverImage: "/src/assets/photos/6.JPG"
+coverImage: "/src/assets/photos/6.webp"
 date: "2024-02-05"
 tags: ["tips", "health"]
 draft: false

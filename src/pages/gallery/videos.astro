@@ -1,10 +1,45 @@
 ---
+/**
+ * src/pages/gallery/videos.astro
+ */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import VideosGrid from '../../components/gallery/videos/VideosGrid.astro';
+import { sanityClient, urlFor } from '../../lib/sanity';
+
+const query = `*[_type == "videoItem"] | order(dateDesc) {
+  "id": _id,
+  title,
+  date,
+  youtubeUrl,
+  caption,
+  thumbnailGif
+}`;
+
+const data = await sanityClient.fetch(query) || [];
+
+// For Sanity, video ID has to be parsed from youtubeUrl
+const getYouTubeId = (urlOrId: string) => {
+  if (!urlOrId) return '';
+  if (urlOrId.includes('youtube.com') || urlOrId.includes('youtu.be')) {
+    const match = urlOrId.match(/[?&]v=([^&]+)/) || urlOrId.match(/youtu\.be\/([^?]+)/);
+    return match ? match[1] : '';
+  }
+  return urlOrId;
+};
+
+const formattedVideos = data.map((v: any) => {
+  return {
+    id: v.id,
+    title: v.title,
+    date: v.date,
+    link: v.youtubeUrl,
+    videoId: getYouTubeId(v.youtubeUrl),
+    gif: v.thumbnailGif ? urlFor(v.thumbnailGif).width(800).url() : '', // GIF should not be formatted to webp if we want it to animate
+    caption: v.caption,
+  };
+});
 ---
 
 <BaseLayout title="Videos | Yokai Gallery" activePage="gallery">
-  
-  <VideosGrid />
-
+  <VideosGrid videos={formattedVideos} />
 </BaseLayout>

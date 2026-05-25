@@ -2,33 +2,24 @@
 /**
  * HeroAbout.astro
  *
- * Bagian pembuka halaman About. Full-viewport, dark background,
- * dengan background image dari hero-images pada opacity rendah sebagai tekstur.
- *
- * Props: tidak ada (self-contained)
- *
- * Konten:
- *   - Teks: edit h1 dan p di dalam template HTML
- *   - Background image: ganti import `bgImage` di baris pertama frontmatter
- *
- * Animasi (Anime.js):
- *   - Load animation: staggered line reveal + fade in
- *   - Untuk menonaktifkan: hapus atau comment out seluruh blok <script>
+ * Props are passed from about.astro which fetches them from Sanity.
  */
+import bgImage from '../../assets/hero-images/3.webp';
 
-import bgImage from '../../assets/hero-images/3.jpg';
+interface Props {
+  label: string;
+  line1: string;
+  line2: string;
+  sub: string;
+  footerText: string;
+}
+const { label, line1, line2, sub, footerText } = Astro.props;
 ---
 
-<!--
-  min-height: 100svh — full viewport, navbar overlays (fixed, semi-transparent)
-  padding-top: 7rem  — clears the fixed navbar height (~96px)
-  Seluruh padding/background dikontrol di sini, bukan di BaseLayout
--->
 <section
   class="hero-about relative w-full overflow-hidden flex flex-col justify-between"
   style="min-height: 100svh; padding: 7rem 2rem 3rem; background-color: #080508;"
 >
-  <!-- Background photo — texture only, very low opacity -->
   <div class="absolute inset-0 z-0 pointer-events-none" aria-hidden="true">
     <img
       src={bgImage.src}
@@ -39,7 +30,6 @@ import bgImage from '../../assets/hero-images/3.jpg';
     />
   </div>
 
-  <!-- Oversized decorative word — structural, not decorative noise -->
   <span
     aria-hidden="true"
     class="pointer-events-none select-none absolute bottom-[-0.05em] left-0 z-0 font-jakarta font-black uppercase leading-none text-white"
@@ -48,20 +38,18 @@ import bgImage from '../../assets/hero-images/3.jpg';
     YOKAI
   </span>
 
-  <!-- Top label -->
   <div class="about-hero-label relative z-10 flex items-center gap-4" style="opacity: 0; transform: translateY(10px);">
     <div class="w-8 h-[1px] bg-yokai-purple"></div>
-    <span class="font-inter text-[9px] tracking-[0.55em] uppercase text-yokai-purple">About Us</span>
+    <span class="font-inter text-[9px] tracking-[0.55em] uppercase text-yokai-purple">{label}</span>
   </div>
 
-  <!-- Main statement — overflow clip per line for reveal effect -->
   <div class="relative z-10 mt-auto pt-12">
     <div class="overflow-hidden">
       <h1
         class="about-hero-line-1 font-jakarta font-black uppercase leading-none text-yokai-white"
         style="font-size: clamp(2.8rem, 9.5vw, 8.5rem); letter-spacing: -0.04em; transform: translateY(105%);"
       >
-        We Are Not
+        {line1}
       </h1>
     </div>
     <div class="overflow-hidden">
@@ -69,7 +57,7 @@ import bgImage from '../../assets/hero-images/3.jpg';
         class="about-hero-line-2 font-jakarta font-black uppercase leading-none"
         style="font-size: clamp(2.8rem, 9.5vw, 8.5rem); letter-spacing: -0.04em; color: var(--yokai-purple); transform: translateY(105%);"
       >
-        Fans.
+        {line2}
       </h1>
     </div>
 
@@ -78,16 +66,14 @@ import bgImage from '../../assets/hero-images/3.jpg';
         class="about-hero-sub font-outfit text-yokai-light-white/50 font-light leading-relaxed"
         style="font-size: clamp(0.875rem, 1.2vw, 1.05rem); opacity: 0;"
       >
-        We are the ceremony. Every waza, every formation, every synchronized
-        breath on stage is a declaration — not a performance.
+        {sub}
       </p>
     </div>
   </div>
 
-  <!-- Footer row -->
   <div class="about-hero-footer relative z-10 flex items-center justify-between mt-12" style="opacity: 0;">
     <span class="font-inter text-[8px] tracking-[0.5em] uppercase text-white/25">
-      Yogyakarta · Wotagei
+      {footerText}
     </span>
     <a
       href="#our-story"
@@ -101,10 +87,6 @@ import bgImage from '../../assets/hero-images/3.jpg';
 </section>
 
 <script>
-  /**
-   * Animasi entrance on-load via Anime.js.
-   * Untuk menonaktifkan: hapus seluruh blok <script> ini.
-   */
   import anime from 'animejs/lib/anime.es.js';
 
   anime.timeline({ easing: 'easeOutQuart' })

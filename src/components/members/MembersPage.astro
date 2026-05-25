@@ -1,10 +1,92 @@
 ---
 // src/components/members/MembersPage.astro
+// Fetches member data from Sanity (with local fallback).
+// Photo and gallery URLs are resolved via Sanity image-url builder.
+
 import AccordionStrip from './AccordionStrip.astro';
 import CreditsPanel from './CreditsPanel.astro';
-import { members } from './members.ts';
+import { members as localMembers, type Member } from './members.ts';
+import { sanityClient, urlFor } from '@lib/sanity';
 
-// Slim client payload — only fields the script needs
+// ── Sanity member shape ───────────────────────────────────────────────
+interface SanityMemberDoc {
+  _id: string;
+  name: string;
+  firstName: string;
+  lastName: string;
+  initials: string;
+  role: string;
+  tenure?: string;
+  city?: string;
+  tags?: [string, string];
+  quote?: string;
+  favoriteWaza?: string;
+  favoriteUchishi?: string;
+  instagram?: string;
+  twitter?: string;
+  photo?: object;
+  gallery?: object[];
+  sortOrder?: number;
+}
+
+// ── Try to load from Sanity, fallback to local ─────────────────────────
+let members: Member[] = localMembers; // start with local
+
+try {
+  const sanityMembers = await sanityClient.fetch<SanityMemberDoc[]>(
+    `*[_type == "member"] | order(sortOrder asc, _createdAt asc) {
+      _id, name, firstName, lastName, initials, role, tenure, city,
+      tags, quote, favoriteWaza, favoriteUchishi, instagram, twitter,
+      photo, gallery, sortOrder
+    }`
+  );
+
+  if (sanityMembers && sanityMembers.length > 0) {
+    const W = 400;
+    members = sanityMembers.map((m, i) => {
+      // Strip photo — use Sanity CDN or fall back to local webp
+      const photo = m.photo
+        ? urlFor(m.photo).width(W).height(600).format('webp').quality(85).url()
+        : (localMembers[i]?.photo ?? '');
+
+      // Gallery — 4 photos from Sanity, or fall back to local picsum placeholders
+      const gallery = (m.gallery && m.gallery.length === 4)
+        ? m.gallery.map((img) =>
+            urlFor(img).width(W).height(600).format('webp').quality(85).url()
+          ) as [string, string, string, string]
+        : (localMembers[i]?.gallery ?? [
+            `https://picsum.photos/seed/${i}a/400/600`,
+            `https://picsum.photos/seed/${i}b/400/600`,
+            `https://picsum.photos/seed/${i}c/400/600`,
+            `https://picsum.photos/seed/${i}d/400/600`,
+          ]) as [string, string, string, string];
+
+      return {
+        id:              i + 1,
+        initials:        m.initials ?? '??',
+        firstName:       m.firstName,
+        lastName:        m.lastName,
+        name:            m.name,
+        role:            m.role,
+        tenure:          m.tenure ?? '—',
+        city:            m.city ?? '—',
+        tags:            (m.tags ?? ['—', '—']) as [string, string],
+        quote:           m.quote ?? '',
+        favoriteWaza:    m.favoriteWaza ?? '—',
+        favoriteUchishi: m.favoriteUchishi ?? '—',
+        instagram:       m.instagram,
+        twitter:         m.twitter,
+        gallery,
+        photo,
+        socials: { instagram: m.instagram, twitter: m.twitter },
+      } satisfies Member;
+    });
+  }
+} catch {
+  // Silently fall back to local data — site still works
+}
+
+// Slim client payload — only fields the script needs (no images in here)
 const clientData = members.map(m => ({
   id:        m.id,
   firstName: m.firstName,
@@ -14,6 +96,8 @@ const clientData = members.map(m => ({
   city:      m.city,
   quote:     m.quote,
   socials:   m.socials,
+  gallery:   m.gallery,    // ← gallery URLs passed to client for live swap
+  photo:     m.photo,      // ← strip photo URL for client-side active update
 }));
 ---
 
@@ -50,9 +134,9 @@ const clientData = members.map(m => ({
   var dpQuote  = document.getElementById('dp-quote');
 
   var active      = -1;
-  var isAnimating = false; // FIX 4: block new animations until current settles
+  var isAnimating = false;
 
-  // ── FIX 1: Pixel-integer widths — no float/subpixel at settle ──────
+  // ── Pixel-integer widths ─────────────────────────────────────────────
   function getTargetWidths(activeIdx: number) {
     var total  = accordion ? accordion.offsetWidth : window.innerWidth;
     var active = Math.round(total * 0.40);
@@ -60,17 +144,12 @@ const clientData = members.map(m => ({
     return members.map(function(_: any, i: number) { return i === activeIdx ? active : rest; });
   }
 
-  // ── FIX 4: Strip animation isolated to animateStrips() ─────────────
+  // ── Strip animation ──────────────────────────────────────────────────
   function animateStrips(activeIdx: number) {
     if (isAnimating) return;
     isAnimating = true;
-
-    // Lock pointer events during animation to prevent stutter from re-clicks
     if (accordion) accordion.style.pointerEvents = 'none';
-
     var widths = getTargetWidths(activeIdx);
-
-    // FIX 2: set will-change before animation starts (begin callback)
     anime({
       targets: strips,
       width: function(el: HTMLElement, i: number) { return widths[i]; },
@@ -80,8 +159,6 @@ const clientData = members.map(m => ({
         strips.forEach(function(s: HTMLElement) { s.style.willChange = 'width'; });
       },
       complete: function() {
-        // FIX 2: double rAF — release will-change only after compositor
-        // finishes painting the final frame, not mid-composite
         requestAnimationFrame(function() {
           requestAnimationFrame(function() {
             strips.forEach(function(s: HTMLElement) { s.style.willChange = 'auto'; });
@@ -93,7 +170,7 @@ const clientData = members.map(m => ({
     });
   }
 
-  // ── Social link updater ─────────────────────────────────────────────
+  // ── Social link updater ──────────────────────────────────────────────
   function setSocial(platformId: string, handle: string | undefined, baseUrl: string) {
     var row  = document.getElementById('dp-' + platformId);
     var link = document.getElementById('dp-' + platformId + '-link') as HTMLAnchorElement | null;
@@ -107,7 +184,15 @@ const clientData = members.map(m => ({
     }
   }
 
-  // ── Detail panel text update ────────────────────────────────────────
+  // ── Gallery updater ──────────────────────────────────────────────────
+  function updateGallery(gallery: string[]) {
+    for (var i = 0; i < 4; i++) {
+      var img = document.getElementById('dp-gallery-' + i) as HTMLImageElement | null;
+      if (img && gallery[i]) img.src = gallery[i];
+    }
+  }
+
+  // ── Detail panel text + gallery update ──────────────────────────────
   function updateDetail(m: any) {
     if (dpName1)  dpName1.textContent  = m.firstName;
     if (dpName2)  dpName2.textContent  = m.lastName;
@@ -118,32 +203,28 @@ const clientData = members.map(m => ({
     setSocial('instagram', m.socials.instagram, 'instagram.com');
     setSocial('linkedin',  m.socials.linkedin,  'linkedin.com/in');
     setSocial('twitter',   m.socials.twitter,   'x.com');
+    updateGallery(m.gallery || []);
   }
 
-  // ── Core state setter ───────────────────────────────────────────────
+  // ── Core state setter ────────────────────────────────────────────────
   function setActive(idx: number) {
     if (idx === active) return;
 
     var isFirstLoad = active === -1;
-    // Direction: -1 = new member is to the right (exit left), +1 = exit right
     var dir = idx > active ? -1 : 1;
 
-    // Toggle .active class for CSS transitions (overlay, names, role)
     strips.forEach(function(s: HTMLElement, i: number) { s.classList.toggle('active', i === idx); });
 
     var m = members[idx];
     active = idx;
     if (!m) return;
 
-    // Run width animation (pixel-integer, GPU-managed, pointer-locked)
     animateStrips(idx);
 
-    // Skip detail slide on first load — Astro rendered member[0] already
     if (isFirstLoad) return;
 
-    var SLIDE = 36; // px — slide distance per transition
+    var SLIDE = 36;
 
-    // Phase 1: exit — slide out in direction away from new member
     anime({
       targets: creditsInner,
       translateX: dir * SLIDE,
@@ -154,13 +235,8 @@ const clientData = members.map(m => ({
         if (creditsInner) creditsInner.style.willChange = 'transform, opacity';
       },
       complete: function() {
-        // Update DOM content while panel is invisible
         updateDetail(m);
-
-        // Snap to entry position (opposite side from exit)
         anime.set(creditsInner, { translateX: -dir * SLIDE });
-
-        // Phase 2: enter — slide in to resting position
         anime({
           targets: creditsInner,
           translateX: 0,
@@ -179,7 +255,7 @@ const clientData = members.map(m => ({
     });
   }
 
-  // ── Event bindings ──────────────────────────────────────────────────
+  // ── Event bindings ───────────────────────────────────────────────────
   strips.forEach(function(strip, i) {
     strip.addEventListener('click', function() { setActive(i); });
   });
@@ -189,6 +265,6 @@ const clientData = members.map(m => ({
     if (e.key === 'ArrowLeft')  setActive((active + members.length - 1) % members.length);
   });
 
-  // ── Init ────────────────────────────────────────────────────────────
+  // ── Init ─────────────────────────────────────────────────────────────
   setActive(0);
 </script>

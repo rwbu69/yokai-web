@@ -1,15 +1,58 @@
 ---
 // src/pages/about.astro
+// Halaman About Us — Fully migrated to Sanity CMS.
+
 import BaseLayout      from '../layouts/BaseLayout.astro';
 import HeroAbout       from '../components/about/HeroAbout.astro';
 import OurStory        from '../components/about/OurStory.astro';
 import TrackRecord     from '../components/about/TrackRecord.astro';
 import ContactSocials  from '../components/about/ContactSocials.astro';
+import { sanityClient } from '../lib/sanity';
+
+// Fetch ALL aboutUs data in one central query
+// We only fetch the data, image URLs are resolved in child components
+const query = `*[_type == "aboutUs"][0] {
+  heroLabel, heroLine1, heroLine2, heroSub, heroFooterText,
+  storyTitle, storyMainStatement, storySubStatement,
+  trackRecordHeader, trackRecords,
+  contactHeading, contactSub, socialLinks, contactEmail
+}`;
+
+const data = await sanityClient.fetch(query) || {};
+
+// Construct props for child components with fallbacks
+const heroProps = {
+  label: data.heroLabel || 'About Us',
+  line1: data.heroLine1 || 'We Are Not',
+  line2: data.heroLine2 || 'Fans.',
+  sub: data.heroSub || 'We are the ceremony. Every waza, every formation, every synchronized breath on stage is a declaration — not a performance.',
+  footerText: data.heroFooterText || 'Yogyakarta · Wotagei',
+};
+
+const storyProps = {
+  title: data.storyTitle || 'Our Story',
+  mainStatement: data.storyMainStatement || 'Born from the underground Wotagei scene in Yogyakarta, YOKAI was built on a single principle: the wand is not an accessory — it is a weapon.',
+  subStatement: data.storySubStatement || 'We took the discipline of fanbase culture and turned it into performance art. No shortcuts, no stages handed to us — twelve individuals committed to mastery, and to each other.',
+};
+
+const trackRecordProps = {
+  header: data.trackRecordHeader || 'Track Record',
+  // if empty, the component will fall back to local `trackRecord.ts`
+  records: data.trackRecords || [],
+};
+
+const contactProps = {
+  heading: data.contactHeading || 'Find Us.',
+  sub: data.contactSub || 'Follow our journey, catch our next performance, or reach out directly.',
+  email: data.contactEmail || 'yokai.wotagei@gmail.com',
+  // if empty, the component will fall back to local `socials.ts`
+  socialLinks: data.socialLinks || [],
+};
 ---
 
 <BaseLayout title="About | Yokai Wotagei" activePage="about">
-  <HeroAbout />
-  <OurStory />
-  <TrackRecord />
-  <ContactSocials />
+  <HeroAbout {...heroProps} />
+  <OurStory {...storyProps} />
+  <TrackRecord {...trackRecordProps} />
+  <ContactSocials {...contactProps} />
 </BaseLayout>

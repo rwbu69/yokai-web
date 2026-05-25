@@ -1,10 +1,20 @@
 ---
 // src/components/about/ContactSocials.astro
-//
-// Konten: edit data di src/components/about/socials.ts.
-// Data tidak boleh diedit di file ini.
 
-import { socials } from './socials';
+interface SocialLink {
+  platform: string;
+  handle: string;
+  href: string;
+}
+
+interface Props {
+  heading: string;
+  sub: string;
+  email: string;
+  socialLinks: SocialLink[];
+}
+
+const { heading, sub, email, socialLinks } = Astro.props;
 ---
 
 <section
@@ -12,38 +22,33 @@ import { socials } from './socials';
 >
   <div class="max-w-[1400px] mx-auto">
 
-    <!-- Section marker -->
     <div class="contact-marker flex items-center gap-5 mb-20 opacity-0">
       <span class="font-inter text-[9px] tracking-[0.6em] uppercase text-white/18">03</span>
       <div class="w-10 h-[1px] bg-yokai-purple/50"></div>
       <span class="font-inter text-[9px] tracking-[0.5em] uppercase text-yokai-purple/80">Connect</span>
     </div>
 
-    <!-- Two-column: heading left, links right -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
 
-      <!-- Left: statement heading -->
       <div class="contact-heading lg:col-span-4 opacity-0">
         <h2
           class="font-jakarta font-black uppercase leading-none text-yokai-white"
           style="font-size: clamp(3rem, 6.5vw, 5.5rem); letter-spacing: -0.04em;"
+          set:html={heading.replace('.', '.<br/>')} 
         >
-          Find<br />
-          <span style="color: var(--yokai-purple);">Us.</span>
         </h2>
         <p
           class="font-outfit text-yokai-light-white/35 font-light leading-relaxed mt-8"
           style="font-size: 0.9rem; max-width: 32ch;"
         >
-          Follow our journey, catch our next performance, or reach out directly.
+          {sub}
         </p>
       </div>
 
-      <!-- Right: social link rows -->
       <div class="lg:col-span-8">
         <div class="flex flex-col">
 
-          {socials.map((s) => (
+          {socialLinks.map((s) => (
             <a
               href={s.href}
               target="_blank"
@@ -65,17 +70,16 @@ import { socials } from './socials';
             </a>
           ))}
 
-          <!-- Email -->
           <div class="contact-email mt-10 opacity-0">
             <p class="font-inter text-[8px] tracking-[0.5em] uppercase text-white/22 mb-2">
               Direct Contact
             </p>
             <a
-              href="mailto:yokai.wotagei@gmail.com"
+              href={`mailto:${email}`}
               class="font-outfit text-yokai-light-white/50 hover:text-yokai-white transition-colors duration-300"
               style="font-size: 0.925rem;"
             >
-              yokai.wotagei@gmail.com
+              {email}
             </a>
           </div>
 

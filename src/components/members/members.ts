@@ -1,17 +1,17 @@
 // src/components/members/members.ts
 
-import img1  from '../../assets/hero-images/1.jpg';
-import img2  from '../../assets/hero-images/2.jpg';
-import img3  from '../../assets/hero-images/3.jpg';
-import img4  from '../../assets/hero-images/4.jpg';
-import img5  from '../../assets/hero-images/5.jpg';
-import img6  from '../../assets/hero-images/6.jpg';
-import img7  from '../../assets/hero-images/7.jpg';
-import img8  from '../../assets/hero-images/8.jpg';
-import img9  from '../../assets/hero-images/9.jpg';
-import img10 from '../../assets/hero-images/10.jpg';
-import img11 from '../../assets/hero-images/11.jpg';
-import img12 from '../../assets/hero-images/12.jpg';
+import img1  from '../../assets/hero-images/1.webp';
+import img2  from '../../assets/hero-images/2.webp';
+import img3  from '../../assets/hero-images/3.webp';
+import img4  from '../../assets/hero-images/4.webp';
+import img5  from '../../assets/hero-images/5.webp';
+import img6  from '../../assets/hero-images/6.webp';
+import img7  from '../../assets/hero-images/7.webp';
+import img8  from '../../assets/hero-images/8.webp';
+import img9  from '../../assets/hero-images/9.webp';
+import img10 from '../../assets/hero-images/10.webp';
+import img11 from '../../assets/hero-images/11.webp';
+import img12 from '../../assets/hero-images/12.webp';
 
 // ── Internal shape (no socials duplication) ─────────────────────────
 interface RawMember {

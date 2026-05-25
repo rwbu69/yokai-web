@@ -1,143 +1,155 @@
 ---
 /**
  * TrackRecord.astro
- *
- * Daftar pencapaian tim, diurutkan dari terbaru ke terlama.
- * Klik item → modal Anime.js berisi image, deskripsi, tombol YouTube (opsional).
- * Di bawah container ada NODE TIMELINE horizontal sebagai navigasi scroll.
- *
- * ──────────────────────────────────────────────────────────
- * CARA MENGUBAH DATA
- * ──────────────────────────────────────────────────────────
- * Edit array di src/components/about/trackRecord.ts.
- * Data tidak boleh diedit di file ini.
- *
- * ──────────────────────────────────────────────────────────
- * CARA MENGUBAH / MENONAKTIFKAN ANIMASI
- * ──────────────────────────────────────────────────────────
- * - Animasi entrance  : hapus blok IntersectionObserver di <script>
- * - Animasi modal     : hapus fungsi openModal & closeModal di <script>
- * - Node timeline     : hapus seluruh kode di bawah komentar "── NODE TIMELINE"
- * - Menonaktifkan semua: hapus seluruh dua blok <script>
- *
- * ──────────────────────────────────────────────────────────
- * CARA KERJA NODE TIMELINE
- * ──────────────────────────────────────────────────────────
- * Scrollbar bawaan disembunyikan via CSS.
- * Gantinya, ada node-based timeline di bawah list:
- *
- *   Line  : garis horizontal tipis (1px), membentang penuh
- *   Nodes : titik kecil (6px) untuk setiap item, spasi merata (flex space-between)
- *           Node "aktif" (terdekat dengan scroll saat ini) berubah warna ke
- *           yokai-purple dan sedikit membesar (8px) — via CSS transition pada
- *           .tr-node-dot, bukan Anime.js, karena Anime.js tidak menarget dot
- *   Tooltip: muncul saat hover node — teks "Bulan Tahun" (contoh: "Dec 2024")
- *            Animasi tooltip menggunakan Anime.js (opacity + translateY)
- *            CSS transition TIDAK digunakan pada tooltip
- *   Klik node : smooth-scroll list ke item yang bersangkutan
- *   Drag line : mousedown/touchstart pada area timeline (bukan pada node)
- *               → geser horizontal untuk mengontrol scroll position
- *
- * Untuk mengatur ukuran node, edit variabel NODE_NORMAL dan NODE_ACTIVE
- * di dalam <script> di bawah.
  */
 
-import { trackRecords } from './trackRecord';
+import { trackRecords as localTrackRecords } from './trackRecord';
+import { urlFor } from '../../lib/sanity';
 
-const records = trackRecords;
-const recordsJson = JSON.stringify(records);
+interface Props {
+  header: string;
+  records: any[];
+}
+
+const { header, records } = Astro.props;
+
+// Use Sanity records if available, otherwise fallback to local trackRecords
+const activeRecords = records && records.length > 0 ? records : localTrackRecords;
+
+// ── Parsing dan Urutkan Data ───────────────────────────────────────────────
+const EN_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const ID_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+function parseDateStr(dateStr: string) {
+  if (!dateStr) return new Date();
+  const [monStr, yearStr] = dateStr.split(' ');
+  const monthIdx = EN_MONTHS.indexOf(monStr);
+  const year = parseInt(yearStr, 10) || 2020;
+  return new Date(year, monthIdx !== -1 ? monthIdx : 0, 1);
+}
+
+const sortedRecords = activeRecords.map((r, index) => {
+  const d = parseDateStr(r.date);
+  const monIdx = d.getMonth();
+  const idnMothYear = `${ID_MONTHS[monIdx]} ${d.getFullYear()}`;
+  
+  let shortEvent = r.event || r.eventName || 'Event';
+  if (shortEvent.length > 20) {
+     shortEvent = shortEvent.substring(0, 17) + '...';
+  }
+
+  // Handle image: If Sanity image exists, use urlFor. Else if local, use r.image.src or r.image
+  let imageUrl = '';
+  if (r.image && r.image.asset) {
+    imageUrl = urlFor(r.image).width(1200).format('webp').url();
+  } else if (r.image && typeof r.image === 'string') {
+    imageUrl = r.image;
+  } else if (localTrackRecords[index] && localTrackRecords[index].image) {
+    // Ultimate fallback to local image if Sanity data is missing the image upload
+    imageUrl = typeof localTrackRecords[index].image === 'string' 
+      ? localTrackRecords[index].image 
+      : localTrackRecords[index].image;
+  }
+
+  return { 
+    ...r, 
+    event: r.event || r.eventName,
+    achievement: r.achievement || r.position,
+    parsedDate: d, 
+    idnMothYear, 
+    shortEvent,
+    imageUrl 
+  };
+}).sort((a, b) => b.parsedDate.getTime() - a.parsedDate.getTime());
 ---
 
-<section
-  class="tr-section w-full border-t border-white/[0.06] py-20 px-6 md:px-12 lg:px-16"
-  style="background-color: #080508;"
->
-  <div class="max-w-[1400px] mx-auto">
-
-    <!-- Section marker -->
-    <div class="tr-header flex items-end justify-between border-b border-white/[0.07] pb-8">
+<section class="tr-section relative w-full border-t border-white/[0.06] py-20 bg-yokai-dark-blue overflow-hidden">
+  
+  <div id="tr-container" class="max-w-[1400px] mx-auto relative px-6 md:px-12 lg:px-16 outline-none" tabindex="0">
+    
+    <div class="tr-header flex items-end justify-between border-b border-white/[0.07] pb-8 mb-8">
       <div class="flex items-center gap-5">
         <span class="font-inter text-[9px] tracking-[0.6em] uppercase" style="color: rgba(255,255,255,0.18);">02</span>
-        <div class="w-10 h-[1px]" style="background: rgba(160,69,187,0.5);"></div>
-        <span class="font-inter text-[9px] tracking-[0.5em] uppercase" style="color: rgba(160,69,187,0.8);">Track Record</span>
+        <div class="w-10 h-[1px] bg-yokai-purple/50"></div>
+        <span class="font-inter text-[9px] tracking-[0.5em] uppercase text-yokai-purple/80">{header}</span>
       </div>
-      <span class="font-inter text-[8px] tracking-[0.4em] uppercase hidden sm:block" style="color: rgba(255,255,255,0.2);">
-        {records.length} Performances
+      <span class="font-inter text-[8px] tracking-[0.4em] uppercase hidden sm:block text-white/20">
+        {sortedRecords.length} Performances
       </span>
     </div>
 
-    <!-- ── Scrollable list ──────────────────────────────────────────── -->
-    <div
-      id="tr-list"
-      style="max-height: 50vh; overflow-y: auto; scrollbar-width: none;"
-      aria-label="Track record list"
-    >
-      {records.map((r) => (
-        <button
-          class="tr-row"
-          data-record-id={String(r.id)}
-          type="button"
-          aria-label={`Lihat detail: ${r.event}`}
-          style="width: 100%; display: flex; flex-direction: column; align-items: flex-start; padding: 1.25rem 0; border: none; border-bottom: 1px solid rgba(255,255,255,0.06); background: transparent; cursor: pointer; text-align: left;"
-        >
-          <div style="display: flex; align-items: baseline; gap: 2rem; width: 100%; justify-content: space-between; flex-wrap: wrap; row-gap: 0.25rem;">
-            <div style="display: flex; align-items: baseline; gap: 1.5rem;">
-              <span class="font-inter" style="font-size: 8px; letter-spacing: 0.4em; text-transform: uppercase; color: rgba(255,255,255,0.22); flex-shrink: 0; min-width: 5rem;">
-                {r.date}
-              </span>
-              <span class="font-jakarta" style="font-size: clamp(0.95rem, 1.6vw, 1.3rem); font-weight: 700; text-transform: uppercase; letter-spacing: -0.02em; color: #fdfffd; line-height: 1.2;">
-                {r.event}
-              </span>
-            </div>
-            <span class="font-inter" style="font-size: 8px; letter-spacing: 0.4em; text-transform: uppercase; color: rgba(160,69,187,0.65); flex-shrink: 0;">
-              {r.achievement}
-            </span>
+    <button id="tr-prev" class="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 flex items-center justify-center opacity-0 pointer-events-none transition-colors hover:text-yokai-purple text-white/40" aria-label="Previous record">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M15 18l-6-6 6-6" stroke-linecap="square"/>
+      </svg>
+    </button>
+    <button id="tr-next" class="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 flex items-center justify-center opacity-0 pointer-events-none transition-colors hover:text-yokai-purple text-white/40" aria-label="Next record">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M9 18l6-6-6-6" stroke-linecap="square"/>
+      </svg>
+    </button>
+
+    <div id="tr-scroll" class="flex overflow-x-auto snap-x snap-mandatory relative w-full scroll-smooth" style="scrollbar-width: none;">
+      
+      {sortedRecords.map((r, i) => (
+        <div class="tr-slide flex-none w-full snap-center px-4 md:px-12 relative" data-index={i}>
+          <div class="flex flex-col md:flex-row gap-8 lg:gap-16 items-center">
+             
+             <div class="w-full md:w-1/2 relative tr-anim-img opacity-0">
+                <div class="w-full aspect-video overflow-hidden border border-white/5 relative">
+                   {r.imageUrl ? (
+                     <img src={r.imageUrl} alt={r.event} class="w-full h-full object-cover grayscale opacity-80" loading={i === 0 ? "eager" : "lazy"} />
+                   ) : (
+                     <div class="w-full h-full bg-white/5 flex items-center justify-center font-inter text-white/20 text-xs">Image not available</div>
+                   )}
+                   <div class="absolute inset-0 bg-gradient-to-t from-[#080508]/80 via-transparent to-transparent"></div>
+                </div>
+             </div>
+             
+             <div class="w-full md:w-1/2 flex flex-col justify-center">
+                <div class="tr-anim-text opacity-0">
+                   <div class="flex items-center gap-4 mb-4">
+                      <span class="font-inter text-[8px] tracking-[0.5em] text-white/40 uppercase whitespace-nowrap">{r.idnMothYear}</span>
+                      <div class="h-[1px] w-8 bg-yokai-purple/40 shrink-0"></div>
+                      <span class="font-inter text-[8px] tracking-[0.4em] uppercase text-yokai-purple whitespace-nowrap overflow-hidden text-ellipsis">{r.achievement}</span>
+                   </div>
+                   
+                   <h3 class="font-jakarta text-3xl md:text-4xl lg:text-5xl font-black uppercase text-yokai-white mb-6 leading-[1.1] tracking-tight" style="text-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+                      {r.event}
+                   </h3>
+                   
+                   <p class="font-outfit text-white/55 text-sm md:text-base leading-relaxed max-w-[50ch] mb-8 font-light">
+                      {r.description}
+                   </p>
+                   
+                   {r.youtubeUrl && (
+                      <a href={r.youtubeUrl} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-3 font-inter text-[9px] tracking-[0.4em] uppercase text-white/70 hover:text-yokai-white border border-white/10 hover:border-yokai-purple/50 px-6 py-4 transition-all duration-300">
+                         Watch Video
+                         <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                           <path d="M8 5v14l11-7z"/>
+                         </svg>
+                      </a>
+                   )}
+                </div>
+             </div>
+
           </div>
-        </button>
+        </div>
       ))}
+      
     </div>
 
-    <!-- ── Node timeline ─────────────────────────────────────────────── -->
-    <!--
-      Drag area covers the full container (cursor: ew-resize on line hover).
-      Nodes are positioned via flex space-between — no absolute math needed.
-      Tooltip appears above each node via Anime.js, not CSS transition.
-    -->
-    <div
-      id="tr-timeline"
-      style="position: relative; margin-top: 20px; padding: 10px 0; user-select: none; cursor: default;"
-      aria-hidden="true"
-    >
-      <!-- Background line (always visible, 1px) -->
-      <div
-        id="tr-tl-line"
-        style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: rgba(255,255,255,0.08); transform: translateY(-50%); pointer-events: none;"
-      ></div>
-
-      <!-- Nodes row — flex space-between so positions are proportional -->
-      <div style="position: relative; display: flex; justify-content: space-between; align-items: center; z-index: 1;">
-        {records.map((r, i) => (
-          <button
-            class="tr-node"
-            data-node-index={String(i)}
-            type="button"
-            aria-label={`Go to: ${r.event}`}
-            style="position: relative; width: 24px; height: 24px; border: none; background: transparent; cursor: pointer; padding: 0; flex-shrink: 0; display: flex; align-items: center; justify-content: center;"
-          >
-            <!-- Visible dot — CSS transition allowed (not targeted by anime.js) -->
-            <span
-              class="tr-node-dot"
-              style="width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.20); display: block; pointer-events: none;"
-            ></span>
-
-            <!-- Tooltip — Anime.js only, no CSS transition -->
-            <span
-              class="tr-node-tooltip font-inter"
-              style="position: absolute; bottom: calc(100% + 4px); left: 50%; transform: translateX(-50%); font-size: 7px; letter-spacing: 0.4em; text-transform: uppercase; color: rgba(255,255,255,0.7); white-space: nowrap; pointer-events: none; opacity: 0;"
-            >
-              {r.date}
-            </span>
-          </button>
+    <div class="relative mt-16 md:mt-24 pb-4 px-4 md:px-12">
+      <div class="absolute top-1/2 left-4 md:left-12 right-4 md:right-12 h-[1px] bg-white/[0.08] -translate-y-1/2 pointer-events-none"></div>
+      
+      <div class="flex justify-between items-center relative z-10 w-full">
+        {sortedRecords.map((r, i) => (
+           <button class="tr-node relative w-8 h-8 flex items-center justify-center group outline-none" data-index={i} aria-label={`Go to event: ${r.event}`}>
+              <span class="tr-node-dot w-[6px] h-[6px] rounded-full bg-white/20 transition-all duration-300 pointer-events-none shadow-none"></span>
+              <span class="tr-node-tooltip absolute bottom-full mb-2 left-1/2 -translate-x-1/2 font-inter text-[7px] tracking-[0.4em] uppercase text-white/70 whitespace-nowrap opacity-0 pointer-events-none">
+                 {r.shortEvent} <span class="text-yokai-purple/70">·</span> {r.idnMothYear}
+              </span>
+           </button>
         ))}
       </div>
     </div>
@@ -145,369 +157,148 @@ const recordsJson = JSON.stringify(records);
   </div>
 </section>
 
-<!-- ── Modal overlay ─────────────────────────────────────────────────────── -->
-<div
-  id="tr-overlay"
-  aria-modal="true"
-  role="dialog"
-  style="display: none; position: fixed; inset: 0; z-index: 50; align-items: center; justify-content: center; background: rgba(0,0,0,0.80);"
->
-  <div
-    id="tr-modal"
-    style="position: relative; width: 100%; max-width: 600px; margin: 1rem; border: 1px solid rgba(255,255,255,0.08); background-color: #0e080f;"
-  >
-    <!-- Image -->
-    <div style="width: 100%; overflow: hidden; aspect-ratio: 16/7;">
-      <img
-        id="tr-modal-img"
-        src=""
-        alt=""
-        style="width: 100%; height: 100%; object-fit: cover; object-position: center; opacity: 0.85; display: block;"
-      />
-    </div>
-
-    <!-- Content -->
-    <div style="padding: 1.75rem;">
-      <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.75rem;">
-        <p id="tr-modal-date" class="font-inter" style="font-size: 8px; letter-spacing: 0.5em; text-transform: uppercase; color: rgba(160,69,187,0.7);"></p>
-        <div style="width: 1rem; height: 1px; background: rgba(160,69,187,0.3);"></div>
-        <p id="tr-modal-achievement" class="font-inter" style="font-size: 8px; letter-spacing: 0.4em; text-transform: uppercase; color: rgba(255,255,255,0.35);"></p>
-      </div>
-
-      <h3
-        id="tr-modal-event"
-        class="font-jakarta"
-        style="font-weight: 900; text-transform: uppercase; color: #fdfffd; margin-bottom: 1rem; font-size: clamp(1.1rem, 2.2vw, 1.5rem); letter-spacing: -0.03em; line-height: 1.15;"
-      ></h3>
-
-      <p
-        id="tr-modal-desc"
-        class="font-outfit"
-        style="color: rgba(235,224,232,0.55); font-weight: 300; line-height: 1.65; font-size: 0.875rem; max-width: 52ch;"
-      ></p>
-
-      <!-- YouTube CTA -->
-      <div id="tr-yt-wrap" style="display: none; margin-top: 1.5rem;">
-        <a
-          id="tr-yt-btn"
-          href="#"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="font-inter"
-          style="display: inline-flex; align-items: center; gap: 0.75rem; font-size: 8px; letter-spacing: 0.45em; text-transform: uppercase; color: #fdfffd; border: 1px solid rgba(255,255,255,0.2); padding: 0.75rem 1.25rem; text-decoration: none;"
-        >
-          Watch on YouTube
-          <svg width="13" height="9" viewBox="0 0 13 9" fill="currentColor" aria-hidden="true" style="opacity: 0.6;">
-            <path d="M12.74 1.4A1.63 1.63 0 0 0 11.6.25C10.58 0 6.5 0 6.5 0S2.42 0 1.4.25A1.63 1.63 0 0 0 .26 1.4 17.1 17.1 0 0 0 0 4.5a17.1 17.1 0 0 0 .26 3.1A1.63 1.63 0 0 0 1.4 8.75C2.42 9 6.5 9 6.5 9s4.08 0 5.1-.25a1.63 1.63 0 0 0 1.14-1.15A17.1 17.1 0 0 0 13 4.5a17.1 17.1 0 0 0-.26-3.1ZM5.2 6.43V2.57L8.58 4.5 5.2 6.43Z"/>
-          </svg>
-        </a>
-      </div>
-    </div>
-
-    <!-- Close -->
-    <button
-      id="tr-close"
-      type="button"
-      aria-label="Close"
-      class="font-inter"
-      style="position: absolute; top: 0.875rem; right: 0.875rem; background: transparent; border: none; cursor: pointer; color: rgba(255,255,255,0.3); font-size: 8px; letter-spacing: 0.4em; text-transform: uppercase; display: flex; align-items: center; gap: 0.4rem; padding: 0.25rem;"
-    >
-      Close
-      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true">
-        <path d="M1 1l8 8M9 1L1 9"/>
-      </svg>
-    </button>
-  </div>
-</div>
-
 <style>
-  /* Hide native scrollbar — scroll still works */
-  #tr-list::-webkit-scrollbar { display: none; }
-
-  /*
-   * Node dot size/color transitions via CSS — safe because Anime.js does NOT
-   * target .tr-node-dot. Anime.js only targets .tr-node-tooltip (opacity/translateY).
-   */
-  .tr-node-dot {
-    transition: width 0.2s cubic-bezier(0.4,0,0.2,1),
-                height 0.2s cubic-bezier(0.4,0,0.2,1),
-                background 0.2s cubic-bezier(0.4,0,0.2,1);
-  }
+  #tr-scroll::-webkit-scrollbar { display: none; }
+  #tr-scroll { -ms-overflow-style: none; scrollbar-width: none; }
 </style>
 
-<!--
-  ── DATA BRIDGE ──────────────────────────────────────────────────────────
-  PENTING: <script define:vars> menghasilkan inline script (bukan ES module).
-  JANGAN gunakan `import` di sini — gunakan hanya untuk set window variable.
--->
-<script define:vars={{ recordsJson }}>
-  window.__YOKAI_TR = JSON.parse(recordsJson);
-</script>
-
-<!--
-  ── MAIN LOGIC ───────────────────────────────────────────────────────────
-  Script terpisah — ES module, import diperbolehkan.
-  Membaca data dari window.__YOKAI_TR yang di-set oleh script di atas.
--->
 <script>
   import anime from 'animejs/lib/anime.es.js';
 
-  var records = (window as any).__YOKAI_TR as Array<{
-    id: number; event: string; date: string; achievement: string;
-    image: string; description: string; youtube?: string;
-  }> || [];
+  var activeIndex = -1;
+  var isAnimating = false;
+  
+  var trContainer = document.getElementById('tr-container');
+  var scrollContainer = document.getElementById('tr-scroll');
+  if (trContainer && scrollContainer) {
+    var slides = Array.from(document.querySelectorAll<HTMLElement>('.tr-slide'));
+    var nodes = Array.from(document.querySelectorAll<HTMLElement>('.tr-node'));
+    var dots = Array.from(document.querySelectorAll<HTMLElement>('.tr-node-dot'));
+    var prevBtn = document.getElementById('tr-prev')!;
+    var nextBtn = document.getElementById('tr-next')!;
 
-  var list    = document.getElementById('tr-list')!;
-  var overlay = document.getElementById('tr-overlay')!;
-  var modal   = document.getElementById('tr-modal')!;
-  var rows    = Array.from(document.querySelectorAll<HTMLElement>('.tr-row'));
-  var nodes   = Array.from(document.querySelectorAll<HTMLButtonElement>('.tr-node'));
-  var dots    = Array.from(document.querySelectorAll<HTMLElement>('.tr-node-dot'));
+    function setActiveSlide(index: number) {
+      if (index === activeIndex) return;
+      activeIndex = index;
 
-  // ── Initial state — set via JS so fallback renders visible ──────────
-  document.querySelector<HTMLElement>('.tr-header')!.style.opacity = '0';
-  rows.forEach(function(r) { r.style.opacity = '0'; });
-
-  // ── Entrance animation via IntersectionObserver ──────────────────────
-  var entranceObserver = new IntersectionObserver(function(entries) {
-    entries.forEach(function(entry) {
-      if (!entry.isIntersecting) return;
-
-      anime({
-        targets: '.tr-header',
-        opacity: [0, 1],
-        translateY: [8, 0],
-        duration: 500,
-        easing: 'easeOutQuart',
+      dots.forEach((dot, i) => {
+        if (i === index) {
+          dot.style.width = '8px';
+          dot.style.height = '8px';
+          dot.style.backgroundColor = 'var(--yokai-purple)';
+        } else {
+          dot.style.width = '6px';
+          dot.style.height = '6px';
+          dot.style.backgroundColor = 'rgba(255,255,255,0.2)';
+        }
       });
 
-      anime({
-        targets: '.tr-row',
-        opacity: [0, 1],
-        translateX: [-14, 0],
-        duration: 450,
-        easing: 'easeOutQuart',
-        delay: anime.stagger(50, { start: 180 }),
-      });
-
-      entranceObserver.disconnect();
-    });
-  }, { threshold: 0.05 });
-
-  var section = document.querySelector('.tr-section');
-  if (section) entranceObserver.observe(section);
-
-  // ══════════════════════════════════════════════════════════════════════
-  //  NODE TIMELINE
-  // ══════════════════════════════════════════════════════════════════════
-
-  /**
-   * Ukuran node — edit di sini untuk menyesuaikan.
-   * NODE_NORMAL : ukuran dot dalam kondisi idle (px)
-   * NODE_ACTIVE : ukuran dot yang aktif (paling dekat scroll position)
-   *
-   * CSS transition pada .tr-node-dot menganimasikan perubahan ukuran/warna ini.
-   * Anime.js TIDAK menarget dot — tidak ada konflik.
-   */
-  var NODE_NORMAL = '6px';
-  var NODE_ACTIVE = '8px';
-
-  /** Rasio scroll saat ini (0–1) */
-  function getScrollRatio(): number {
-    var max = list.scrollHeight - list.offsetHeight;
-    return max <= 0 ? 0 : list.scrollTop / max;
-  }
-
-  /** Update node aktif berdasarkan posisi scroll */
-  function updateActiveNode() {
-    var ratio = getScrollRatio();
-    var n = nodes.length;
-    if (n === 0) return;
-    var activeIdx = Math.round(ratio * (n - 1));
-
-    dots.forEach(function(dot, i) {
-      if (i === activeIdx) {
-        dot.style.width    = NODE_ACTIVE;
-        dot.style.height   = NODE_ACTIVE;
-        dot.style.background = 'var(--yokai-purple)';
+      if (index === 0) {
+        anime({ targets: prevBtn, opacity: 0, duration: 300, easing: 'easeOutQuart' });
+        prevBtn.style.pointerEvents = 'none';
       } else {
-        dot.style.width    = NODE_NORMAL;
-        dot.style.height   = NODE_NORMAL;
-        dot.style.background = 'rgba(255,255,255,0.20)';
+        anime({ targets: prevBtn, opacity: 1, duration: 300, easing: 'easeOutQuart' });
+        prevBtn.style.pointerEvents = 'auto';
       }
-    });
-  }
 
-  // Sync saat list di-scroll
-  list.addEventListener('scroll', updateActiveNode);
+      if (index === slides.length - 1) {
+        anime({ targets: nextBtn, opacity: 0, duration: 300, easing: 'easeOutQuart' });
+        nextBtn.style.pointerEvents = 'none';
+      } else {
+        anime({ targets: nextBtn, opacity: 1, duration: 300, easing: 'easeOutQuart' });
+        nextBtn.style.pointerEvents = 'auto';
+      }
 
-  // Init saat load
-  window.addEventListener('load', updateActiveNode);
+      var currentSlide = slides[index];
+      var imgEl = currentSlide.querySelector('.tr-anim-img');
+      var txtEl = currentSlide.querySelector('.tr-anim-text');
 
-  // ── Node hover: tooltip via Anime.js ──────────────────────────────────
-  nodes.forEach(function(node, i) {
-    var tooltip = node.querySelector<HTMLElement>('.tr-node-tooltip');
+      anime.remove([imgEl, txtEl]);
 
-    // Hover: show tooltip
-    node.addEventListener('mouseenter', function() {
-      if (!tooltip) return;
-      anime.remove(tooltip);
-      anime({
-        targets: tooltip,
-        opacity: [0, 1],
-        translateY: [5, 0],
-        duration: 180,
-        easing: 'easeOutQuart',
-      });
-    });
+      if (imgEl) {
+        anime.set(imgEl, { opacity: 0, translateX: 20 });
+        anime({
+          targets: imgEl,
+          opacity: 1,
+          translateX: 0,
+          duration: 800,
+          easing: 'easeOutExpo'
+        });
+      }
 
-    // Hover: hide tooltip
-    node.addEventListener('mouseleave', function() {
-      if (!tooltip) return;
-      anime.remove(tooltip);
-      anime({
-        targets: tooltip,
-        opacity: 0,
-        translateY: 5,
-        duration: 120,
-        easing: 'easeInQuart',
-      });
-    });
-
-    // Click: smooth-scroll list ke item yang bersangkutan
-    node.addEventListener('click', function() {
-      var n = nodes.length;
-      var ratio = n > 1 ? i / (n - 1) : 0;
-      var maxScroll = list.scrollHeight - list.offsetHeight;
-      list.scrollTo({ top: ratio * maxScroll, behavior: 'smooth' });
-    });
-  });
-
-  // ── Drag on timeline line (click/drag anywhere except nodes) ─────────
-  var timeline      = document.getElementById('tr-timeline');
-  var isTlDragging  = false;
-
-  function setScrollFromTimelineX(clientX: number) {
-    if (!timeline) return;
-    var rect  = timeline.getBoundingClientRect();
-    var relX  = clientX - rect.left;
-    var ratio = Math.min(Math.max(0, relX / rect.width), 1);
-    var maxScroll = list.scrollHeight - list.offsetHeight;
-    list.scrollTop = ratio * maxScroll;
-    updateActiveNode();
-  }
-
-  if (timeline) {
-    // Mouse drag
-    timeline.addEventListener('mousedown', function(e: MouseEvent) {
-      if ((e.target as HTMLElement).closest('.tr-node')) return; // ignore node clicks
-      isTlDragging = true;
-      setScrollFromTimelineX(e.clientX);
-      e.preventDefault();
-    });
-
-    // Touch drag
-    timeline.addEventListener('touchstart', function(e: TouchEvent) {
-      if ((e.target as HTMLElement).closest('.tr-node')) return;
-      isTlDragging = true;
-      setScrollFromTimelineX(e.touches[0].clientX);
-      e.preventDefault();
-    }, { passive: false });
-  }
-
-  document.addEventListener('mousemove', function(e: MouseEvent) {
-    if (!isTlDragging) return;
-    setScrollFromTimelineX(e.clientX);
-  });
-
-  document.addEventListener('touchmove', function(e: TouchEvent) {
-    if (!isTlDragging) return;
-    setScrollFromTimelineX(e.touches[0].clientX);
-  }, { passive: false });
-
-  document.addEventListener('mouseup', function() { isTlDragging = false; });
-  document.addEventListener('touchend', function() { isTlDragging = false; });
-
-  // ══════════════════════════════════════════════════════════════════════
-  //  MODAL
-  // ══════════════════════════════════════════════════════════════════════
-
-  function openModal(record: typeof records[0]) {
-    var img    = document.getElementById('tr-modal-img') as HTMLImageElement;
-    var evEl   = document.getElementById('tr-modal-event')!;
-    var dateEl = document.getElementById('tr-modal-date')!;
-    var achEl  = document.getElementById('tr-modal-achievement')!;
-    var descEl = document.getElementById('tr-modal-desc')!;
-    var ytWrap = document.getElementById('tr-yt-wrap')!;
-    var ytBtn  = document.getElementById('tr-yt-btn') as HTMLAnchorElement;
-
-    img.src              = record.image;
-    img.alt              = record.event;
-    evEl.textContent     = record.event;
-    dateEl.textContent   = record.date;
-    achEl.textContent    = record.achievement;
-    descEl.textContent   = record.description;
-
-    if (record.youtube) {
-      ytWrap.style.display = '';
-      ytBtn.href = record.youtube;
-    } else {
-      ytWrap.style.display = 'none';
+      if (txtEl) {
+        anime.set(txtEl, { opacity: 0, translateY: 15 });
+        anime({
+          targets: txtEl,
+          opacity: 1,
+          translateY: 0,
+          duration: 800,
+          delay: 100,
+          easing: 'easeOutExpo'
+        });
+      }
     }
 
-    anime.set(overlay, { opacity: 0 });
-    anime.set(modal,   { translateY: 20, opacity: 0 });
-    overlay.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
+    var observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          var idx = Number((entry.target as HTMLElement).dataset.index);
+          setActiveSlide(idx);
+        }
+      });
+    }, {
+      root: scrollContainer,
+      threshold: 0.6
+    });
 
-    requestAnimationFrame(function() {
-      anime({ targets: overlay, opacity: [0, 1], duration: 220, easing: 'easeOutQuart' });
-      anime({ targets: modal,   translateY: [20, 0], opacity: [0, 1], duration: 380, easing: 'easeOutQuart' });
+    slides.forEach(slide => observer.observe(slide));
+
+    function goToSlide(index: number) {
+      if (index < 0 || index >= slides.length) return;
+      var slide = slides[index];
+      scrollContainer.scrollTo({ left: slide.offsetLeft, behavior: 'smooth' });
+    }
+
+    prevBtn.addEventListener('click', () => goToSlide(activeIndex - 1));
+    nextBtn.addEventListener('click', () => goToSlide(activeIndex + 1));
+
+    nodes.forEach((node, i) => {
+      var tooltip = node.querySelector<HTMLElement>('.tr-node-tooltip');
+      node.addEventListener('mouseenter', () => {
+        if (!tooltip) return;
+        anime.remove(tooltip);
+        anime({ targets: tooltip, opacity: 1, translateY: [5, 0], duration: 250, easing: 'easeOutExpo' });
+      });
+      node.addEventListener('mouseleave', () => {
+        if (!tooltip) return;
+        anime.remove(tooltip);
+        anime({ targets: tooltip, opacity: 0, translateY: 5, duration: 150, easing: 'easeInQuart' });
+      });
+      node.addEventListener('click', () => goToSlide(i));
+    });
+
+    trContainer.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        goToSlide(activeIndex - 1);
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        goToSlide(activeIndex + 1);
+      }
+    });
+
+    scrollContainer.addEventListener('wheel', (e) => {
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        e.preventDefault();
+        scrollContainer.scrollBy({
+          left: e.deltaY,
+          behavior: 'auto'
+        });
+      }
+    }, { passive: false });
+
+    document.addEventListener('astro:before-swap', () => {
+      observer.disconnect();
     });
   }
-
-  function closeModal() {
-    anime({
-      targets: [overlay, modal],
-      opacity: 0,
-      duration: 200,
-      easing: 'easeInQuart',
-      complete: function() {
-        overlay.style.display = 'none';
-        document.body.style.overflow = '';
-      },
-    });
-  }
-
-  // ── Event bindings ────────────────────────────────────────────────────
-  rows.forEach(function(row) {
-    row.addEventListener('click', function() {
-      var id  = Number(row.dataset.recordId);
-      var rec = records.find(function(r) { return r.id === id; });
-      if (rec) openModal(rec);
-    });
-
-    row.addEventListener('mouseenter', function() {
-      var nameEl = row.querySelector<HTMLElement>('.font-jakarta');
-      var achEl  = row.querySelector<HTMLElement>('.font-inter:last-of-type');
-      if (nameEl) nameEl.style.color = 'var(--yokai-purple)';
-      if (achEl)  achEl.style.color  = 'var(--yokai-purple)';
-    });
-    row.addEventListener('mouseleave', function() {
-      var nameEl = row.querySelector<HTMLElement>('.font-jakarta');
-      var achEl  = row.querySelector<HTMLElement>('.font-inter:last-of-type');
-      if (nameEl) nameEl.style.color = '#fdfffd';
-      if (achEl)  achEl.style.color  = 'rgba(160,69,187,0.65)';
-    });
-  });
-
-  document.getElementById('tr-close')!.addEventListener('click', closeModal);
-
-  overlay.addEventListener('click', function(e) {
-    if (e.target === overlay) closeModal();
-  });
-
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && overlay.style.display !== 'none') closeModal();
-  });
 </script>

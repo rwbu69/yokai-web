@@ -2,11 +2,14 @@
 /**
  * ChekiClosed.astro
  */
-import { chekiConfig } from '../../../data/cheki';
+interface Props {
+  message: string;
+}
+const { message } = Astro.props;
 ---
 <div class="w-full min-h-[60vh] flex flex-col items-center justify-center px-6 text-center">
   <h2 class="font-jakarta font-black uppercase text-yokai-white text-2xl md:text-4xl tracking-tighter mb-4">
-    {chekiConfig.closedMessage}
+    {message}
   </h2>
   <p class="font-inter text-yokai-white/60 text-xs tracking-widest uppercase">
     Follow our social media for updates.

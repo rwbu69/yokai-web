@@ -1,43 +1,39 @@
 ---
 /**
  * Projects.astro
- *
- * Section proyek tim di landing page.
- * Layout: editorial numbered list — nomor besar sebagai elemen struktural tipografis,
- * judul bold di sampingnya, thumbnail YouTube di kanan.
- * Pendekatan "daftar isi majalah fashion": nomor oversized + teks kuat + detail kecil.
- *
- * ──────────────────────────────────────────────────────────
- * CARA MENGUBAH DATA
- * ──────────────────────────────────────────────────────────
- * Edit array di src/components/landing/projects.ts.
- * Data tidak boleh diedit di file ini.
- *
- * ──────────────────────────────────────────────────────────
- * CARA MENGATUR RITME ANIMASI
- * ──────────────────────────────────────────────────────────
- * Narasi animasi: header → divider draws L→R → rows dengan variasi arah.
- * Setiap baris masuk dengan translateX berbeda untuk kedalaman visual:
- *   - Baris 1: dari kiri jauh (-20px)
- *   - Baris 2: dari kiri dekat (-12px)
- *   - Baris 3: dari bawah (translateY +12px)
- * Ini menciptakan kesan "halaman yang menyusun dirinya sendiri".
- *
- * Untuk mengubah ritme: edit nilai `delay` dan offset translateX/Y di <script>.
- * Untuk menonaktifkan: hapus seluruh blok <script>.
  */
+import { projects as localProjects } from './projects';
 
-import { projects } from './projects';
+interface Props {
+  projects: any[];
+}
+const { projects } = Astro.props;
+
+// Use sanity data if available, fallback to local
+const activeProjects = projects && projects.length > 0 ? projects : localProjects;
+
+// For Sanity, video ID has to be parsed from youtubeUrl
+const getYouTubeId = (urlOrId: string) => {
+  if (!urlOrId) return '';
+  if (urlOrId.includes('youtube.com') || urlOrId.includes('youtu.be')) {
+    const match = urlOrId.match(/[?&]v=([^&]+)/) || urlOrId.match(/youtu\.be\/([^?]+)/);
+    return match ? match[1] : '';
+  }
+  return urlOrId; // assume it's already an ID if no URL match
+};
+
+const formattedProjects = activeProjects.map(p => {
+  return {
+    title: p.title,
+    date: p.releaseDate ? p.releaseDate.replace(/-/g, '.') : p.date,
+    videoId: getYouTubeId(p.youtubeUrl || p.videoId),
+  };
+});
 ---
 
-<!--
-  bg-yokai-white — terang, kontras terhadap section gelap di sekitarnya.
-  overflow-hidden diperlukan untuk animasi divider width.
--->
 <section class="projects-section w-full bg-yokai-white py-12 px-6 lg:px-12 overflow-hidden">
   <div class="max-w-[90vw] mx-auto">
 
-    <!-- Header -->
     <div class="projects-header flex items-end justify-between mb-0" style="opacity: 0;">
       <h2
         class="font-jakarta font-black uppercase text-yokai-dark-blue leading-none"
@@ -56,15 +52,13 @@ import { projects } from './projects';
       </a>
     </div>
 
-    <!-- Divider animasi "menggambar dari kiri ke kanan" -->
     <div
       id="proj-divider"
       style="height: 2px; background: rgba(42,30,82,0.15); width: 0; margin-bottom: 0;"
     ></div>
 
-    <!-- Editorial numbered list -->
     <div class="projects-list">
-      {projects.map((p, idx) => (
+      {formattedProjects.map((p, idx) => (
         <a
           class="project-row group"
           href={`https://www.youtube.com/watch?v=${p.videoId}`}
@@ -72,11 +66,6 @@ import { projects } from './projects';
           rel="noopener noreferrer"
           style="display: flex; align-items: center; gap: 1.25rem; padding: 0.9rem 0; border-top: 1px solid rgba(42,30,82,0.08); text-decoration: none; opacity: 0;"
         >
-          <!--
-            Index — nomor besar sebagai elemen tipografis struktural.
-            Warna sangat muted (opacity 0.12) agar tidak dominan secara warna
-            tapi tetap hadir secara visual sebagai "backbone" layout.
-          -->
           <span
             class="font-jakarta proj-index"
             style={`font-size: clamp(2rem, 3.5vw, 3rem); font-weight: 900; letter-spacing: -0.04em; color: rgba(42,30,82,0.12); flex-shrink: 0; line-height: 1; min-width: clamp(2.5rem, 4vw, 3.5rem); transition: color 0.2s cubic-bezier(0.4,0,0.2,1);`}
@@ -84,7 +73,6 @@ import { projects } from './projects';
             0{idx + 1}
           </span>
 
-          <!-- Title — elemen utama, mengisi ruang yang tersisa -->
           <h3
             class="font-jakarta proj-title"
             style="flex: 1; font-weight: 900; text-transform: uppercase; letter-spacing: -0.03em; color: var(--yokai-dark-blue); line-height: 1.05; font-size: clamp(1.05rem, 2.2vw, 1.65rem); transition: color 0.2s cubic-bezier(0.4,0,0.2,1);"
@@ -92,7 +80,6 @@ import { projects } from './projects';
             {p.title}
           </h3>
 
-          <!-- Right side: date + thumbnail -->
           <div style="display: flex; align-items: center; gap: 1.25rem; flex-shrink: 0;">
             <span
               class="font-inter proj-date"
@@ -101,7 +88,6 @@ import { projects } from './projects';
               {p.date}
             </span>
 
-            <!-- YouTube thumbnail — lebih bersih dan ringan dari iframe -->
             <div
               class="proj-thumb"
               style="width: 108px; height: 62px; overflow: hidden; flex-shrink: 0;"
@@ -118,17 +104,12 @@ import { projects } from './projects';
       ))}
     </div>
 
-    <!-- Garis penutup bawah -->
     <div style="height: 1px; background: rgba(42,30,82,0.08);"></div>
 
   </div>
 </section>
 
 <style>
-  /*
-   * Hover pada row — hanya CSS transition untuk color (tidak ditarget Anime.js).
-   * Anime.js hanya berjalan saat entrance (satu kali) dan tidak aktif setelahnya.
-   */
   .project-row:hover .proj-index {
     color: rgba(42, 30, 82, 0.25) !important;
   }
@@ -148,26 +129,12 @@ import { projects } from './projects';
 </style>
 
 <script>
-  /**
-   * Animasi narasi untuk Projects section.
-   *
-   * Ritme (berurutan sebagai narasi):
-   *   t=0ms   : Header muncul — anchor visual utama
-   *   t=150ms : Divider menggambar dari kiri ke kanan (width 0→100%)
-   *   t=350ms : Baris 1 — masuk dari kiri jauh, translateX(-20) + opacity
-   *   t=460ms : Baris 2 — translateX lebih kecil (-12), variasi kedalaman
-   *   t=570ms : Baris 3 — masuk dari bawah (translateY), arah berbeda
-   *
-   * Variasi arah masuk antar baris menciptakan kesan "depth" editorial
-   * tanpa terasa random atau inconsistent.
-   */
   import anime from 'animejs/lib/anime.es.js';
 
   var observer = new IntersectionObserver(function(entries) {
     entries.forEach(function(entry) {
       if (!entry.isIntersecting) return;
 
-      // 1. Header — anchor, muncul pertama
       anime({
         targets:    '.projects-header',
         opacity:    [0, 1],
@@ -177,7 +144,6 @@ import { projects } from './projects';
         delay:      0,
       });
 
-      // 2. Divider — "menggambar" dari kiri ke kanan
       anime({
         targets:  '#proj-divider',
         width:    ['0%', '100%'],
@@ -186,11 +152,10 @@ import { projects } from './projects';
         delay:    150,
       });
 
-      // 3. Rows — variasi arah dan delay
       var rows = Array.from(document.querySelectorAll<HTMLElement>('.project-row'));
       rows.forEach(function(row, i) {
-        var tx = i === 2 ? 0   : -(20 - i * 8); // baris 1: -20, baris 2: -12, baris 3: 0
-        var ty = i === 2 ? 12  : 0;              // baris 3 masuk dari bawah
+        var tx = i === 2 ? 0   : -(20 - i * 8);
+        var ty = i === 2 ? 12  : 0;
         anime({
           targets:    row,
           opacity:    [0, 1],

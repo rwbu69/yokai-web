@@ -1,10 +1,38 @@
 ---
+/**
+ * src/pages/gallery/photos.astro
+ */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PhotosGrid from '../../components/gallery/photos/PhotosGrid.astro';
+import { sanityClient, urlFor } from '../../lib/sanity';
+
+const query = `*[_type == "photoEvent"] | order(dateDesc) {
+  "id": _id,
+  eventName,
+  date,
+  caption,
+  coverImage,
+  images
+}`;
+
+const data = await sanityClient.fetch(query) || [];
+
+const formattedEvents = data.map((event: any) => {
+  const w = 1200;
+  const coverUrl = event.coverImage ? urlFor(event.coverImage).width(w).format('webp').url() : '';
+  const imagesUrls = (event.images || []).map((img: any) => urlFor(img).width(w).format('webp').url());
+
+  return {
+    id: event.id,
+    eventName: event.eventName,
+    date: event.date,
+    coverImage: coverUrl,
+    images: imagesUrls,
+    caption: event.caption,
+  };
+});
 ---
 
 <BaseLayout title="Photos | Yokai Gallery" activePage="gallery">
-  
-  <PhotosGrid />
-
+  <PhotosGrid events={formattedEvents} />
 </BaseLayout>

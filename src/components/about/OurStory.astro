@@ -1,5 +1,12 @@
 ---
 // src/components/about/OurStory.astro
+
+interface Props {
+  title: string;
+  mainStatement: string;
+  subStatement: string;
+}
+const { title, mainStatement, subStatement } = Astro.props;
 ---
 
 <section
@@ -8,17 +15,14 @@
 >
   <div class="max-w-[1400px] mx-auto">
 
-    <!-- Section marker -->
     <div class="story-marker flex items-center gap-5 mb-20 opacity-0">
       <span class="font-inter text-[9px] tracking-[0.6em] uppercase text-white/18">01</span>
       <div class="w-10 h-[1px] bg-yokai-purple/50"></div>
-      <span class="font-inter text-[9px] tracking-[0.5em] uppercase text-yokai-purple/80">Our Story</span>
+      <span class="font-inter text-[9px] tracking-[0.5em] uppercase text-yokai-purple/80">{title}</span>
     </div>
 
-    <!-- Asymmetric grid -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-0 items-start">
 
-      <!-- Decorative index number -->
       <div class="story-deco lg:col-span-3 opacity-0">
         <span
           aria-hidden="true"
@@ -29,29 +33,21 @@
         </span>
       </div>
 
-      <!-- Main content -->
       <div class="story-content lg:col-span-9 opacity-0">
-        <!-- Vertical rule on large screens -->
         <div class="hidden lg:block w-[1px] h-full bg-white/[0.06] absolute left-0"></div>
 
         <p
           class="font-outfit text-yokai-white leading-relaxed mb-6"
           style="font-size: clamp(1.2rem, 2.2vw, 1.85rem); font-weight: 300; max-width: 70ch;"
         >
-          Born from the underground Wotagei scene in Yogyakarta, YOKAI was built
-          on a single principle:
-          <strong class="font-black text-yokai-purple not-italic">
-            the wand is not an accessory — it is a weapon.
-          </strong>
+          {mainStatement}
         </p>
 
         <p
           class="font-outfit text-yokai-light-white/40 leading-relaxed font-light"
           style="font-size: clamp(0.875rem, 1.15vw, 1rem); max-width: 52ch;"
         >
-          We took the discipline of fanbase culture and turned it into performance
-          art. No shortcuts, no stages handed to us — twelve individuals committed
-          to mastery, and to each other.
+          {subStatement}
         </p>
 
         <a

@@ -1,8 +1,20 @@
 ---
 /**
- * MerchOrderForm.astro (Elegant Redesign)
+ * MerchOrderForm.astro
  */
-import { merchItems } from '../../../data/merch';
+interface MerchItem {
+  id: string;
+  name: string;
+  price: number;
+  available: boolean;
+  description: string;
+  variants?: string[];
+}
+
+interface Props {
+  items: MerchItem[];
+}
+const { items } = Astro.props;
 ---
 <div class="w-full max-w-xl mx-auto bg-yokai-dark-blue/40 backdrop-blur-2xl border border-yokai-white/10 p-10 md:p-14 shadow-2xl relative overflow-hidden">
   
@@ -28,7 +40,7 @@ import { merchItems } from '../../../data/merch';
       <label for="m-product" class="block font-jakarta font-bold text-xs uppercase tracking-[0.3em] text-yokai-white/50 mb-3 transition-colors group-focus-within:text-yokai-purple">PILIH MERCH</label>
       <select id="m-product" name="entry.product" required class="w-full bg-transparent border-b border-yokai-white/20 pb-3 font-inter text-xl text-yokai-white focus:outline-none focus:border-yokai-purple appearance-none rounded-none cursor-pointer transition-all duration-300">
         <option value="" disabled selected class="bg-yokai-dark-blue text-yokai-white/50">-- Pilih Produk --</option>
-        {merchItems.map(item => (
+        {items.map((item: MerchItem) => (
           <option value={item.name} disabled={!item.available} class="bg-yokai-dark-blue text-yokai-white">
             {item.name} {item.available ? '' : '(SOLD OUT)'}
           </option>

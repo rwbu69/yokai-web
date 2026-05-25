@@ -2,17 +2,7 @@
 /**
  * src/pages/index.astro
  *
- * Landing page — sepenuhnya component-based.
- * Semua konten diimport dari src/components/landing/.
- * File ini tidak mengandung konten yang hardcoded selain struktur import.
- *
- * Urutan section:
- *   1. HeroLanding      — hero full-screen dengan 4 panel gambar
- *   2. Motto            — statement "WE DO NOT JUST PERFORM. WE INOVATE."
- *   3. WhoAreWe         — "WHO ARE WE" dengan mosaic marquee background
- *   4. Projects         — daftar proyek editorial dengan thumbnail YouTube
- *   5. LivePerformances — live performance dengan featured iframe + supporting
- *   6. Footer           — navigasi dan copyright (tetap inline — komponen sederhana)
+ * Landing page — sepenuhnya component-based, di-fetch terpusat dari Sanity CMS.
  */
 import BaseLayout       from '../layouts/BaseLayout.astro';
 import HeroLanding      from '../components/landing/HeroLanding.astro';
@@ -20,24 +10,67 @@ import Motto            from '../components/landing/Motto.astro';
 import WhoAreWe         from '../components/landing/WhoAreWe.astro';
 import Projects         from '../components/landing/Projects.astro';
 import LivePerformances from '../components/landing/LivePerformances.astro';
+import { sanityClient } from '../lib/sanity';
+
+// Fetch all necessary data for the Landing Page centrally to optimize build time
+const query = `{
+  "landing": *[_type == "landingPage"][0],
+  "projects": *[_type == "project"] | order(releaseDate desc)[0...3],
+  "performances": *[_type == "livePerformance"] | order(date desc)[0...4],
+  "heroImgs": *[_type == "heroImages"][0]
+}`;
+
+const data = await sanityClient.fetch(query) || {};
+const landing = data.landing || {};
+
+// Construct Props
+const heroProps = {
+  title: landing.heroOverlayTitle || 'YOKAI',
+  subtitle: landing.heroOverlaySubtitle || 'WOTAGEI',
+  imagesData: data.heroImgs || {},
+};
+
+const mottoProps = {
+  line1: landing.mottoLine1 || 'WE DO NOT JUST',
+  line2: landing.mottoLine2 || 'PERFORM.',
+  line3: landing.mottoLine3 || 'WE INOVATE.',
+  subtitle: landing.mottoSubtitle || 'Bridging the raw energy of Wotagei with premium contemporary artistry.',
+  badge: landing.mottoBadge || 'The Yokai Manifesto',
+};
+
+const whoAreWeProps = {
+  title: landing.whoAreWeTitle || 'WHO ARE WE',
+  highlight: landing.whoAreWeHighlight || 'BORN FROM THE CROWD, FORGED IN DISCIPLINE.',
+  body: landing.whoAreWeBody || 'We are YOKAI. An independent Wotagei performance team hailing from Yogyakarta. We don’t just swing lights—we dictate the rhythm of the crowd. With precision, emotion, and unrelenting energy, we blur the line between performer and audience.',
+  buttonText: landing.whoAreWeButtonText || 'READ OUR STORY',
+  heroImgs: data.heroImgs || {},
+};
+
+const projectsProps = {
+  projects: data.projects || [],
+};
+
+const performancesProps = {
+  performances: data.performances || [],
+};
 ---
 
 <BaseLayout title="Yokai | Performance Art" activePage="home">
 
   <!-- ── HERO ── -->
-  <HeroLanding />
+  <HeroLanding {...heroProps} />
 
   <!-- ── MOTTO ── -->
-  <Motto />
+  <Motto {...mottoProps} />
 
   <!-- ── WHO ARE WE ── -->
-  <WhoAreWe />
+  <WhoAreWe {...whoAreWeProps} />
 
   <!-- ── PROJECTS ── -->
-  <Projects />
+  <Projects {...projectsProps} />
 
   <!-- ── LIVE PERFORMANCES ── -->
-  <LivePerformances />
+  <LivePerformances {...performancesProps} />
 
   <!-- ── FOOTER ── -->
   <footer class="w-full bg-yokai-dark-blue border-t border-yokai-white/10">

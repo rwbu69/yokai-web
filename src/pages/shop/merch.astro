@@ -1,9 +1,32 @@
 ---
+/**
+ * src/pages/shop/merch.astro
+ */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MerchHero from '../../components/shop/merch/MerchHero.astro';
 import MerchOrderForm from '../../components/shop/merch/MerchOrderForm.astro';
+import { sanityClient } from '../../lib/sanity';
 
-import bgImg from '../../assets/photos/3.JPG';
+import bgImg from '../../assets/photos/3.webp';
+
+const query = `*[_type == "shopItem" && category == "merch"] | order(_createdAt asc) {
+  "id": slug.current,
+  title,
+  price,
+  available,
+  description,
+  variants
+}`;
+const merchItems = await sanityClient.fetch(query);
+
+const formattedItems = merchItems.map((item: any) => ({
+  id: item.id,
+  name: item.title,
+  price: item.price,
+  available: item.available,
+  description: item.description,
+  variants: item.variants
+}));
 ---
 
 <BaseLayout title="Official Merch | Yokai" activePage="shop">
@@ -17,7 +40,7 @@ import bgImg from '../../assets/photos/3.JPG';
     <MerchHero />
     
     <section class="w-full px-6 flex-grow flex items-start justify-center pb-32">
-      <MerchOrderForm />
+      <MerchOrderForm items={formattedItems} />
     </section>
   </main>
 </BaseLayout>

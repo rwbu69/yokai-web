@@ -1,6 +1,6 @@
-import m1 from '../assets/hero-images/1.jpg';
-import m2 from '../assets/hero-images/2.jpg';
-import m3 from '../assets/hero-images/3.jpg';
+import m1 from '../assets/hero-images/1.webp';
+import m2 from '../assets/hero-images/2.webp';
+import m3 from '../assets/hero-images/3.webp';
 
 export interface MerchItem {
   id: string

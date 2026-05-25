@@ -1,22 +1,37 @@
 ---
-import { getCollection, type CollectionEntry } from 'astro:content';
 import BaseLayout from '@layouts/BaseLayout.astro';
 import PostHero from '@components/blog/PostHero.astro';
 import PostGrid from '@components/blog/PostGrid.astro';
 import { meta } from '@data/updates-meta';
+import { sanityClient, urlFor } from '../../lib/sanity';
 
-const allPosts: CollectionEntry<'updates'>[] = await getCollection(
-  'updates',
-  ({ data }) => data.draft !== true
-);
-allPosts.sort(
-  (a, b) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf()
+const query = `*[_type == "update"] | order(dateDesc) {
+  "id": slug.current,
+  title,
+  "description": excerpt,
+  date,
+  image
+}`;
+
+const posts = await sanityClient.fetch(query) || [];
+const formattedPosts = posts.map((post: any) => ({
+  id: post.id,
+  data: {
+    title: post.title,
+    description: post.description,
+    date: post.date,
+    coverImage: post.image ? urlFor(post.image).width(800).url() : '',
+  }
+}));
+
+formattedPosts.sort(
+  (a: any, b: any) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf()
 );
 ---
 
-<BaseLayout title={`${meta.title} | Yokai Updates`} activePage="updates">
+<BaseLayout title={`${meta.title} | Yokai Library`} activePage="updates">
   <main class="min-h-screen bg-yokai-dark-blue pt-10">
     <PostHero title={meta.heroText} description={meta.description} />
-    <PostGrid posts={allPosts} collection="updates" />
+    <PostGrid posts={formattedPosts} collection="updates" />
   </main>
 </BaseLayout>

@@ -1,8 +1,8 @@
 // src/data/photos.ts
-import p1 from '../assets/photos/1.JPG';
-import p2 from '../assets/photos/2.jpg';
-import p3 from '../assets/photos/3.JPG';
-import p4 from '../assets/photos/4.JPG';
+import p1 from '../assets/photos/1.webp';
+import p2 from '../assets/photos/2.webp';
+import p3 from '../assets/photos/3.webp';
+import p4 from '../assets/photos/4.webp';
 
 export interface PhotoEvent {
   id: string;

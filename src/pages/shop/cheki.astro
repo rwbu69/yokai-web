@@ -1,13 +1,31 @@
 ---
+/**
+ * src/pages/shop/cheki.astro
+ */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ChekiHero from '../../components/shop/cheki/ChekiHero.astro';
 import ChekiOrderForm from '../../components/shop/cheki/ChekiOrderForm.astro';
 import ChekiClosed from '../../components/shop/cheki/ChekiClosed.astro';
-import { chekiConfig } from '../../data/cheki';
+import { sanityClient } from '../../lib/sanity';
 
-import bgImg from '../../assets/photos/3.JPG';
+import bgImg from '../../assets/photos/3.webp';
 
 const isDev = import.meta.env.DEV;
+
+const query = `{
+  "config": *[_type == "chekiConfig"][0],
+  "items": *[_type == "shopItem" && category == "cheki"] | order(_createdAt asc) {
+    title,
+    available
+  }
+}`;
+
+const data = await sanityClient.fetch(query) || {};
+const chekiConfig = data.config || { isOpen: false, closedMessage: 'OUR CHEKI IS CLOSED AT THE MOMENT.' };
+const items = (data.items || []).map((item: any) => ({
+  name: item.title,
+  available: item.available
+}));
 ---
 
 <BaseLayout title="Polaroid Cheki | Yokai" activePage="shop">
@@ -21,11 +39,11 @@ const isDev = import.meta.env.DEV;
     <ChekiHero />
     
     <div id="cheki-open-view" class="w-full px-6 flex-grow flex flex-col items-center justify-start" style={`display: ${chekiConfig.isOpen ? 'flex' : 'none'};`}>
-      <ChekiOrderForm />
+      <ChekiOrderForm items={items} />
     </div>
 
     <div id="cheki-closed-view" class="w-full px-6 flex-grow flex items-start justify-center" style={`display: ${chekiConfig.isOpen ? 'none' : 'flex'};`}>
-      <ChekiClosed />
+      <ChekiClosed message={chekiConfig.closedMessage} />
     </div>
 
     {isDev && (

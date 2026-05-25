@@ -1,6 +1,6 @@
-import c1 from '../assets/hero-images/4.jpg';
-import c2 from '../assets/hero-images/5.jpg';
-import c3 from '../assets/hero-images/6.jpg';
+import c1 from '../assets/hero-images/4.webp';
+import c2 from '../assets/hero-images/5.webp';
+import c3 from '../assets/hero-images/6.webp';
 
 export interface ChekiItem {
   id: string
