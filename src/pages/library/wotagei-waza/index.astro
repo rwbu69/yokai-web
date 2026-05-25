@@ -2,7 +2,7 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import PostHero from '@components/blog/PostHero.astro';
 import PostGrid from '@components/blog/PostGrid.astro';
-import { meta } from '@data/wotagei-meta';
+import { meta } from '@data/wotagei-waza-meta';
 import { sanityClient, urlFor } from '../../../lib/sanity';
 
 const query = `*[_type == "waza" && wazaType == "wotagei"] | order(dateDesc) {
