@@ -124,5 +124,4 @@ export default defineType({
       type: 'string',
     }),
   ],
-  __experimental_actions: ['update', 'publish'],
 });

@@ -35,5 +35,4 @@ export default defineType({
     }),
   ],
   // Prevent creating more than one chekiConfig document
-  __experimental_actions: ['update', 'publish'],
 });
