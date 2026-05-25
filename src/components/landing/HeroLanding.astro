@@ -1,0 +1,117 @@
+---
+/**
+ * HeroLanding.astro
+ *
+ * Hero utama landing page — 4 panel gambar yang bergantian secara vertikal
+ * setiap 5 detik menggunakan Anime.js. Overlay teks "YOKAI WOTAGEI" di tengah.
+ *
+ * Props: tidak ada (self-contained, gambar diimport di dalam)
+ *
+ * Konten:
+ *   - Gambar: ganti import img1–img12 dari src/assets/hero-images/
+ *   - Teks overlay: edit h1 dan p di dalam template
+ *   - Interval: ubah nilai 5000 di setInterval (ms)
+ *
+ * Animasi (Anime.js):
+ *   - setInterval setiap 5s men-slide panel vertikal bergantian
+ *   - Untuk menonaktifkan: hapus seluruh blok <script>
+ */
+
+import hero1  from '../../assets/hero-images/1.jpg';
+import hero2  from '../../assets/hero-images/2.jpg';
+import hero3  from '../../assets/hero-images/3.jpg';
+import hero4  from '../../assets/hero-images/4.jpg';
+import hero5  from '../../assets/hero-images/5.jpg';
+import hero6  from '../../assets/hero-images/6.jpg';
+import hero7  from '../../assets/hero-images/7.jpg';
+import hero8  from '../../assets/hero-images/8.jpg';
+import hero9  from '../../assets/hero-images/9.jpg';
+import hero10 from '../../assets/hero-images/10.jpg';
+import hero11 from '../../assets/hero-images/11.jpg';
+import hero12 from '../../assets/hero-images/12.jpg';
+
+const imagesA = [hero1.src,  hero2.src,  hero3.src,  hero4.src];
+const imagesB = [hero5.src,  hero6.src,  hero7.src,  hero8.src];
+const imagesC = [hero9.src,  hero10.src, hero11.src, hero12.src];
+---
+
+<section class="hero-landing relative w-full h-screen overflow-hidden bg-yokai-dark-blue flex">
+
+  <!-- Panel 1 — slides up -->
+  <div class="relative w-1/4 h-full overflow-hidden border-r border-yokai-white/10 group">
+    <div class="panel-track-1 absolute w-full h-[300%] top-0 left-0 flex flex-col">
+      <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0" style={`background-image:url('${imagesA[0]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
+      <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0" style={`background-image:url('${imagesB[0]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
+      <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0" style={`background-image:url('${imagesC[0]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
+    </div>
+  </div>
+
+  <!-- Panel 2 — slides down -->
+  <div class="relative w-1/4 h-full overflow-hidden border-r border-yokai-white/10 group">
+    <div class="panel-track-2 absolute w-full h-[300%] bottom-0 left-0 flex flex-col-reverse">
+      <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0" style={`background-image:url('${imagesA[1]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
+      <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0" style={`background-image:url('${imagesB[1]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
+      <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0" style={`background-image:url('${imagesC[1]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
+    </div>
+  </div>
+
+  <!-- Panel 3 — slides up -->
+  <div class="relative w-1/4 h-full overflow-hidden border-r border-yokai-white/10 group">
+    <div class="panel-track-3 absolute w-full h-[300%] top-0 left-0 flex flex-col">
+      <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0" style={`background-image:url('${imagesA[2]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
+      <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0" style={`background-image:url('${imagesB[2]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
+      <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0" style={`background-image:url('${imagesC[2]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
+    </div>
+  </div>
+
+  <!-- Panel 4 — slides down -->
+  <div class="relative w-1/4 h-full overflow-hidden group">
+    <div class="panel-track-4 absolute w-full h-[300%] bottom-0 left-0 flex flex-col-reverse">
+      <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0" style={`background-image:url('${imagesA[3]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
+      <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0" style={`background-image:url('${imagesB[3]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
+      <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0" style={`background-image:url('${imagesC[3]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
+    </div>
+  </div>
+
+  <!-- Cinematic grading overlay — no neon, just color depth -->
+  <div class="absolute inset-0 pointer-events-none z-[5]"
+       style="background: linear-gradient(135deg, rgba(60,15,54,0.35) 0%, rgba(42,30,82,0.35) 100%); mix-blend-mode: multiply;">
+  </div>
+
+  <!-- Typography overlay -->
+  <div class="absolute inset-0 pointer-events-none flex flex-col justify-center items-center z-10 px-8">
+    <h1 class="text-[12vw] leading-[0.8] font-black font-jakarta text-yokai-white tracking-tighter uppercase text-center mix-blend-overlay opacity-90"
+        style="text-shadow: 0 4px 24px rgba(42,30,82,0.8);">
+      YOKAI<br/>
+      <span class="text-yokai-purple italic font-outfit tracking-[0.2em]">WOTAGEI</span>
+    </h1>
+    <p class="absolute bottom-16 right-12 text-xs font-inter font-bold tracking-[0.4em] uppercase text-yokai-white/80"
+       style="text-shadow: 0 1px 4px rgba(0,0,0,0.8);">
+      Yogyakarta Wotagei Team
+    </p>
+  </div>
+
+</section>
+
+<script>
+  /**
+   * Panel auto-slide every 5s via Anime.js.
+   * Tracks 1 & 3 slide UP; Tracks 2 & 4 slide DOWN.
+   * To disable: remove this <script> block.
+   */
+  import anime from 'animejs/lib/anime.es.js';
+
+  let state = 0;
+
+  const translateUp   = (s: number) => s === 0 ? '0%'       : s === 1 ? '-33.333%' : '-66.666%';
+  const translateDown = (s: number) => s === 0 ? '0%'       : s === 1 ? '33.333%'  : '66.666%';
+
+  setInterval(() => {
+    state = (state + 1) % 3;
+
+    anime({ targets: '.panel-track-1', translateY: translateUp(state),   duration: 1800, easing: 'easeInOutExpo', delay: 0   });
+    anime({ targets: '.panel-track-2', translateY: translateDown(state), duration: 1800, easing: 'easeInOutExpo', delay: 150 });
+    anime({ targets: '.panel-track-3', translateY: translateUp(state),   duration: 1800, easing: 'easeInOutExpo', delay: 300 });
+    anime({ targets: '.panel-track-4', translateY: translateDown(state), duration: 1800, easing: 'easeInOutExpo', delay: 450 });
+  }, 5000);
+</script>

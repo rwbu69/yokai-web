@@ -1,0 +1,152 @@
+---
+// src/components/members/CreditsPanel.astro
+import type { Member } from './members.ts';
+
+interface Props { initial: Member; }
+const { initial: m } = Astro.props;
+
+const igHref = m.instagram ? `https://instagram.com/${m.instagram}` : '#';
+const twHref = m.twitter   ? `https://x.com/${m.twitter}`          : '#';
+---
+
+<!--
+  4-column layout:
+  [Identitas] | [Waza / Uchishi] | [Quote + Socials] | [Gallery — 50vw to right edge]
+  All 4 columns wrapped in #credits-inner — animated as a single unit
+  for the directional slide transition.
+-->
+<footer
+  class="credits-panel w-full border-t border-white/[0.08] bg-[#090909] overflow-hidden"
+  style="height: 40dvh;"
+  aria-label="Active member detail"
+>
+  <!-- Single wrapper — anime.js translates this for the directional slide -->
+  <div id="credits-inner" class="flex w-full h-full">
+
+    <!-- ── COL 1: Identitas (175px) ─────────────────────────────── -->
+    <div class="flex flex-col justify-center px-6 border-r border-white/[0.10]" style="width:175px; flex-shrink:0;">
+      <div class="detail-content">
+        <p class="font-inter text-[7px] tracking-[0.5em] uppercase text-white/40 mb-3">Selected</p>
+        <h2 class="font-jakarta font-medium uppercase text-white leading-[0.95] mb-2" style="font-size:30px;">
+          <span id="dp-name1">{m.firstName}</span><br />
+          <span id="dp-name2">{m.lastName}</span>
+        </h2>
+        <p id="dp-role" class="font-inter text-[8px] tracking-[0.38em] uppercase leading-tight" style="color: #c06ad8;">{m.role}</p>
+      </div>
+    </div>
+
+    <!-- ── COL 2: Wotagei Info (185px) ──────────────────────────── -->
+    <div class="flex flex-col justify-center px-6 border-r border-white/[0.10]" style="width:185px; flex-shrink:0;">
+      <div class="detail-content">
+        <div class="mb-5">
+          <p class="font-inter text-[7px] tracking-[0.5em] uppercase text-white/40 mb-1.5">Favorite Waza</p>
+          <p id="dp-fav-waza" class="font-jakarta font-medium text-white leading-none" style="font-size:18px;">{m.favoriteWaza}</p>
+        </div>
+        <div>
+          <p class="font-inter text-[7px] tracking-[0.5em] uppercase text-white/40 mb-1.5">Favorite Uchishi</p>
+          <p id="dp-fav-uchishi" class="font-jakarta font-medium text-white leading-none" style="font-size:18px;">{m.favoriteUchishi}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── COL 3: Quote + Socials (270px) ───────────────────────── -->
+    <div class="flex flex-col border-r border-white/[0.10] relative overflow-hidden" style="width:270px; flex-shrink:0;">
+
+      <!-- Quote -->
+      <div class="flex-1 flex flex-col justify-center px-7 pt-6 pb-3 relative">
+        <span class="absolute bottom-0 right-4 font-serif text-[64px] leading-none text-white/[0.04] select-none pointer-events-none" aria-hidden="true">"</span>
+        <div class="detail-content relative z-10">
+          <p class="font-inter text-[7px] tracking-[0.5em] uppercase text-white/40 mb-2">Quote</p>
+          <p id="dp-quote" class="font-outfit italic text-white/65 leading-relaxed" style="font-size:14px;">{m.quote}</p>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="mx-7 border-t border-white/[0.10]"></div>
+
+      <!-- Socials -->
+      <div class="px-7 py-4 shrink-0">
+        <div class="detail-content">
+          <p class="font-inter text-[7px] tracking-[0.5em] uppercase text-white/40 mb-3">Follow</p>
+          <div class="flex flex-col gap-2.5">
+
+            <!-- Instagram -->
+            <div id="dp-instagram" style={m.instagram ? '' : 'display:none'} class="flex items-center gap-2">
+              <svg class="w-3.5 h-3.5 shrink-0" style="color:rgba(255,255,255,0.45)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+                <rect x="2" y="2" width="20" height="20" rx="5"/>
+                <circle cx="12" cy="12" r="4.5"/>
+                <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+              </svg>
+              <a id="dp-instagram-link" href={igHref} target="_blank" rel="noopener"
+                 class="font-inter text-[8px] tracking-[0.12em] hover:text-white truncate"
+                 style="color:rgba(255,255,255,0.60); transition: color 0.2s cubic-bezier(0.4,0,0.2,1);">
+                @{m.instagram}
+              </a>
+            </div>
+
+            <!-- Twitter / X -->
+            <div id="dp-twitter" style={m.twitter ? '' : 'display:none'} class="flex items-center gap-2">
+              <svg class="w-3.5 h-3.5 shrink-0" style="color:rgba(255,255,255,0.45)" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+              </svg>
+              <a id="dp-twitter-link" href={twHref} target="_blank" rel="noopener"
+                 class="font-inter text-[8px] tracking-[0.12em] hover:text-white truncate"
+                 style="color:rgba(255,255,255,0.60); transition: color 0.2s cubic-bezier(0.4,0,0.2,1);">
+                @{m.twitter}
+              </a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── COL 4: Gallery — flex:1, min-width 50vw, to right edge ─ -->
+    <div class="gallery-col">
+      <div class="gallery-wrapper">
+        <div class="gallery">
+          <img id="dp-gallery-0" src={m.gallery[0]} alt={`${m.firstName} photo 1`} loading="lazy" />
+          <img id="dp-gallery-1" src={m.gallery[1]} alt={`${m.firstName} photo 2`} loading="lazy" />
+          <img id="dp-gallery-2" src={m.gallery[2]} alt={`${m.firstName} photo 3`} loading="lazy" />
+          <img id="dp-gallery-3" src={m.gallery[3]} alt={`${m.firstName} photo 4`} loading="lazy" />
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /#credits-inner -->
+</footer>
+
+<style>
+  .gallery-col {
+    flex: 1;
+    min-width: 50vw;
+    min-height: 0;
+  }
+
+  .gallery-wrapper {
+    height: 100%;
+    padding: 6px;
+  }
+
+  /* 2×2 grid — landscape cells because container is wide & short */
+  .gallery {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 3px;
+    height: 100%;
+  }
+
+  /* Gallery images at 50% opacity */
+  .gallery img {
+    object-fit: cover;
+    object-position: center top;
+    border-radius: 4px;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    min-width: 0;
+    display: block;
+    opacity: 0.5;
+  }
+</style>

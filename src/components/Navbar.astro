@@ -20,8 +20,9 @@ const navItems = [
     name: 'Library',
     key: 'library',
     dropdown: [
-      { name: 'Original', path: '/library/original' },
-      { name: 'Wotagei', path: '/library/wotagei' }
+      { name: 'Original Waza', path: '/library/original-waza' },
+      { name: 'Wotagei Waza', path: '/library/wotagei-waza' },
+      { name: 'Articles', path: '/library/articles' }
     ]
   },
   {
@@ -71,18 +72,18 @@ const navItems = [
         
         if (item.dropdown) {
           return (
-            <div class="relative group py-4">
-              <button class={`flex items-center gap-2 text-[11px] font-semibold tracking-[0.2em] uppercase transition-colors duration-300 drop-shadow-md ${isActive ? 'text-yokai-white' : 'text-yokai-light-white/80 hover:text-yokai-white'}`}>
+            <div class="relative nav-dropdown-wrapper py-4">
+              <button class={`nav-dropdown-btn flex items-center gap-2 text-[11px] font-semibold tracking-[0.2em] uppercase transition-colors duration-300 drop-shadow-md ${isActive ? 'text-yokai-white' : 'text-yokai-light-white/80 hover:text-yokai-white'}`}>
                 {item.name}
                 {isActive && <span class="w-[3px] h-[3px] bg-yokai-purple inline-block rounded-full"></span>}
                 <!-- Chevron icon -->
-                <svg class="w-2.5 h-2.5 opacity-40 group-hover:opacity-100 group-hover:rotate-180 transition-all duration-300" fill="none" viewBox="0 0 10 6" stroke="currentColor" stroke-width="1.5">
+                <svg class="nav-dropdown-icon w-2.5 h-2.5 opacity-40 transition-all duration-300" fill="none" viewBox="0 0 10 6" stroke="currentColor" stroke-width="1.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M1 1l4 4 4-4"/>
                 </svg>
               </button>
 
               <!-- Sharp Editorial Dropdown -->
-              <div class={`absolute ${isRightAligned ? 'right-0' : 'left-0'} top-full pt-3 opacity-0 invisible -translate-y-2 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-400 ease-[cubic-bezier(0.19,1,0.22,1)] z-40`}>
+              <div class={`nav-dropdown-menu absolute ${isRightAligned ? 'right-0' : 'left-0'} top-full pt-3 z-40`} style="opacity: 0; visibility: hidden;">
                 <div class="relative min-w-[200px]">
                   <!-- Top accent line -->
                   <div class="w-full h-[1px] bg-gradient-to-r from-yokai-purple to-transparent mb-0"></div>
@@ -155,6 +156,69 @@ const navItems = [
 </header>
 
 <script>
+  import anime from 'animejs/lib/anime.es.js';
+
+  // Dropdown Logic via Anime.js
+  const dropdownWrappers = document.querySelectorAll('.nav-dropdown-wrapper');
+  
+  dropdownWrappers.forEach((wrapper) => {
+    const menu = wrapper.querySelector('.nav-dropdown-menu') as HTMLElement;
+    const icon = wrapper.querySelector('.nav-dropdown-icon') as HTMLElement;
+    let enterAnim: any, leaveAnim: any;
+
+    wrapper.addEventListener('mouseenter', () => {
+      if (leaveAnim) leaveAnim.pause();
+      menu.style.visibility = 'visible';
+      
+      // Animate Chevron
+      if (icon) {
+        anime({
+          targets: icon,
+          rotate: 180,
+          opacity: 1,
+          duration: 300,
+          easing: 'easeOutQuart'
+        });
+      }
+
+      // Animate Menu
+      enterAnim = anime({
+        targets: menu,
+        translateY: [10, 0],
+        opacity: [0, 1],
+        duration: 400,
+        easing: 'easeOutQuart'
+      });
+    });
+
+    wrapper.addEventListener('mouseleave', () => {
+      if (enterAnim) enterAnim.pause();
+      
+      // Animate Chevron
+      if (icon) {
+        anime({
+          targets: icon,
+          rotate: 0,
+          opacity: 0.4,
+          duration: 300,
+          easing: 'easeOutQuart'
+        });
+      }
+
+      // Animate Menu
+      leaveAnim = anime({
+        targets: menu,
+        translateY: [0, 10],
+        opacity: [1, 0],
+        duration: 300,
+        easing: 'easeInQuart',
+        complete: () => {
+          menu.style.visibility = 'hidden';
+        }
+      });
+    });
+  });
+
   // Scroll Logic
   const header = document.getElementById('editorial-nav');
   let isScrolled = false;

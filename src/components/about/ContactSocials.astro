@@ -1,0 +1,128 @@
+---
+// src/components/about/ContactSocials.astro
+//
+// Konten: edit data di src/components/about/socials.ts.
+// Data tidak boleh diedit di file ini.
+
+import { socials } from './socials';
+---
+
+<section
+  class="contact-section w-full bg-yokai-dark-blue border-t border-white/[0.06] py-28 md:py-36 px-6 md:px-12 lg:px-16"
+>
+  <div class="max-w-[1400px] mx-auto">
+
+    <!-- Section marker -->
+    <div class="contact-marker flex items-center gap-5 mb-20 opacity-0">
+      <span class="font-inter text-[9px] tracking-[0.6em] uppercase text-white/18">03</span>
+      <div class="w-10 h-[1px] bg-yokai-purple/50"></div>
+      <span class="font-inter text-[9px] tracking-[0.5em] uppercase text-yokai-purple/80">Connect</span>
+    </div>
+
+    <!-- Two-column: heading left, links right -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+
+      <!-- Left: statement heading -->
+      <div class="contact-heading lg:col-span-4 opacity-0">
+        <h2
+          class="font-jakarta font-black uppercase leading-none text-yokai-white"
+          style="font-size: clamp(3rem, 6.5vw, 5.5rem); letter-spacing: -0.04em;"
+        >
+          Find<br />
+          <span style="color: var(--yokai-purple);">Us.</span>
+        </h2>
+        <p
+          class="font-outfit text-yokai-light-white/35 font-light leading-relaxed mt-8"
+          style="font-size: 0.9rem; max-width: 32ch;"
+        >
+          Follow our journey, catch our next performance, or reach out directly.
+        </p>
+      </div>
+
+      <!-- Right: social link rows -->
+      <div class="lg:col-span-8">
+        <div class="flex flex-col">
+
+          {socials.map((s) => (
+            <a
+              href={s.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="social-link group flex items-center justify-between py-6 border-b border-white/[0.07] hover:border-yokai-purple/30 transition-colors duration-300 opacity-0"
+            >
+              <div class="flex items-center gap-5">
+                <span class="w-4 h-[1px] bg-yokai-purple/40 group-hover:w-8 transition-all duration-300 flex-shrink-0"></span>
+                <span class="font-inter text-[9px] tracking-[0.45em] uppercase text-white/35 group-hover:text-white/70 transition-colors duration-300">
+                  {s.platform}
+                </span>
+              </div>
+              <span
+                class="font-jakarta font-bold text-white/60 group-hover:text-yokai-white transition-colors duration-300"
+                style="font-size: clamp(1rem, 1.5vw, 1.2rem);"
+              >
+                {s.handle}
+              </span>
+            </a>
+          ))}
+
+          <!-- Email -->
+          <div class="contact-email mt-10 opacity-0">
+            <p class="font-inter text-[8px] tracking-[0.5em] uppercase text-white/22 mb-2">
+              Direct Contact
+            </p>
+            <a
+              href="mailto:yokai.wotagei@gmail.com"
+              class="font-outfit text-yokai-light-white/50 hover:text-yokai-white transition-colors duration-300"
+              style="font-size: 0.925rem;"
+            >
+              yokai.wotagei@gmail.com
+            </a>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<script>
+  import anime from 'animejs/lib/anime.es.js';
+
+  const observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+
+      anime.timeline({ easing: 'easeOutQuart' })
+        .add({
+          targets: '.contact-marker',
+          opacity: [0, 1],
+          translateY: [8, 0],
+          duration: 450,
+        })
+        .add({
+          targets: '.contact-heading',
+          opacity: [0, 1],
+          translateY: [18, 0],
+          duration: 600,
+        }, '-=150')
+        .add({
+          targets: '.social-link',
+          opacity: [0, 1],
+          translateX: [16, 0],
+          duration: 400,
+          delay: anime.stagger(70),
+        }, '-=450')
+        .add({
+          targets: '.contact-email',
+          opacity: [0, 1],
+          duration: 400,
+        }, '-=150');
+
+      observer.disconnect();
+    });
+  }, { threshold: 0.15 });
+
+  const section = document.querySelector('.contact-section');
+  if (section) observer.observe(section);
+</script>

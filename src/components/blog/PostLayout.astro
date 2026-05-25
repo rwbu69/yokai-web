@@ -1,0 +1,119 @@
+---
+/**
+ * PostLayout.astro
+ * 
+ * Wrapper untuk body konten markdown di halaman detail.
+ * Mengandung CSS kustom yang merender elemen Markdown secara tajam dan editorial.
+ * 
+ * Props:
+ * - backUrl: string (URL untuk kembali ke listing collection)
+ * - backText: string (Nama collection untuk tombol kembali)
+ */
+interface Props {
+  backUrl: string;
+  backText: string;
+}
+
+const { backUrl, backText } = Astro.props;
+---
+<div class="w-full bg-yokai-dark-blue relative">
+  <!-- Back Link -->
+  <div class="absolute top-8 left-6 md:left-12 z-20">
+    <a href={backUrl} class="font-inter text-[10px] tracking-[0.2em] uppercase text-yokai-white/50 hover:text-yokai-purple transition-colors flex items-center gap-2">
+      <span>←</span> {backText}
+    </a>
+  </div>
+
+  <!-- Editorial Prose Styling -->
+  <article class="yokai-prose max-w-3xl mx-auto px-6 py-20">
+    <slot />
+  </article>
+</div>
+
+<style is:global>
+  /* 
+    YOKAI EDITORIAL PROSE 
+    Gaya custom untuk konten markdown tanpa bergantung pada Tailwind Typography.
+  */
+  .yokai-prose {
+    color: rgba(253, 255, 253, 0.85); /* yokai-white/85 */
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+  }
+
+  .yokai-prose p {
+    margin-bottom: 1.5em;
+  }
+
+  .yokai-prose h1,
+  .yokai-prose h2,
+  .yokai-prose h3,
+  .yokai-prose h4 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: #FDFFFD; /* yokai-white */
+    letter-spacing: -0.02em;
+    margin-top: 2.5em;
+    margin-bottom: 1em;
+    line-height: 1.2;
+  }
+
+  .yokai-prose h2 {
+    font-size: 1.875rem; /* 30px */
+    color: #9C72F6; /* yokai-purple */
+  }
+
+  .yokai-prose h3 {
+    font-size: 1.25rem; /* 20px */
+    letter-spacing: 0.05em;
+  }
+
+  .yokai-prose a {
+    color: #9C72F6;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(156, 114, 246, 0.3);
+    transition: border-color 0.3s ease;
+  }
+
+  .yokai-prose a:hover {
+    border-bottom-color: #9C72F6;
+  }
+
+  .yokai-prose blockquote {
+    margin: 2em 0;
+    padding-left: 1.5em;
+    border-left: 4px solid #9C72F6;
+    font-style: italic;
+    color: rgba(253, 255, 253, 0.6);
+  }
+
+  .yokai-prose ul,
+  .yokai-prose ol {
+    margin-bottom: 1.5em;
+    padding-left: 1.5em;
+  }
+
+  .yokai-prose li {
+    margin-bottom: 0.5em;
+  }
+
+  .yokai-prose ul {
+    list-style-type: square;
+  }
+
+  .yokai-prose img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    margin: 2em 0;
+    background-color: rgba(253, 255, 253, 0.05);
+  }
+
+  .yokai-prose strong,
+  .yokai-prose b {
+    font-weight: 700;
+    color: #FDFFFD;
+  }
+</style>

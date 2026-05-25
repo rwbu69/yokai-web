@@ -1,0 +1,194 @@
+---
+// src/components/members/MembersPage.astro
+import AccordionStrip from './AccordionStrip.astro';
+import CreditsPanel from './CreditsPanel.astro';
+import { members } from './members.ts';
+
+// Slim client payload — only fields the script needs
+const clientData = members.map(m => ({
+  id:        m.id,
+  firstName: m.firstName,
+  lastName:  m.lastName,
+  role:      m.role,
+  tenure:    m.tenure,
+  city:      m.city,
+  quote:     m.quote,
+  socials:   m.socials,
+}));
+---
+
+<!--
+  members-page class overrides pt-24 that BaseLayout adds for non-home pages.
+  Navbar is fixed/sticky and overlays on top — accordion starts flush at top.
+-->
+<div class="members-page flex flex-col bg-[#0c0c0c] overflow-hidden" style="height: 100dvh;">
+  <AccordionStrip members={members} />
+  <CreditsPanel initial={members[0]} />
+</div>
+
+
+<!-- ① Data bridge -->
+<script define:vars={{ __m: clientData }}>
+  window.__YOKAI_M = __m;
+</script>
+
+<!-- ② Orchestration script — vanilla JS -->
+<script>
+  import anime from 'animejs/lib/anime.es.js';
+
+  var members      = (window as any).__YOKAI_M || [];
+  var strips        = Array.from(document.querySelectorAll<HTMLElement>('[data-strip-id]'));
+  var creditsInner  = document.getElementById('credits-inner'); // directional slide target
+  var accordion     = document.querySelector<HTMLElement>('.accordion-strip');
+
+  // Detail panel DOM refs
+  var dpName1  = document.getElementById('dp-name1');
+  var dpName2  = document.getElementById('dp-name2');
+  var dpRole   = document.getElementById('dp-role');
+  var dpTenure = document.getElementById('dp-tenure');
+  var dpCity   = document.getElementById('dp-city');
+  var dpQuote  = document.getElementById('dp-quote');
+
+  var active      = -1;
+  var isAnimating = false; // FIX 4: block new animations until current settles
+
+  // ── FIX 1: Pixel-integer widths — no float/subpixel at settle ──────
+  function getTargetWidths(activeIdx: number) {
+    var total  = accordion ? accordion.offsetWidth : window.innerWidth;
+    var active = Math.round(total * 0.40);
+    var rest   = Math.round((total - active) / (members.length - 1));
+    return members.map(function(_: any, i: number) { return i === activeIdx ? active : rest; });
+  }
+
+  // ── FIX 4: Strip animation isolated to animateStrips() ─────────────
+  function animateStrips(activeIdx: number) {
+    if (isAnimating) return;
+    isAnimating = true;
+
+    // Lock pointer events during animation to prevent stutter from re-clicks
+    if (accordion) accordion.style.pointerEvents = 'none';
+
+    var widths = getTargetWidths(activeIdx);
+
+    // FIX 2: set will-change before animation starts (begin callback)
+    anime({
+      targets: strips,
+      width: function(el: HTMLElement, i: number) { return widths[i]; },
+      duration: 600,
+      easing: 'easeInOutQuart',
+      begin: function() {
+        strips.forEach(function(s: HTMLElement) { s.style.willChange = 'width'; });
+      },
+      complete: function() {
+        // FIX 2: double rAF — release will-change only after compositor
+        // finishes painting the final frame, not mid-composite
+        requestAnimationFrame(function() {
+          requestAnimationFrame(function() {
+            strips.forEach(function(s: HTMLElement) { s.style.willChange = 'auto'; });
+            if (accordion) accordion.style.pointerEvents = '';
+            isAnimating = false;
+          });
+        });
+      },
+    });
+  }
+
+  // ── Social link updater ─────────────────────────────────────────────
+  function setSocial(platformId: string, handle: string | undefined, baseUrl: string) {
+    var row  = document.getElementById('dp-' + platformId);
+    var link = document.getElementById('dp-' + platformId + '-link') as HTMLAnchorElement | null;
+    if (!row || !link) return;
+    if (handle) {
+      row.style.display = '';
+      link.textContent  = handle;
+      link.href = 'https://' + baseUrl + '/' + handle.replace('@', '');
+    } else {
+      row.style.display = 'none';
+    }
+  }
+
+  // ── Detail panel text update ────────────────────────────────────────
+  function updateDetail(m: any) {
+    if (dpName1)  dpName1.textContent  = m.firstName;
+    if (dpName2)  dpName2.textContent  = m.lastName;
+    if (dpRole)   dpRole.textContent   = m.role;
+    if (dpTenure) dpTenure.textContent = m.tenure;
+    if (dpCity)   dpCity.textContent   = m.city;
+    if (dpQuote)  dpQuote.textContent  = m.quote;
+    setSocial('instagram', m.socials.instagram, 'instagram.com');
+    setSocial('linkedin',  m.socials.linkedin,  'linkedin.com/in');
+    setSocial('twitter',   m.socials.twitter,   'x.com');
+  }
+
+  // ── Core state setter ───────────────────────────────────────────────
+  function setActive(idx: number) {
+    if (idx === active) return;
+
+    var isFirstLoad = active === -1;
+    // Direction: -1 = new member is to the right (exit left), +1 = exit right
+    var dir = idx > active ? -1 : 1;
+
+    // Toggle .active class for CSS transitions (overlay, names, role)
+    strips.forEach(function(s: HTMLElement, i: number) { s.classList.toggle('active', i === idx); });
+
+    var m = members[idx];
+    active = idx;
+    if (!m) return;
+
+    // Run width animation (pixel-integer, GPU-managed, pointer-locked)
+    animateStrips(idx);
+
+    // Skip detail slide on first load — Astro rendered member[0] already
+    if (isFirstLoad) return;
+
+    var SLIDE = 36; // px — slide distance per transition
+
+    // Phase 1: exit — slide out in direction away from new member
+    anime({
+      targets: creditsInner,
+      translateX: dir * SLIDE,
+      opacity: 0,
+      duration: 150,
+      easing: 'easeInQuart',
+      begin: function() {
+        if (creditsInner) creditsInner.style.willChange = 'transform, opacity';
+      },
+      complete: function() {
+        // Update DOM content while panel is invisible
+        updateDetail(m);
+
+        // Snap to entry position (opposite side from exit)
+        anime.set(creditsInner, { translateX: -dir * SLIDE });
+
+        // Phase 2: enter — slide in to resting position
+        anime({
+          targets: creditsInner,
+          translateX: 0,
+          opacity: 1,
+          duration: 300,
+          easing: 'easeOutQuart',
+          complete: function() {
+            requestAnimationFrame(function() {
+              requestAnimationFrame(function() {
+                if (creditsInner) creditsInner.style.willChange = 'auto';
+              });
+            });
+          },
+        });
+      },
+    });
+  }
+
+  // ── Event bindings ──────────────────────────────────────────────────
+  strips.forEach(function(strip, i) {
+    strip.addEventListener('click', function() { setActive(i); });
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight') setActive((active + 1) % members.length);
+    if (e.key === 'ArrowLeft')  setActive((active + members.length - 1) % members.length);
+  });
+
+  // ── Init ────────────────────────────────────────────────────────────
+  setActive(0);
+</script>

@@ -1,0 +1,22 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import PostHero from '@components/blog/PostHero.astro';
+import PostGrid from '@components/blog/PostGrid.astro';
+import { meta } from '@data/updates-meta';
+
+const allPosts: CollectionEntry<'updates'>[] = await getCollection(
+  'updates',
+  ({ data }) => data.draft !== true
+);
+allPosts.sort(
+  (a, b) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf()
+);
+---
+
+<BaseLayout title={`${meta.title} | Yokai Updates`} activePage="updates">
+  <main class="min-h-screen bg-yokai-dark-blue pt-10">
+    <PostHero title={meta.heroText} description={meta.description} />
+    <PostGrid posts={allPosts} collection="updates" />
+  </main>
+</BaseLayout>

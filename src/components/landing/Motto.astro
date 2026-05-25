@@ -1,0 +1,159 @@
+---
+/**
+ * Motto.astro
+ *
+ * Section "WE DO NOT JUST PERFORM. WE INOVATE." di landing page.
+ * Background terang (bg-yokai-white) — berfungsi sebagai jeda visual
+ * antara Hero (gelap) dan WHO ARE WE (gelap).
+ *
+ * ──────────────────────────────────────────────────────────
+ * CARA MENGUBAH KONTEN
+ * ──────────────────────────────────────────────────────────
+ * Edit teks langsung di template HTML di bawah:
+ *   - Baris h2: ubah teks di dalam masing-masing <span class="motto-l*">
+ *   - Subtitle: ubah teks di dalam <p class="motto-body">
+ *   - Badge: ubah teks di dalam <span class="motto-badge">
+ *
+ * ──────────────────────────────────────────────────────────
+ * CARA KERJA ANIMASI
+ * ──────────────────────────────────────────────────────────
+ * Animasi menggunakan teknik "curtain reveal" per baris:
+ *
+ *   1. Setiap baris teks dibungkus dalam <span class="motto-clip">
+ *      dengan overflow: hidden — ini menjadi "tirai" visual.
+ *   2. Elemen dalam (.motto-l1, .motto-l2, .motto-l3) awalnya
+ *      berada di translateY(105%) — tersembunyi di bawah tirai.
+ *   3. Anime.js menganimasikan translateY ke 0% satu per satu
+ *      dengan timing overlap, menciptakan kesan editorial reveal.
+ *   4. Easing: easeOutExpo — tegas, tajam, tidak ada bounce.
+ *   5. Trigger: IntersectionObserver saat section masuk 20% viewport.
+ *
+ * CARA MENGUBAH RITME:
+ *   - Ubah nilai `duration` (ms) untuk kecepatan per baris.
+ *   - Ubah nilai overlap di .add({ ... }, '-=XXXms') untuk timing antar baris.
+ *   - Ubah `threshold: 0.2` untuk trigger lebih awal/lambat.
+ *
+ * CARA MENONAKTIFKAN:
+ *   - Hapus seluruh blok <script>.
+ *   - Hapus `style="opacity: 0;"` di elemen .motto-l1, .motto-l2, .motto-l3,
+ *     .motto-sub agar konten langsung terlihat tanpa JS.
+ */
+---
+
+<section
+  class="motto-section w-full bg-yokai-white text-yokai-dark-blue py-28 lg:py-36 px-6 lg:px-24 flex items-center justify-center relative overflow-hidden"
+>
+  <div class="max-w-6xl w-full relative z-10">
+
+    <!--
+      Heading — 3 baris terpisah, masing-masing dalam wrapper overflow:hidden.
+      Wrapper (.motto-clip) adalah "tirai" untuk curtain reveal.
+      Elemen dalam (.motto-l*) adalah teks yang bergerak.
+      Keduanya TIDAK memiliki CSS transition — semua via Anime.js.
+    -->
+    <h2
+      class="font-black font-jakarta uppercase tracking-tighter leading-[0.9] max-w-4xl"
+      style="font-size: clamp(3rem, 8vw, 6rem);"
+    >
+      <!-- Baris 1 -->
+      <span class="motto-clip block" style="overflow: hidden; padding-bottom: 0.08em;">
+        <span class="motto-l1 block" style="opacity: 0;">WE DO NOT JUST</span>
+      </span>
+
+      <!-- Baris 2 — "PERFORM." dengan background highlight -->
+      <span class="motto-clip block" style="overflow: hidden; padding-bottom: 0.08em;">
+        <span class="motto-l2 inline-block" style="opacity: 0;">
+          <span class="bg-yokai-purple text-yokai-white px-2 py-1 inline-block -rotate-2 translate-y-1">
+            PERFORM.
+          </span>
+        </span>
+      </span>
+
+      <!-- Baris 3 -->
+      <span class="motto-clip block" style="overflow: hidden; padding-bottom: 0.08em;">
+        <span class="motto-l3 block text-yokai-purple" style="opacity: 0;">WE INOVATE.</span>
+      </span>
+    </h2>
+
+    <!-- Subtitle + badge — fade in setelah heading selesai -->
+    <div
+      class="motto-sub mt-16 flex flex-col md:flex-row gap-8 justify-between items-start md:items-end border-t-2 border-yokai-dark-blue/20 pt-8"
+      style="opacity: 0;"
+    >
+      <p class="motto-body font-outfit font-bold text-lg md:text-xl uppercase tracking-widest max-w-lg text-yokai-dark-blue/80">
+        Bridging the raw energy of Wotagei with premium contemporary artistry.
+      </p>
+      <span class="motto-badge font-inter text-xs tracking-[0.3em] font-bold uppercase text-yokai-purple border-2 border-yokai-purple px-4 py-2">
+        The Yokai Manifesto
+      </span>
+    </div>
+
+  </div>
+</section>
+
+<script>
+  /**
+   * Curtain reveal animation untuk Motto section.
+   *
+   * Teknik: tiap baris punya wrapper overflow:hidden sebagai "tirai".
+   * Elemen dalam bergerak dari bawah tirai (translateY 105%) ke posisi normal.
+   * Timing overlap antar baris menciptakan kesan alir yang editorial.
+   *
+   * Tidak ada CSS transition/animation pada elemen yang sama — semua Anime.js.
+   */
+  import anime from 'animejs/lib/anime.es.js';
+
+  // Set initial state via JS — fallback: jika JS diblokir, elemen tetap terlihat
+  // karena opacity: 0 di-set via inline style hanya jika browser mendukung script.
+  anime.set(['.motto-l1', '.motto-l2', '.motto-l3'], { translateY: '105%', opacity: 0 });
+  anime.set('.motto-sub', { opacity: 0, translateY: 20 });
+
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (!entry.isIntersecting) return;
+
+      // ── Curtain reveal: baris masuk satu per satu dengan overlap ──
+      // Easing easeOutExpo: permulaan cepat, melambat tajam di akhir.
+      // Ini memberikan kesan deliberate dan editorial (bukan playful).
+      anime.timeline({ easing: 'easeOutExpo' })
+
+        // Baris 1: WE DO NOT JUST
+        .add({
+          targets:      '.motto-l1',
+          translateY:   ['105%', '0%'],
+          opacity:      [0, 1],
+          duration:     1000,
+        })
+
+        // Baris 2: PERFORM. (overlap 700ms — muncul sebelum baris 1 selesai)
+        .add({
+          targets:      '.motto-l2',
+          translateY:   ['105%', '0%'],
+          opacity:      [0, 1],
+          duration:     900,
+        }, '-=700')
+
+        // Baris 3: WE INOVATE. (overlap 700ms)
+        .add({
+          targets:      '.motto-l3',
+          translateY:   ['105%', '0%'],
+          opacity:      [0, 1],
+          duration:     900,
+        }, '-=700')
+
+        // Subtitle: fade + Y setelah heading settle
+        .add({
+          targets:      '.motto-sub',
+          opacity:      [0, 1],
+          translateY:   [20, 0],
+          duration:     700,
+          easing:       'easeOutQuart',
+        }, '-=500');
+
+      observer.disconnect();
+    });
+  }, { threshold: 0.2 });
+
+  var section = document.querySelector('.motto-section');
+  if (section) observer.observe(section);
+</script>

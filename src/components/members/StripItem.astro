@@ -1,0 +1,147 @@
+---
+// src/components/members/StripItem.astro
+import type { Member } from './members.ts';
+
+interface Props { member: Member; }
+const { member } = Astro.props;
+const idStr = String(member.id).padStart(2, '0');
+---
+
+<!--
+  FIX 3: Photo is on ::before pseudo-element (CSS variable).
+  anime.js animates width on .strip-item; ::before is always
+  100% of its parent — background-size: cover is NEVER recalculated
+  during the width animation, eliminating that repaint source.
+-->
+<article
+  class="strip-item relative h-full overflow-hidden cursor-pointer select-none"
+  data-strip-id={member.id}
+  style={`--strip-photo: url('${member.photo}');`}
+>
+  <!-- Gradient overlay -->
+  <div class="strip-overlay absolute inset-0 pointer-events-none"></div>
+
+  <!-- Number — top-left, always visible -->
+  <span class="absolute top-3 left-3 z-10 font-inter text-[8px] font-black tracking-[0.45em] text-white/50">
+    {idStr}
+  </span>
+
+  <!-- Bottom content block -->
+  <div class="absolute bottom-0 left-0 right-0 z-10 p-3 pb-4">
+
+    <!-- Short name: visible when collapsed, hidden when active -->
+    <p class="strip-name-short font-jakarta font-black uppercase leading-none text-white/70"
+       style="white-space: nowrap; overflow: hidden; text-overflow: clip;">
+      {member.firstName}
+    </p>
+
+    <!-- Full name: visible when active, delayed 0.3s.
+         Uses visibility + opacity — never display toggle — to avoid layout recalc. -->
+    <p class="strip-name-full font-jakarta font-black uppercase leading-[1.05] text-white"
+       style="white-space: nowrap; overflow: hidden; text-overflow: clip;">
+      {member.firstName}<br />{member.lastName}
+    </p>
+
+    <!-- Role: visible when active, delayed 0.3s -->
+    <p class="strip-role font-inter uppercase tracking-[0.3em] text-white/45 mt-1"
+       style="font-size: 6.5px; white-space: nowrap; overflow: hidden; text-overflow: clip;">
+      {member.role}
+    </p>
+
+  </div>
+</article>
+
+<style>
+  /*
+   * Strip: GPU layer from frame 1.
+   * will-change: width is set/unset dynamically by MembersPage script
+   * (with double-rAF on release) — not hardcoded here.
+   */
+  .strip-item {
+    height: 100%;
+    flex-shrink: 0;
+    flex-grow: 0;
+    transform: translateZ(0);     /* compositing layer from first paint */
+    backface-visibility: hidden;
+  }
+
+  /*
+   * FIX 3: Photo lives on ::before, which is ALWAYS 100% of .strip-item.
+   * browser never recalculates background-size: cover during width animation.
+   */
+  .strip-item::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: var(--strip-photo);
+    background-size: cover;
+    background-position: center 15%;
+    background-repeat: no-repeat;
+    background-attachment: scroll;
+    transform: translateZ(0); /* keep on same compositing layer as parent */
+    will-change: auto;
+  }
+
+  /* Overlay gradient — no box-shadow, no filter, no border-radius changes */
+  .strip-overlay {
+    background: linear-gradient(to top, rgba(0,0,0,0.80) 0%, rgba(0,0,0,0.30) 60%, rgba(0,0,0,0.10) 100%);
+    transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .strip-item.active .strip-overlay {
+    background: linear-gradient(to top, rgba(0,0,0,0.60) 0%, rgba(0,0,0,0.08) 55%, transparent 100%);
+  }
+
+  /* Short name: fades out when active */
+  .strip-name-short {
+    font-size: 9px;
+    opacity: 1;
+    visibility: visible;
+    transition:
+      opacity    0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      font-size  0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      visibility 0s   0.3s;
+  }
+  .strip-item.active .strip-name-short {
+    opacity: 0;
+    font-size: 0px;
+    visibility: hidden;
+  }
+
+  /* Full name: fades in when active, delayed so strip expands first */
+  .strip-name-full {
+    font-size: 18px;
+    opacity: 0;
+    visibility: hidden;
+    max-height: 0;
+    overflow: hidden;
+    transition:
+      opacity    0.3s 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      max-height 0.3s 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      visibility 0s   0.3s;
+  }
+  .strip-item.active .strip-name-full {
+    opacity: 1;
+    visibility: visible;
+    max-height: 60px;
+    transition:
+      opacity    0.3s 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      max-height 0.3s 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      visibility 0s   0.3s;
+  }
+
+  /* Role: fades in when active, delayed */
+  .strip-role {
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity    0.3s 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      visibility 0s   0.3s;
+  }
+  .strip-item.active .strip-role {
+    opacity: 1;
+    visibility: visible;
+    transition:
+      opacity    0.3s 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      visibility 0s   0.3s;
+  }
+</style>

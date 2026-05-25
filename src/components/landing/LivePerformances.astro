@@ -1,0 +1,348 @@
+---
+/**
+ * LivePerformances.astro
+ *
+ * Section live performance di landing page.
+ * Layout: ASYMMETRIC — satu item "featured" (kiri, dominan) + item "supporting" (kanan, compact).
+ * Item featured mendapat iframe YouTube embed jika field `youtubeId` tersedia.
+ * Item supporting ditampilkan sebagai teks compact (no media).
+ *
+ * ──────────────────────────────────────────────────────────
+ * CARA MENGUBAH DATA
+ * ──────────────────────────────────────────────────────────
+ * Edit array di src/components/landing/performances.ts.
+ * - item[0]   = FEATURED (kiri, dengan iframe jika youtubeId tersedia)
+ * - item[1..] = SUPPORTING (kanan, compact text list)
+ * Data tidak boleh diedit di file ini.
+ *
+ * ──────────────────────────────────────────────────────────
+ * CARA KERJA YOUTUBE EMBED
+ * ──────────────────────────────────────────────────────────
+ * Jika performances[0].youtubeId tersedia:
+ *   → Render <iframe src="youtube.com/embed/{youtubeId}"> dalam container aspect-ratio 16/9
+ * Jika tidak:
+ *   → Render <img src="i.ytimg.com/vi/{videoId}/mqdefault.jpg"> sebagai fallback
+ *
+ * ──────────────────────────────────────────────────────────
+ * CARA MENGATUR RITME ANIMASI
+ * ──────────────────────────────────────────────────────────
+ * Animasi berlawanan arah dari Projects — mengalir dari kanan ke kiri.
+ * Ini menciptakan "dialog" visual antar dua section: Projects masuk dari kiri,
+ * LivePerformances merespons dari kanan.
+ *
+ *   1. Header kiri  : translateX dari kanan (20→0)
+ *   2. Header kanan : translateX dari kiri (-20→0) — berlawanan
+ *   3. Divider      : menggambar dari kanan ke kiri
+ *   4. Featured     : fade + translateY dari bawah
+ *   5. Supporting   : stagger dari bawah ke atas (reverse dari Projects)
+ *
+ * Untuk mengubah: edit nilai delay di <script>.
+ * Untuk menonaktifkan: hapus seluruh blok <script>.
+ */
+
+import { performances } from './performances';
+
+const featured    = performances[0];
+const supporting  = performances.slice(1);
+---
+
+<section class="perfs-section w-full py-12 px-6 lg:px-12 overflow-hidden" style="background-color: var(--yokai-dark-blue);">
+  <div class="max-w-[90vw] mx-auto">
+
+    <!-- Header row -->
+    <div class="flex items-end justify-between mb-0">
+
+      <!-- Kiri: section title -->
+      <div class="perfs-title-wrap">
+        <h2
+          class="font-jakarta font-black uppercase !text-yokai-white leading-none"
+          style="font-size: clamp(1.8rem, 4vw, 3rem); letter-spacing: -0.04em;"
+        >
+          Live Performances
+        </h2>
+      </div>
+
+      <!-- Kanan: count + link -->
+      <div class="perfs-meta-wrap flex items-center gap-6">
+        <span class="font-inter text-[8px] tracking-[0.45em] uppercase" style="color: rgba(255,255,255,0.18);">
+          {performances.length} events
+        </span>
+        <a
+          href="/gallery"
+          class="font-inter text-[9px] tracking-[0.4em] uppercase"
+          style="color: rgba(255,255,255,0.35); text-decoration: none; transition: color 0.25s cubic-bezier(0.4,0,0.2,1);"
+          onmouseover="this.style.color='rgba(255,255,255,0.9)'"
+          onmouseout="this.style.color='rgba(255,255,255,0.35)'"
+        >
+          View Gallery
+        </a>
+      </div>
+    </div>
+
+    <!-- Divider — menggambar dari kanan ke kiri -->
+    <div
+      id="perfs-divider"
+      style="height: 1px; background: rgba(255,255,255,0.10); width: 0; margin-left: auto; margin-bottom: 0;"
+    ></div>
+
+    <!--
+      Grid asimetris: Featured (58%) | Supporting (42%)
+      Mobile: single column, featured pertama.
+    -->
+    <div
+      class="grid grid-cols-1 lg:grid-cols-[58fr_42fr]"
+      style="border-top: 1px solid rgba(255,255,255,0.08);"
+    >
+
+      <!-- ── FEATURED ITEM ─────────────────────────────────────────── -->
+      <a
+        class="perf-featured group"
+        href={`https://www.youtube.com/watch?v=${featured.videoId}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        style="display: block; padding: 1.5rem 2rem 1.5rem 0; border-right: 1px solid rgba(255,255,255,0.06); text-decoration: none;"
+      >
+        <!-- Index label -->
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+          <span
+            class="font-inter"
+            style="font-size: 8px; letter-spacing: 0.5em; text-transform: uppercase; color: rgba(160,69,187,0.6);"
+          >
+            01
+          </span>
+          <div style="width: 1.5rem; height: 1px; background: rgba(160,69,187,0.3);"></div>
+          <span
+            class="font-inter"
+            style="font-size: 8px; letter-spacing: 0.45em; text-transform: uppercase; color: rgba(255,255,255,0.25);"
+          >
+            Featured
+          </span>
+        </div>
+
+        <!--
+          Video embed (if youtubeId available) or thumbnail fallback.
+          aspect-ratio: 16/9 ensures the container is always the right shape.
+        -->
+        <div
+          class="perf-feat-media"
+          style="width: 100%; overflow: hidden; aspect-ratio: 16 / 9; background: rgba(0,0,0,0.3); margin-bottom: 1.25rem;"
+        >
+          {featured.youtubeId ? (
+            <iframe
+              src={`https://www.youtube.com/embed/${featured.youtubeId}?controls=1&rel=0&modestbranding=1`}
+              title={featured.title}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+              style="width: 100%; height: 100%; display: block; border: none; opacity: 0.88;"
+            ></iframe>
+          ) : (
+            <img
+              src={`https://i.ytimg.com/vi/${featured.videoId}/mqdefault.jpg`}
+              alt={featured.title}
+              loading="lazy"
+              style="width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0.75;"
+            />
+          )}
+        </div>
+
+        <!-- Meta: title + venue + date -->
+        <h3
+          class="perf-feat-title font-jakarta"
+          style="font-weight: 900; text-transform: uppercase; letter-spacing: -0.03em; color: rgba(255,255,255,0.85); font-size: clamp(1.05rem, 2vw, 1.5rem); line-height: 1.1; margin-bottom: 0.5rem; transition: color 0.2s cubic-bezier(0.4,0,0.2,1);"
+        >
+          {featured.title}
+        </h3>
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <span
+            class="font-inter"
+            style="font-size: 8px; letter-spacing: 0.4em; text-transform: uppercase; color: rgba(255,255,255,0.30);"
+          >
+            {featured.meta}
+          </span>
+          <span style="color: rgba(255,255,255,0.15); font-size: 8px;">·</span>
+          <span
+            class="font-inter"
+            style="font-size: 8px; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(255,255,255,0.22);"
+          >
+            {featured.date}
+          </span>
+        </div>
+      </a>
+
+      <!-- ── SUPPORTING ITEMS ─────────────────────────────────────── -->
+      <div class="perfs-supporting flex flex-col lg:pl-0">
+        {supporting.map((p, idx) => (
+          <a
+            class="perf-support group"
+            href={`https://www.youtube.com/watch?v=${p.videoId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style="display: flex; flex-direction: column; justify-content: center; flex: 1; padding: 1.5rem 0 1.5rem 2rem; border-top: 1px solid rgba(255,255,255,0.05); text-decoration: none;"
+          >
+            <!-- Index -->
+            <span
+              class="font-inter perf-sup-index"
+              style="font-size: 8px; letter-spacing: 0.5em; text-transform: uppercase; color: rgba(255,255,255,0.18); margin-bottom: 0.5rem; display: block; transition: color 0.2s cubic-bezier(0.4,0,0.2,1);"
+            >
+              0{idx + 2}
+            </span>
+
+            <!-- Title -->
+            <h3
+              class="font-jakarta perf-sup-title"
+              style="font-weight: 900; text-transform: uppercase; letter-spacing: -0.02em; color: rgba(255,255,255,0.65); font-size: clamp(0.95rem, 1.6vw, 1.2rem); line-height: 1.1; margin-bottom: 0.5rem; transition: color 0.2s cubic-bezier(0.4,0,0.2,1);"
+            >
+              {p.title}
+            </h3>
+
+            <!-- Venue + date -->
+            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+              <span
+                class="font-inter perf-sup-meta"
+                style="font-size: 8px; letter-spacing: 0.35em; text-transform: uppercase; color: rgba(255,255,255,0.20); transition: color 0.2s cubic-bezier(0.4,0,0.2,1);"
+              >
+                {p.meta}
+              </span>
+              <span style="color: rgba(255,255,255,0.10);">·</span>
+              <span
+                class="font-inter"
+                style="font-size: 8px; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(255,255,255,0.16);"
+              >
+                {p.date}
+              </span>
+            </div>
+          </a>
+        ))}
+      </div>
+
+    </div>
+
+    <!-- Bottom closure -->
+    <div style="height: 1px; background: rgba(255,255,255,0.06);"></div>
+
+  </div>
+</section>
+
+<style>
+  /*
+   * Hover pada featured item
+   */
+  .perf-featured:hover .perf-feat-title {
+    color: rgba(255, 255, 255, 0.98) !important;
+  }
+
+  .perf-featured:hover .perf-feat-media img,
+  .perf-featured:hover .perf-feat-media iframe {
+    opacity: 1 !important;
+  }
+
+  /*
+   * Hover pada supporting items
+   */
+  .perf-support:hover .perf-sup-index {
+    color: var(--yokai-purple) !important;
+  }
+
+  .perf-support:hover .perf-sup-title {
+    color: rgba(255, 255, 255, 0.90) !important;
+  }
+
+  .perf-support:hover .perf-sup-meta {
+    color: rgba(255, 255, 255, 0.40) !important;
+  }
+
+  /*
+   * Mobile: supporting items horizontal padding dikurangi
+   */
+  @media (max-width: 1023px) {
+    .perf-support {
+      padding-left: 0 !important;
+      border-left: none !important;
+      border-top: 1px solid rgba(255,255,255,0.05) !important;
+    }
+  }
+</style>
+
+<script>
+  /**
+   * Animasi narasi untuk LivePerformances section.
+   *
+   * Berlawanan arah dari Projects — menciptakan "dialog" visual:
+   * Projects masuk dari kiri, LivePerformances merespons dari kanan.
+   *
+   * Ritme:
+   *   t=0ms   : Title (kiri) masuk dari kanan
+   *   t=80ms  : Meta (kanan) masuk dari kiri — berlawanan dengan title
+   *   t=200ms : Divider menggambar dari kanan ke kiri
+   *   t=380ms : Featured item muncul (fade + Y)
+   *   t=480ms : Supporting item 1 (stagger bottom-to-top)
+   *   t=570ms : Supporting item 2
+   */
+  import anime from 'animejs/lib/anime.es.js';
+
+  // Set initial state via JS so they remain visible if JS fails/is blocked
+  anime.set(['.perfs-title-wrap', '.perfs-meta-wrap', '.perf-featured', '.perf-support'], { opacity: 0 });
+
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (!entry.isIntersecting) return;
+
+      // 1. Header — dua elemen dari arah berlawanan
+      anime({
+        targets:    '.perfs-title-wrap',
+        opacity:    [0, 1],
+        translateX: [20, 0],
+        duration:   480,
+        easing:     'easeOutQuart',
+        delay:      0,
+      });
+
+      anime({
+        targets:    '.perfs-meta-wrap',
+        opacity:    [0, 1],
+        translateX: [-20, 0],
+        duration:   480,
+        easing:     'easeOutQuart',
+        delay:      80,
+      });
+
+      // 2. Divider — menggambar dari kanan ke kiri
+      anime({
+        targets:    '#perfs-divider',
+        width:      ['0%', '100%'],
+        duration:   500,
+        easing:     'easeInOutQuart',
+        delay:      200,
+      });
+
+      // 3. Featured item
+      anime({
+        targets:    '.perf-featured',
+        opacity:    [0, 1],
+        translateY: [16, 0],
+        duration:   550,
+        easing:     'easeOutQuart',
+        delay:      380,
+      });
+
+      // 4. Supporting items — stagger bottom-to-top
+      var supportItems = Array.from(document.querySelectorAll<HTMLElement>('.perf-support'));
+      supportItems.forEach(function(item, i) {
+        var reverseI = supportItems.length - 1 - i;
+        anime({
+          targets:    item,
+          opacity:    [0, 1],
+          translateY: [10, 0],
+          duration:   440,
+          easing:     'easeOutQuart',
+          delay:      480 + reverseI * 90,
+        });
+      });
+
+      observer.disconnect();
+    });
+  }, { threshold: 0.10 });
+
+  var section = document.querySelector('.perfs-section');
+  if (section) observer.observe(section);
+</script>

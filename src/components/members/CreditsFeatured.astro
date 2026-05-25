@@ -1,0 +1,42 @@
+---
+// src/components/members/CreditsFeatured.astro
+import type { Member } from './members.ts';
+
+interface Props { initial: Member; }
+const { initial } = Astro.props;
+---
+
+<div class="credits-featured flex flex-col justify-center px-5 border-r border-white/[0.07] shrink-0 w-44 lg:w-52">
+
+  <!-- Label -->
+  <p class="font-inter text-[6.5px] tracking-[0.55em] uppercase text-white/20 mb-3">
+    Selected
+  </p>
+
+  <!-- Name — two lines, updated via anime.js crossfade -->
+  <h2
+    class="font-jakarta font-black uppercase text-white leading-[0.9] mb-1"
+    style="font-size: clamp(1rem, 2vw, 1.5rem)"
+  >
+    <span id="cf-name1">{initial.firstName}</span><br />
+    <span id="cf-name2">{initial.lastName}</span>
+  </h2>
+
+  <!-- Role -->
+  <p id="cf-role" class="font-inter text-[7px] tracking-[0.4em] uppercase text-yokai-purple mb-4 leading-tight">
+    {initial.role}
+  </p>
+
+  <!-- Stats row -->
+  <div class="flex flex-col gap-1.5">
+    <div class="flex items-center gap-2">
+      <span class="font-inter text-[6px] tracking-[0.3em] uppercase text-white/20 shrink-0">Tenure</span>
+      <span id="cf-tenure" class="font-inter text-[6px] tracking-[0.3em] uppercase text-white/50">{initial.tenure}</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="font-inter text-[6px] tracking-[0.3em] uppercase text-white/20 shrink-0">City</span>
+      <span id="cf-city" class="font-inter text-[6px] tracking-[0.3em] uppercase text-white/50">{initial.city}</span>
+    </div>
+  </div>
+
+</div>

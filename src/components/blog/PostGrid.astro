@@ -1,0 +1,60 @@
+---
+/**
+ * PostGrid.astro
+ * 
+ * Grid container untuk halaman listing. Menggunakan Anime.js untuk entrance stagger.
+ * 
+ * Props:
+ * - posts: array of CollectionEntry
+ * - collection: string
+ */
+import PostCard from './PostCard.astro';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  posts: CollectionEntry<any>[];
+  collection: string;
+}
+
+const { posts, collection } = Astro.props;
+---
+<section class="w-full max-w-7xl mx-auto px-6 md:px-12 pb-32">
+  {posts.length === 0 ? (
+    <div class="w-full flex justify-center py-20">
+      <p class="font-jakarta font-black uppercase text-2xl tracking-[0.3em] text-yokai-white/20">
+        NOTHING HERE YET.
+      </p>
+    </div>
+  ) : (
+    <div id="post-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
+      {posts.map((post) => (
+        <PostCard 
+          title={post.data.title}
+          description={post.data.description}
+          coverImage={post.data.coverImage}
+          date={post.data.date}
+          slug={post.id}
+          collection={collection}
+        />
+      ))}
+    </div>
+  )}
+</section>
+
+<script>
+  import anime from 'animejs/lib/anime.es.js';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const cards = document.querySelectorAll('.post-card');
+    if (cards.length > 0) {
+      anime({
+        targets: cards,
+        translateY: [40, 0],
+        opacity: [0, 1],
+        duration: 800,
+        delay: anime.stagger(150),
+        easing: 'easeOutQuart'
+      });
+    }
+  });
+</script>

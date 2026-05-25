@@ -1,0 +1,402 @@
+---
+/**
+ * PhotosGrid.astro (Slide Grid & Center Carousel Redesign)
+ * 
+ * Layout:
+ * - Desktop/Mobile: Fullscreen grid, bergeser horizontal per halaman.
+ * - Background utama yokai-white.
+ * 
+ * Lightbox Carousel:
+ * - 50vh tingginya, posisi tengah layar (top: 25vh).
+ * - Sisa 25% atas dan bawah menampilkan grid yang di-blur & digelapkan.
+ * - Carousel 3-state (Prev, Center, Next) dengan absolute positioning.
+ * - Animasi geser menggunakan Anime.js (easeInOutQuart).
+ */
+import { photoEvents } from '../../../data/photos';
+
+const chunkedEvents = [];
+for (let i = 0; i < photoEvents.length; i += 4) {
+  chunkedEvents.push(photoEvents.slice(i, i + 4));
+}
+---
+
+<section class="pg-fullscreen-wrapper w-full h-[100svh] relative z-0 overflow-hidden fixed inset-0 bg-yokai-dark-blue">
+  
+  <!-- Horizontal Sliding Track -->
+  <div class="pg-track absolute top-0 left-0 h-full flex" style={`width: ${chunkedEvents.length * 100}vw;`}>
+    {chunkedEvents.map((set, setIndex) => (
+      <div 
+        class="pg-set w-[100vw] h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 grid-rows-4 md:grid-rows-2"
+        data-index={setIndex}
+      >
+        {set.map((event) => {
+          const allImages = [event.coverImage, ...(event.images || [])];
+          return (
+            <div 
+              class="pg-cell relative w-full h-full overflow-hidden cursor-zoom-in group bg-yokai-dark-blue" 
+              data-images={JSON.stringify(allImages)}
+              data-eventname={event.eventName}
+            >
+              <!-- Background Image -->
+              <img 
+                src={event.coverImage} 
+                alt={event.eventName} 
+                class="absolute inset-0 w-full h-full object-cover"
+              />
+
+              <!-- Gradient Overlay (Bottom to Top) -->
+              <div 
+                class="pg-cell-overlay absolute inset-0 z-20 pointer-events-none" 
+                style="background: linear-gradient(to top, rgba(42,30,82, 0.85) 0%, rgba(42,30,82, 0) 50%); opacity: 0;"
+              ></div>
+
+              <!-- Typography (Bottom Left) -->
+              <div class="pg-cell-text absolute bottom-4 left-4 md:bottom-8 md:left-8 flex flex-col z-30 pointer-events-none" style="opacity: 0;">
+                <div class="flex items-center gap-3 mb-1 md:mb-2">
+                  <span class="font-inter text-[8px] md:text-[9px] tracking-[0.4em] uppercase text-yokai-white/60">
+                    {event.date}
+                  </span>
+                  <span class="w-1 h-1 bg-yokai-purple rounded-full"></span>
+                  <span class="font-inter text-[8px] md:text-[9px] tracking-[0.4em] uppercase text-yokai-white/60">
+                    {allImages.length} PHOTOS
+                  </span>
+                </div>
+                <h2 class="font-jakarta font-black uppercase text-yokai-white text-lg md:text-2xl tracking-tighter leading-none pr-8">
+                  {event.eventName}
+                </h2>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    ))}
+  </div>
+
+  <!-- Pagination Arrows -->
+  {chunkedEvents.length > 1 && (
+    <div class="absolute inset-y-0 w-full flex justify-between items-center px-4 md:px-8 pointer-events-none z-40">
+      <button class="pg-prev-btn text-yokai-white mix-blend-difference pointer-events-auto cursor-pointer p-4 opacity-0 transition-opacity" aria-label="Previous Page">
+        <svg class="w-8 h-8 md:w-12 md:h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
+      </button>
+      <button class="pg-next-btn text-yokai-white mix-blend-difference pointer-events-auto cursor-pointer p-4 transition-opacity" aria-label="Next Page">
+        <svg class="w-8 h-8 md:w-12 md:h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+      </button>
+    </div>
+  )}
+
+  <!-- Page Indicators -->
+  {chunkedEvents.length > 1 && (
+    <div class="absolute bottom-4 right-4 md:bottom-8 md:right-8 flex gap-2 z-40">
+      {chunkedEvents.map((_, i) => (
+        <div class={`pg-dot w-2 h-2 rounded-full transition-colors duration-300 ${i === 0 ? 'bg-yokai-purple' : 'bg-yokai-dark-blue/20'}`} data-index={i}></div>
+      ))}
+    </div>
+  )}
+
+</section>
+
+<!-- Label Identitas Halaman -->
+<div class="fixed bottom-4 left-4 md:bottom-8 md:left-8 z-40 pointer-events-none">
+  <span class="font-inter text-[8px] md:text-[10px] tracking-[0.5em] uppercase text-yokai-white/40 mix-blend-difference">
+    GALLERY / PHOTOS
+  </span>
+</div>
+
+<!-- ========================================== -->
+<!-- LIGHTBOX (Carousel Center)                 -->
+<!-- ========================================== -->
+<div id="lb-wrapper" class="fixed inset-0 z-[100] pointer-events-none" style="visibility: hidden;">
+  
+  <!-- Backdrop (Blur + Gelap) yang menutupi seluruh layar, klik area ini untuk close -->
+  <div id="lb-backdrop" class="absolute inset-0 bg-black/40 backdrop-blur-sm z-0 opacity-0 pointer-events-auto cursor-zoom-out"></div>
+  
+  <!-- Container Carousel: 50vh, di tengah -->
+  <div id="lb-carousel-container" class="absolute top-[25vh] left-0 w-full h-[50vh] z-10 opacity-0 overflow-hidden">
+    <!-- Area sentuh untuk swipe diletakkan di atas semua gambar -->
+    <div id="lb-touch-area" class="absolute inset-0 z-20 pointer-events-auto"></div>
+    
+    <!-- Track untuk elemen gambar absolut -->
+    <div id="lb-carousel-track" class="absolute inset-0 z-10 pointer-events-none">
+      <!-- Gambar diinjeksi via JS -->
+    </div>
+
+    <!-- UI Chrome (Text Info) -->
+    <div class="absolute bottom-4 left-4 md:bottom-6 md:left-6 flex flex-col pointer-events-none text-yokai-white z-30">
+      <span id="lb-counter" class="font-inter text-[8px] md:text-[9px] tracking-[0.4em] uppercase mb-1 opacity-80">01 / 01</span>
+      <h3 id="lb-title" class="font-jakarta font-black uppercase text-lg md:text-xl tracking-wider leading-none">EVENT</h3>
+    </div>
+  </div>
+
+  <!-- UI Chrome: Close Button (Diposisi absolut ke window agar selalu di atas) -->
+  <button id="lb-close" class="absolute top-6 right-6 md:top-8 md:right-8 z-[110] text-yokai-white opacity-0 hover:text-yokai-purple transition-colors cursor-pointer pointer-events-auto mix-blend-difference">
+    <svg class="w-8 h-8 md:w-10 md:h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  </button>
+</div>
+
+<style>
+  :global(body.photos-page) { overflow: hidden; }
+</style>
+
+<script>
+  import anime from 'animejs/lib/anime.es.js';
+
+  // --- Grid Pagination & Hover Logic ---
+  const cells = document.querySelectorAll('.pg-cell');
+  const track = document.querySelector('.pg-track') as HTMLElement;
+  const prevBtn = document.querySelector('.pg-prev-btn') as HTMLButtonElement;
+  const nextBtn = document.querySelector('.pg-next-btn') as HTMLButtonElement;
+  const dots = document.querySelectorAll('.pg-dot');
+  const totalPages = document.querySelectorAll('.pg-set').length;
+  
+  let currentPage = 0;
+  let isGridAnimating = false;
+  const isMobile = window.matchMedia('(max-width: 767px)').matches;
+
+  cells.forEach(cell => {
+    const overlay = cell.querySelector('.pg-cell-overlay') as HTMLElement;
+    const text = cell.querySelector('.pg-cell-text') as HTMLElement;
+
+    if (!isMobile) {
+      cell.addEventListener('mouseenter', () => {
+        anime({ targets: overlay, opacity: 1, duration: 400, easing: 'easeOutQuart' });
+        anime({ targets: text, opacity: 1, translateY: [15, 0], duration: 400, easing: 'easeOutQuart' });
+      });
+      cell.addEventListener('mouseleave', () => {
+        anime({ targets: overlay, opacity: 0, duration: 300, easing: 'easeInQuart' });
+        anime({ targets: text, opacity: 0, translateY: [0, 15], duration: 300, easing: 'easeInQuart' });
+      });
+    } else {
+      overlay.style.opacity = '1';
+      text.style.opacity = '1';
+      text.style.transform = 'translateY(0)';
+    }
+  });
+
+  const updateGridUI = () => {
+    if (!prevBtn || !nextBtn) return;
+    prevBtn.style.opacity = currentPage === 0 ? '0' : '1';
+    prevBtn.style.pointerEvents = currentPage === 0 ? 'none' : 'auto';
+    nextBtn.style.opacity = currentPage === totalPages - 1 ? '0' : '1';
+    nextBtn.style.pointerEvents = currentPage === totalPages - 1 ? 'none' : 'auto';
+
+    dots.forEach((dot, idx) => {
+      if (idx === currentPage) {
+        dot.classList.remove('bg-yokai-dark-blue/20');
+        dot.classList.add('bg-yokai-purple');
+      } else {
+        dot.classList.remove('bg-yokai-purple');
+        dot.classList.add('bg-yokai-dark-blue/20');
+      }
+    });
+  };
+
+  const goToPage = (pageIndex: number) => {
+    if (isGridAnimating || pageIndex < 0 || pageIndex >= totalPages) return;
+    isGridAnimating = true;
+    if (prevBtn) prevBtn.style.pointerEvents = 'none';
+    if (nextBtn) nextBtn.style.pointerEvents = 'none';
+
+    anime({
+      targets: track,
+      translateX: `${-pageIndex * 100}vw`,
+      duration: 800,
+      easing: 'easeInOutExpo',
+      complete: () => {
+        currentPage = pageIndex;
+        isGridAnimating = false;
+        updateGridUI();
+      }
+    });
+  };
+
+  nextBtn?.addEventListener('click', () => goToPage(currentPage + 1));
+  prevBtn?.addEventListener('click', () => goToPage(currentPage - 1));
+
+
+  // --- Carousel Lightbox Logic ---
+  const lbWrapper = document.getElementById('lb-wrapper');
+  const lbBackdrop = document.getElementById('lb-backdrop');
+  const lbCarouselContainer = document.getElementById('lb-carousel-container');
+  const lbTrack = document.getElementById('lb-carousel-track');
+  const lbClose = document.getElementById('lb-close');
+  const lbCounter = document.getElementById('lb-counter');
+  const lbTitle = document.getElementById('lb-title');
+  const lbTouchArea = document.getElementById('lb-touch-area');
+
+  let isLbOpen = false;
+  let isCarouselAnimating = false;
+  let carouselImages: string[] = [];
+  let carouselIndex = 0;
+  let imageElements: HTMLImageElement[] = [];
+
+  // Konfigurasi layout state per gambar
+  const getCarouselStyles = (idx: number, currIdx: number) => {
+    const baseW = isMobile ? '85vw' : '60vw'; // Center width
+    const leftPos = isMobile ? '0%' : '15%'; // Prev peek pos
+    const rightPos = isMobile ? '100%' : '85%'; // Next peek pos
+
+    if (idx === currIdx) {
+      // Center
+      return { left: '50%', translateX: '-50%', scale: 1, opacity: 1, zIndex: 10, width: baseW };
+    } else if (idx === currIdx - 1) {
+      // Prev Peek
+      return { left: leftPos, translateX: '-50%', scale: 0.92, opacity: 0.5, zIndex: 5, width: baseW };
+    } else if (idx === currIdx + 1) {
+      // Next Peek
+      return { left: rightPos, translateX: '-50%', scale: 0.92, opacity: 0.5, zIndex: 5, width: baseW };
+    } else if (idx < currIdx) {
+      // Hidden far left
+      return { left: '-50%', translateX: '-50%', scale: 0.8, opacity: 0, zIndex: 1, width: baseW };
+    } else {
+      // Hidden far right
+      return { left: '150%', translateX: '-50%', scale: 0.8, opacity: 0, zIndex: 1, width: baseW };
+    }
+  };
+
+  const updateCarouselUI = (animate = true) => {
+    if (lbCounter) lbCounter.innerText = `${String(carouselIndex + 1).padStart(2, '0')} / ${String(carouselImages.length).padStart(2, '0')}`;
+    
+    imageElements.forEach((img, idx) => {
+      const targetStyles = getCarouselStyles(idx, carouselIndex);
+      
+      if (animate) {
+        anime({
+          targets: img,
+          left: targetStyles.left,
+          translateX: targetStyles.translateX,
+          scale: targetStyles.scale,
+          opacity: targetStyles.opacity,
+          duration: 600,
+          easing: 'easeInOutQuart'
+        });
+        img.style.zIndex = targetStyles.zIndex.toString();
+      } else {
+        img.style.left = targetStyles.left;
+        img.style.transform = `translateX(${targetStyles.translateX}) scale(${targetStyles.scale})`;
+        img.style.opacity = targetStyles.opacity.toString();
+        img.style.zIndex = targetStyles.zIndex.toString();
+        img.style.width = targetStyles.width;
+      }
+    });
+  };
+
+  const navCarousel = (direction: 1 | -1) => {
+    if (isCarouselAnimating) return;
+    const nextIdx = carouselIndex + direction;
+    if (nextIdx < 0 || nextIdx >= carouselImages.length) return;
+    
+    isCarouselAnimating = true;
+    carouselIndex = nextIdx;
+    updateCarouselUI(true);
+    
+    setTimeout(() => { isCarouselAnimating = false; }, 600);
+  };
+
+  const openLightbox = (images: string[], title: string) => {
+    if (isLbOpen) return;
+    isLbOpen = true;
+    carouselImages = images;
+    carouselIndex = 0;
+    if (lbTitle) lbTitle.innerText = title;
+
+    // Reset Track & Inject Images
+    if (lbTrack) {
+      lbTrack.innerHTML = '';
+      imageElements = images.map((src, idx) => {
+        const img = document.createElement('img');
+        img.src = src;
+        img.className = 'absolute top-0 h-full object-cover rounded-sm pointer-events-none shadow-2xl';
+        // Initialize CSS instantly
+        updateCarouselUI(false);
+        lbTrack.appendChild(img);
+        return img;
+      });
+      updateCarouselUI(false); // Force apply
+    }
+
+    lbWrapper!.style.visibility = 'visible';
+
+    // Anime.js Entrance
+    anime({ targets: lbBackdrop, opacity: [0, 1], duration: 400, easing: 'easeOutQuart' });
+    anime({ targets: lbClose, opacity: [0, 1], duration: 400, delay: 200, easing: 'easeOutQuart' });
+    
+    anime({
+      targets: lbCarouselContainer,
+      translateY: ['100%', '0%'],
+      opacity: [0, 1],
+      duration: 600,
+      easing: 'easeOutExpo'
+    });
+  };
+
+  const closeLightbox = () => {
+    if (!isLbOpen) return;
+    
+    anime({ targets: lbBackdrop, opacity: [1, 0], duration: 400, easing: 'easeInQuart' });
+    anime({ targets: lbClose, opacity: [1, 0], duration: 200, easing: 'easeInQuart' });
+    
+    anime({
+      targets: lbCarouselContainer,
+      translateY: ['0%', '100%'],
+      opacity: [1, 0],
+      duration: 500,
+      easing: 'easeInExpo',
+      complete: () => {
+        lbWrapper!.style.visibility = 'hidden';
+        isLbOpen = false;
+        if (lbTrack) lbTrack.innerHTML = '';
+      }
+    });
+  };
+
+  // Bind Grid Click
+  cells.forEach(cell => {
+    cell.addEventListener('click', () => {
+      const imagesJson = cell.getAttribute('data-images');
+      const title = cell.getAttribute('data-eventname');
+      if (imagesJson && title && !isGridAnimating) {
+        openLightbox(JSON.parse(imagesJson), title);
+      }
+    });
+  });
+
+  // Bind LB Exits
+  lbClose?.addEventListener('click', closeLightbox);
+  lbBackdrop?.addEventListener('click', closeLightbox);
+  document.addEventListener('keydown', (e) => {
+    if (!isLbOpen) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowRight') navCarousel(1);
+    if (e.key === 'ArrowLeft') navCarousel(-1);
+  });
+
+  // Touch Swipe for Carousel
+  let touchStartX = 0;
+  let touchEndX = 0;
+  
+  lbTouchArea?.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+  
+  lbTouchArea?.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+  }, { passive: true });
+
+  const handleSwipe = () => {
+    const threshold = 40;
+    if (touchEndX < touchStartX - threshold) navCarousel(1); // Swipe left -> Next
+    if (touchEndX > touchStartX + threshold) navCarousel(-1); // Swipe right -> Prev
+  };
+
+  // Click on edges to navigate (fallback for desktop)
+  lbTouchArea?.addEventListener('click', (e) => {
+    const rect = lbTouchArea.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    if (clickX < rect.width * 0.3) navCarousel(-1);
+    else if (clickX > rect.width * 0.7) navCarousel(1);
+  });
+
+</script>

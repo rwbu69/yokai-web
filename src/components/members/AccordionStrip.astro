@@ -1,0 +1,36 @@
+---
+// src/components/members/AccordionStrip.astro
+import StripItem from './StripItem.astro';
+import type { Member } from './members.ts';
+
+interface Props { members: Member[]; }
+const { members } = Astro.props;
+---
+
+<!--
+  HORIZONTAL accordion: flex-direction ROW.
+  Width = 100%, Height = 60dvh.
+  Each child (StripItem) animates its own width (not flex).
+-->
+<section
+  class="accordion-strip"
+  aria-label="Member photo accordion"
+>
+  {members.map(m => <StripItem member={m} />)}
+</section>
+
+<style>
+  .accordion-strip {
+    display: flex;
+    flex-direction: row;   /* ← HORIZONTAL */
+    width: 100%;
+    height: 60dvh;
+    overflow: hidden;
+    flex-shrink: 0;
+    /* FIX 2: no spacing between navbar and accordion */
+    margin-top: 0;
+    padding-top: 0;
+    position: relative;
+    z-index: 0;
+  }
+</style>

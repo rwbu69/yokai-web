@@ -1,0 +1,244 @@
+---
+/**
+ * VideosGrid.astro (Horizontal Slide Redesign)
+ * 
+ * Layout:
+ * - Desktop: Fullscreen 2x2 grid. Tiap cell 50vw x 50vh.
+ * - Mobile: 1 kolom, 4 baris. Tiap cell 100vw x 25vh.
+ * - Background utama yokai-white.
+ * 
+ * Pagination:
+ * - Seluruh grid (container) bergeser secara horizontal (slide) via Anime.js.
+ * - Panah navigasi di kiri/kanan layar (minimalist).
+ * - Indikator halaman (titik) di pojok kanan bawah.
+ * 
+ * Interaktivitas Hover:
+ * - GIF Canvas disembunyikan, IMG asli ditampilkan (play GIF).
+ * - Overlay gradient (bawah-ke-atas) muncul.
+ * - Judul, tanggal, dan panah ↗ slide-up & fade-in.
+ */
+import { videos } from '../../../data/videos';
+
+const chunkedVideos = [];
+for (let i = 0; i < videos.length; i += 4) {
+  chunkedVideos.push(videos.slice(i, i + 4));
+}
+---
+
+<section class="vg-fullscreen-wrapper w-full h-[100svh] relative z-0 overflow-hidden fixed inset-0 bg-yokai-dark-blue">
+  
+  <!-- Horizontal Sliding Track -->
+  <div class="vg-track absolute top-0 left-0 h-full flex" style={`width: ${chunkedVideos.length * 100}vw;`}>
+    {chunkedVideos.map((set, setIndex) => (
+      <div 
+        class="vg-set w-[100vw] h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 grid-rows-4 md:grid-rows-2"
+        data-index={setIndex}
+      >
+        {set.map((vid) => (
+          <a 
+            href={vid.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="vg-cell relative w-full h-full overflow-hidden block group bg-yokai-dark-blue cursor-pointer"
+          >
+            <!-- Asli: Image (GIF) -->
+            <img 
+              src={vid.gif} 
+              alt={vid.title} 
+              class="vg-gif absolute inset-0 w-full h-full object-cover z-0 opacity-0"
+            />
+            <!-- Canvas: Snapshot frame pertama -->
+            <canvas class="vg-canvas absolute inset-0 w-full h-full object-cover z-10"></canvas>
+            
+            <!-- Gradient Overlay (Bottom to Top) -->
+            <div 
+              class="vg-cell-overlay absolute inset-0 z-20 pointer-events-none" 
+              style="background: linear-gradient(to top, rgba(42,30,82, 0.85) 0%, rgba(42,30,82, 0) 50%); opacity: 0;"
+            ></div>
+
+            <!-- Typography (Bottom Left) -->
+            <div class="vg-cell-text absolute bottom-4 left-4 md:bottom-8 md:left-8 flex flex-col z-30 pointer-events-none" style="opacity: 0;">
+              <span class="font-inter text-[8px] md:text-[9px] tracking-[0.4em] uppercase text-yokai-white/60 mb-1 md:mb-2">
+                {vid.date}
+              </span>
+              <h2 class="font-jakarta font-black uppercase text-yokai-white text-lg md:text-2xl tracking-tighter leading-none pr-8">
+                {vid.title}
+              </h2>
+            </div>
+
+            <!-- Arrow (Top Right) -->
+            <div class="vg-cell-arrow absolute top-4 right-4 md:top-8 md:right-8 text-yokai-white z-30 pointer-events-none" style="opacity: 0;">
+              <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" />
+              </svg>
+            </div>
+
+          </a>
+        ))}
+      </div>
+    ))}
+  </div>
+
+  <!-- Pagination Arrows -->
+  {chunkedVideos.length > 1 && (
+    <div class="absolute inset-y-0 w-full flex justify-between items-center px-4 md:px-8 pointer-events-none z-40">
+      <button class="vg-prev-btn text-yokai-white mix-blend-difference pointer-events-auto cursor-pointer p-4 opacity-0 transition-opacity" aria-label="Previous Page">
+        <svg class="w-8 h-8 md:w-12 md:h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
+      </button>
+      <button class="vg-next-btn text-yokai-white mix-blend-difference pointer-events-auto cursor-pointer p-4 transition-opacity" aria-label="Next Page">
+        <svg class="w-8 h-8 md:w-12 md:h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+      </button>
+    </div>
+  )}
+
+  <!-- Page Indicators -->
+  {chunkedVideos.length > 1 && (
+    <div class="absolute bottom-4 right-4 md:bottom-8 md:right-8 flex gap-2 z-40">
+      {chunkedVideos.map((_, i) => (
+        <div class={`vg-dot w-2 h-2 rounded-full transition-colors duration-300 ${i === 0 ? 'bg-yokai-purple' : 'bg-yokai-dark-blue/20'}`} data-index={i}></div>
+      ))}
+    </div>
+  )}
+
+  <!-- Label Identitas Halaman -->
+  <div class="absolute bottom-4 left-4 md:bottom-8 md:left-8 z-40 pointer-events-none">
+    <span class="font-inter text-[8px] md:text-[10px] tracking-[0.5em] uppercase text-yokai-white/40 mix-blend-difference">
+      GALLERY / VIDEOS
+    </span>
+  </div>
+
+</section>
+
+<style>
+  :global(body.videos-page) {
+    overflow: hidden;
+  }
+</style>
+
+<script>
+  import anime from 'animejs/lib/anime.es.js';
+
+  // --- Canvas GIF Snapshot Logic ---
+  const cells = document.querySelectorAll('.vg-cell');
+  cells.forEach(cell => {
+    const img = cell.querySelector('.vg-gif') as HTMLImageElement;
+    const canvas = cell.querySelector('.vg-canvas') as HTMLCanvasElement;
+    
+    if (img.complete) {
+      drawCanvas();
+    } else {
+      img.addEventListener('load', drawCanvas);
+    }
+
+    function drawCanvas() {
+      canvas.width = 640;
+      canvas.height = 360;
+      const ctx = canvas.getContext('2d');
+      if (ctx) ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    }
+  });
+
+  // --- Hover Logic & Anime.js ---
+  cells.forEach(cell => {
+    const overlay = cell.querySelector('.vg-cell-overlay') as HTMLElement;
+    const text = cell.querySelector('.vg-cell-text') as HTMLElement;
+    const arrow = cell.querySelector('.vg-cell-arrow') as HTMLElement;
+    const canvas = cell.querySelector('.vg-canvas') as HTMLCanvasElement;
+    const img = cell.querySelector('.vg-gif') as HTMLImageElement;
+
+    const isMobile = window.matchMedia('(max-width: 767px)').matches;
+
+    if (!isMobile) {
+      cell.addEventListener('mouseenter', () => {
+        anime({ targets: canvas, opacity: 0, duration: 300, easing: 'linear' });
+        anime({ targets: img, opacity: 1, duration: 300, easing: 'linear' });
+
+        anime({ targets: overlay, opacity: 1, duration: 400, easing: 'easeOutQuart' });
+        anime({ targets: text, opacity: 1, translateY: [15, 0], duration: 400, easing: 'easeOutQuart' });
+        anime({ targets: arrow, opacity: 1, translateX: [-10, 0], translateY: [10, 0], duration: 400, easing: 'easeOutQuart' });
+      });
+
+      cell.addEventListener('mouseleave', () => {
+        anime({ targets: canvas, opacity: 1, duration: 300, easing: 'linear' });
+        anime({ targets: img, opacity: 0, duration: 300, easing: 'linear' });
+
+        anime({ targets: overlay, opacity: 0, duration: 300, easing: 'easeInQuart' });
+        anime({ targets: text, opacity: 0, translateY: [0, 15], duration: 300, easing: 'easeInQuart' });
+        anime({ targets: arrow, opacity: 0, translateX: [0, -10], translateY: [0, 10], duration: 300, easing: 'easeInQuart' });
+      });
+    } else {
+      overlay.style.opacity = '1';
+      text.style.opacity = '1';
+      text.style.transform = 'translateY(0)';
+      arrow.style.opacity = '1';
+      arrow.style.transform = 'translate(0, 0)';
+    }
+  });
+
+  // --- Pagination Logic (Horizontal Slide) ---
+  const track = document.querySelector('.vg-track') as HTMLElement;
+  const prevBtn = document.querySelector('.vg-prev-btn') as HTMLButtonElement;
+  const nextBtn = document.querySelector('.vg-next-btn') as HTMLButtonElement;
+  const dots = document.querySelectorAll('.vg-dot');
+  const totalPages = document.querySelectorAll('.vg-set').length;
+  
+  let currentPage = 0;
+  let isAnimating = false;
+
+  const updateUI = () => {
+    if (!prevBtn || !nextBtn) return;
+    
+    // Toggle Arrows
+    if (currentPage === 0) {
+      prevBtn.style.opacity = '0';
+      prevBtn.style.pointerEvents = 'none';
+    } else {
+      prevBtn.style.opacity = '1';
+      prevBtn.style.pointerEvents = 'auto';
+    }
+
+    if (currentPage === totalPages - 1) {
+      nextBtn.style.opacity = '0';
+      nextBtn.style.pointerEvents = 'none';
+    } else {
+      nextBtn.style.opacity = '1';
+      nextBtn.style.pointerEvents = 'auto';
+    }
+
+    // Update Dots
+    dots.forEach((dot, idx) => {
+      if (idx === currentPage) {
+        dot.classList.remove('bg-yokai-dark-blue/20');
+        dot.classList.add('bg-yokai-purple');
+      } else {
+        dot.classList.remove('bg-yokai-purple');
+        dot.classList.add('bg-yokai-dark-blue/20');
+      }
+    });
+  };
+
+  const goToPage = (pageIndex: number) => {
+    if (isAnimating || pageIndex < 0 || pageIndex >= totalPages) return;
+    isAnimating = true;
+    
+    // Disable buttons during transition
+    if (prevBtn) prevBtn.style.pointerEvents = 'none';
+    if (nextBtn) nextBtn.style.pointerEvents = 'none';
+
+    anime({
+      targets: track,
+      translateX: `${-pageIndex * 100}vw`,
+      duration: 800,
+      easing: 'easeInOutExpo',
+      complete: () => {
+        currentPage = pageIndex;
+        isAnimating = false;
+        updateUI();
+      }
+    });
+  };
+
+  nextBtn?.addEventListener('click', () => goToPage(currentPage + 1));
+  prevBtn?.addEventListener('click', () => goToPage(currentPage - 1));
+
+</script>

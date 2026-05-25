@@ -1,0 +1,66 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ChekiHero from '../../components/shop/cheki/ChekiHero.astro';
+import ChekiOrderForm from '../../components/shop/cheki/ChekiOrderForm.astro';
+import ChekiClosed from '../../components/shop/cheki/ChekiClosed.astro';
+import { chekiConfig } from '../../data/cheki';
+
+import bgImg from '../../assets/photos/3.JPG';
+
+const isDev = import.meta.env.DEV;
+---
+
+<BaseLayout title="Polaroid Cheki | Yokai" activePage="shop">
+  <!-- Fullscreen Blurred Background -->
+  <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+    <img src={bgImg.src} alt="Background" class="w-full h-full object-cover scale-110 blur-xl opacity-80" />
+    <div class="absolute inset-0 bg-yokai-dark-blue/70"></div>
+  </div>
+
+  <main class="relative z-10 min-h-screen flex flex-col pb-32">
+    <ChekiHero />
+    
+    <div id="cheki-open-view" class="w-full px-6 flex-grow flex flex-col items-center justify-start" style={`display: ${chekiConfig.isOpen ? 'flex' : 'none'};`}>
+      <ChekiOrderForm />
+    </div>
+
+    <div id="cheki-closed-view" class="w-full px-6 flex-grow flex items-start justify-center" style={`display: ${chekiConfig.isOpen ? 'none' : 'flex'};`}>
+      <ChekiClosed />
+    </div>
+
+    {isDev && (
+      <button 
+        id="dev-cheki-toggle"
+        class="fixed bottom-4 right-4 z-[999] bg-yokai-purple/20 text-yokai-white font-mono text-[10px] uppercase px-4 py-2 border border-yokai-white/20 backdrop-blur-sm cursor-pointer hover:bg-yokai-purple/40 transition-colors"
+        data-open={chekiConfig.isOpen.toString()}
+      >
+        DEV: Cheki [{chekiConfig.isOpen ? 'OPEN' : 'CLOSED'}]
+      </button>
+    )}
+  </main>
+</BaseLayout>
+
+<script>
+  const devToggle = document.getElementById('dev-cheki-toggle');
+  const openView = document.getElementById('cheki-open-view');
+  const closedView = document.getElementById('cheki-closed-view');
+
+  if (devToggle) {
+    devToggle.addEventListener('click', () => {
+      const isCurrentlyOpen = devToggle.getAttribute('data-open') === 'true';
+      const newState = !isCurrentlyOpen;
+      
+      if (newState) {
+        openView!.style.display = 'flex';
+        closedView!.style.display = 'none';
+        devToggle.innerText = 'DEV: Cheki [OPEN]';
+      } else {
+        openView!.style.display = 'none';
+        closedView!.style.display = 'flex';
+        devToggle.innerText = 'DEV: Cheki [CLOSED]';
+      }
+
+      devToggle.setAttribute('data-open', newState.toString());
+    });
+  }
+</script>

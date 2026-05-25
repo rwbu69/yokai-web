@@ -1,0 +1,71 @@
+---
+// src/components/members/CreditsGrid.astro
+import type { Member } from './members.ts';
+
+interface Props { members: Member[]; }
+const { members } = Astro.props;
+---
+
+<div class="flex-1 flex flex-col justify-center px-5 py-3 overflow-hidden">
+
+  <!-- Label -->
+  <p class="font-inter text-[6.5px] tracking-[0.55em] uppercase text-white/20 mb-3">
+    All Members
+  </p>
+
+  <!-- 6 × 2 dot grid -->
+  <div class="grid grid-cols-6 gap-x-3 gap-y-2">
+    {members.map(m => (
+      <button
+        class="member-dot flex flex-col items-center gap-1 focus:outline-none"
+        data-dot-id={m.id}
+        aria-label={`${m.firstName} ${m.lastName}`}
+      >
+        <!-- Initials circle -->
+        <div class="dot-circle w-7 h-7 rounded-full border border-white/12 flex items-center justify-center bg-white/[0.04]">
+          <span class="font-jakarta font-black text-[8px] text-white/40 leading-none">{m.initials}</span>
+        </div>
+        <!-- Name label -->
+        <span class="dot-name font-inter text-[5.5px] tracking-[0.18em] uppercase text-white/22 leading-none text-center">
+          {m.firstName}
+        </span>
+      </button>
+    ))}
+  </div>
+
+</div>
+
+<style>
+  /* Dot circle active state */
+  .dot-circle {
+    transition:
+      background    0.25s cubic-bezier(0.4, 0, 0.2, 1),
+      border-color  0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .member-dot.active .dot-circle {
+    background: rgba(160, 69, 187, 0.22);
+    border-color: rgba(160, 69, 187, 0.55);
+  }
+
+  .member-dot.active .dot-circle span {
+    color: rgba(255, 255, 255, 0.88);
+  }
+
+  /* Name label active state */
+  .dot-name {
+    transition: color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .member-dot.active .dot-name {
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  /* Hover (non-active) */
+  .member-dot:not(.active):hover .dot-circle {
+    border-color: rgba(255, 255, 255, 0.25);
+  }
+  .member-dot:not(.active):hover .dot-name {
+    color: rgba(255, 255, 255, 0.4);
+  }
+</style>

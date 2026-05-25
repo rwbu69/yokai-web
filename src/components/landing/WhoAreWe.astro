@@ -1,0 +1,199 @@
+---
+/**
+ * WhoAreWe.astro
+ *
+ * Section "WHO ARE WE" — mosaik marquee background dengan konten editorial
+ * di atasnya. Background: 3 baris foto bergerak bergantian arah (CSS animation).
+ * Konten: heading tipografis besar + deskripsi + CTA.
+ *
+ * ──────────────────────────────────────────────────────────
+ * CARA MENGUBAH KONTEN
+ * ──────────────────────────────────────────────────────────
+ * Edit teks di dalam template HTML:
+ *   - Heading kiri: .waw-headline (BORN IN THE / UNDERGROUND. / REFINED...)
+ *   - Deskripsi kanan: <p> di dalam .waw-body
+ *   - CTA: <a> di dalam .waw-cta
+ *
+ * Gambar background: ubah import heroX dan susunan array imagesA/B/C.
+ *
+ * ──────────────────────────────────────────────────────────
+ * CARA KERJA ANIMASI
+ * ──────────────────────────────────────────────────────────
+ * Ada DUA jenis animasi yang berjalan TANPA konflik:
+ *
+ * 1. CSS Animation (marquee background):
+ *    - Kelas animate-slide-left, animate-slide-right, animate-slide-left-fast
+ *    - Didefinisikan di tailwind.config atau global CSS
+ *    - TIDAK disentuh oleh Anime.js — murni CSS, infinite loop
+ *
+ * 2. Anime.js (entrance konten editorial):
+ *    - Trigger via IntersectionObserver saat section masuk viewport
+ *    - .waw-label: translateY [12→0] + opacity
+ *    - .waw-headline-wrap: translateY [24→0] + opacity (stagger per baris)
+ *    - .waw-right: translateX [30→0] + opacity (masuk dari kanan)
+ *    - Kedua animasi pada elemen BERBEDA dari CSS animation → tidak ada konflik
+ *
+ * CARA MENONAKTIFKAN:
+ *   - Hanya Anime.js: hapus blok <script> di bawah
+ *   - Hanya marquee: hapus div dengan class absolute inset-0 z-0
+ *   - Keduanya: hapus keduanya
+ */
+
+import hero1  from '../../assets/hero-images/1.jpg';
+import hero2  from '../../assets/hero-images/2.jpg';
+import hero3  from '../../assets/hero-images/3.jpg';
+import hero4  from '../../assets/hero-images/4.jpg';
+import hero5  from '../../assets/hero-images/5.jpg';
+import hero6  from '../../assets/hero-images/6.jpg';
+import hero7  from '../../assets/hero-images/7.jpg';
+import hero8  from '../../assets/hero-images/8.jpg';
+import hero9  from '../../assets/hero-images/9.jpg';
+import hero10 from '../../assets/hero-images/10.jpg';
+import hero11 from '../../assets/hero-images/11.jpg';
+import hero12 from '../../assets/hero-images/12.jpg';
+
+const imagesA = [hero1.src, hero2.src, hero3.src, hero4.src];
+const imagesB = [hero5.src, hero6.src, hero7.src, hero8.src];
+const imagesC = [hero9.src, hero10.src, hero11.src, hero12.src];
+---
+
+<section
+  class="waw-section w-full bg-yokai-dark-blue py-32 relative overflow-hidden flex flex-col items-center justify-center min-h-screen"
+>
+  <!-- Mosaic marquee background: 3 baris, arah bergantian -->
+  <!-- CSS animation — tidak disentuh Anime.js, tidak ada konflik -->
+  <div class="absolute inset-0 z-0 pointer-events-none opacity-35 flex flex-col gap-1 justify-center">
+    <div class="overflow-hidden h-1/3 flex-shrink-0">
+      <div class="flex w-max animate-slide-left h-full gap-1">
+        {[...imagesA, ...imagesA, ...imagesA, ...imagesA, ...imagesA, ...imagesA].map((src) => (
+          <img src={src} alt="" class="h-full w-[240px] flex-shrink-0 object-cover grayscale" />
+        ))}
+      </div>
+    </div>
+    <div class="overflow-hidden h-1/3 flex-shrink-0">
+      <div class="flex w-max animate-slide-right h-full gap-1">
+        {[...imagesB, ...imagesB, ...imagesB, ...imagesB, ...imagesB, ...imagesB].map((src) => (
+          <img src={src} alt="" class="h-full w-[240px] flex-shrink-0 object-cover grayscale" />
+        ))}
+      </div>
+    </div>
+    <div class="overflow-hidden h-1/3 flex-shrink-0">
+      <div class="flex w-max animate-slide-left-fast h-full gap-1">
+        {[...imagesC, ...imagesC, ...imagesC, ...imagesC, ...imagesC, ...imagesC].map((src) => (
+          <img src={src} alt="" class="h-full w-[240px] flex-shrink-0 object-cover grayscale" />
+        ))}
+      </div>
+    </div>
+  </div>
+
+  <!-- Gradient readability overlay — CSS only, no conflict -->
+  <div
+    class="absolute inset-0 z-0 pointer-events-none"
+    style="background: linear-gradient(to top, var(--yokai-dark-blue) 0%, rgba(42,30,82,0.6) 50%, transparent 100%);"
+  ></div>
+
+  <!-- Editorial content — animasi via Anime.js -->
+  <div
+    class="waw-content relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-end mt-auto mb-auto py-20"
+  >
+    <!-- Kolom kiri — heading tipografis -->
+    <div class="lg:col-span-7 flex flex-col justify-end items-start text-left">
+
+      <!-- Label "The Origin" -->
+      <div class="waw-label flex items-center gap-4 mb-8" style="opacity: 0;">
+        <div class="w-12 h-[2px] bg-yokai-purple"></div>
+        <span class="font-inter text-xs font-bold tracking-[0.5em] uppercase text-yokai-purple">The Origin</span>
+      </div>
+
+      <!-- Heading multi-baris -->
+      <div class="waw-headline" style="opacity: 0; pointer-events: none;">
+        <span class="font-outfit text-3xl md:text-4xl font-light uppercase tracking-widest text-yokai-white leading-none mb-2 block">
+          BORN IN THE
+        </span>
+        <span class="font-jakarta text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-tighter text-white leading-none mb-6 block break-words max-w-full">
+          UNDERGROUND.
+        </span>
+        <span class="font-inter text-base md:text-lg italic font-light tracking-[0.3em] uppercase text-yokai-light-white leading-tight block">
+          REFINED FOR THE STAGE.
+        </span>
+      </div>
+    </div>
+
+    <!-- Kolom kanan — deskripsi + CTA -->
+    <div
+      class="waw-right lg:col-span-5 flex flex-col justify-end items-start text-left lg:border-l border-yokai-white/20 lg:pl-16 pt-10 lg:pt-0"
+      style="opacity: 0;"
+    >
+      <p class="font-outfit text-lg md:text-xl lg:text-2xl text-yokai-light-white/80 leading-relaxed font-light tracking-wide mb-12">
+        <strong class="font-bold text-yokai-white tracking-widest uppercase">Yokai</strong> is a collective of performance artists transcending the boundaries of traditional idol culture. We don't just dance; we orchestrate light, sound, and raw human emotion.
+      </p>
+      <div class="w-full flex justify-start lg:justify-end">
+        <a
+          href="/about"
+          class="waw-cta group relative inline-flex items-center gap-4 text-xs font-inter font-bold tracking-[0.3em] uppercase text-yokai-white"
+          style="transition: color 0.3s cubic-bezier(0.4,0,0.2,1);"
+          onmouseover="this.style.color='var(--yokai-purple)'"
+          onmouseout="this.style.color='#fdfffd'"
+        >
+          Discover Our Origin
+          <span
+            class="w-8 h-[1px] bg-current"
+            style="transition: width 0.3s cubic-bezier(0.4,0,0.2,1);"
+          ></span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  /**
+   * Entrance animation untuk konten editorial di WHO ARE WE.
+   * TIDAK menyentuh elemen marquee (CSS animation) — zero conflict.
+   *
+   * Urutan (sebagai narasi visual):
+   *   1. .waw-label   : label "The Origin" muncul pertama — penanda konteks
+   *   2. .waw-headline: heading besar masuk dari bawah (translateY)
+   *   3. .waw-right   : deskripsi masuk dari kanan (translateX) bersamaan
+   *
+   * Easing easeOutQuart: pergerakan natural, tidak terlalu dramatis.
+   */
+  import anime from 'animejs/lib/anime.es.js';
+
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (!entry.isIntersecting) return;
+
+      anime.timeline({ easing: 'easeOutQuart' })
+
+        // Label muncul pertama
+        .add({
+          targets:    '.waw-label',
+          opacity:    [0, 1],
+          translateY: [12, 0],
+          duration:   500,
+        })
+
+        // Heading besar — lebih lambat untuk kesan berat tipografis
+        .add({
+          targets:    '.waw-headline',
+          opacity:    [0, 1],
+          translateY: [28, 0],
+          duration:   700,
+        }, '-=200')
+
+        // Kolom kanan — masuk bersamaan dengan heading, dari kanan
+        .add({
+          targets:    '.waw-right',
+          opacity:    [0, 1],
+          translateX: [30, 0],
+          duration:   650,
+        }, '-=500');
+
+      observer.disconnect();
+    });
+  }, { threshold: 0.15 });
+
+  var section = document.querySelector('.waw-section');
+  if (section) observer.observe(section);
+</script>

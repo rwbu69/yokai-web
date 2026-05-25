@@ -1,7 +1,7 @@
 import { defineConfig } from 'sanity';
 import { structureTool } from 'sanity/structure';
 
-// Import custom schemas
+// Existing schemas
 import heroImages from './src/sanity/schemas/heroImages';
 import member from './src/sanity/schemas/member';
 import aboutUs from './src/sanity/schemas/aboutUs';
@@ -12,28 +12,45 @@ import shopItem from './src/sanity/schemas/shopItem';
 import project from './src/sanity/schemas/project';
 import livePerformance from './src/sanity/schemas/livePerformance';
 
+// New schemas
+import article from './src/sanity/schemas/article';
+import chekiConfig from './src/sanity/schemas/chekiConfig';
+import videoItem from './src/sanity/schemas/videoItem';
+import landingPage from './src/sanity/schemas/landingPage';
+
 export default defineConfig({
   name: 'default',
   title: 'Yokai Web Studio',
 
   projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID || 'your-project-id',
-
   dataset: import.meta.env.PUBLIC_SANITY_DATASET || 'production',
 
   plugins: [structureTool()],
 
   schema: {
     types: [
-      heroImages,
-      member,
+      // === Singletons ===
+      landingPage,
       aboutUs,
-      update,
-      waza,
-      gallery,
-      shopItem,
+      chekiConfig,
+
+      // === Content ===
+      member,
+      heroImages,
+      livePerformance,
       project,
-      livePerformance
+
+      // === Gallery ===
+      gallery,      // Photo Events
+      videoItem,
+
+      // === Shop ===
+      shopItem,
+
+      // === Library ===
+      waza,
+      article,
+      update,
     ],
   },
 });
-

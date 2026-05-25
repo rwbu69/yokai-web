@@ -1,0 +1,66 @@
+---
+/**
+ * PhotosHero.astro
+ * 
+ * Hero section untuk halaman Photos.
+ * Menampilkan judul tipografis besar "Event Photography" dengan deskripsi singkat.
+ * Warna dasar: yokai-light-white (terang) untuk membedakan dari halaman utama.
+ * 
+ * Animasi:
+ * - Menggunakan Anime.js entrance animation saat komponen dirender.
+ * - Efek stagger pada setiap elemen teks (badge, judul, deskripsi).
+ */
+---
+
+<section class="w-full bg-yokai-light-white text-yokai-dark-blue pt-52 pb-20 px-6 lg:px-12 overflow-hidden relative">
+  <div class="max-w-[90vw] mx-auto flex flex-col items-start relative z-10">
+    
+    <!-- Badge -->
+    <div class="ph-hero-badge flex items-center gap-4 mb-6 opacity-0">
+      <div class="w-8 h-[2px] bg-yokai-purple"></div>
+      <span class="font-inter text-[10px] font-bold tracking-[0.4em] uppercase text-yokai-purple">
+        Gallery Collection
+      </span>
+    </div>
+
+    <!-- Title -->
+    <h1 class="ph-hero-title font-jakarta font-black uppercase text-yokai-dark-blue leading-[0.9] tracking-tighter mb-8 max-w-5xl opacity-0" style="font-size: clamp(3rem, 8vw, 7rem);">
+      Event<br/>Photography.
+    </h1>
+
+    <!-- Description -->
+    <p class="ph-hero-desc font-outfit text-lg md:text-xl text-yokai-dark-blue/70 max-w-2xl leading-relaxed tracking-wide opacity-0 border-l-2 border-yokai-purple/30 pl-6">
+      Capturing the ephemeral energy of light and movement. Raw, unfiltered, and strictly editorial documentation of Yokai's stage presence.
+    </p>
+
+  </div>
+</section>
+
+<script>
+  import anime from 'animejs/lib/anime.es.js';
+
+  // Set initial state
+  anime.set(['.ph-hero-badge', '.ph-hero-title', '.ph-hero-desc'], { opacity: 0, translateY: 30 });
+
+  // Play animation on load
+  anime.timeline({
+    easing: 'easeOutExpo',
+    duration: 1000
+  })
+  .add({
+    targets: '.ph-hero-badge',
+    opacity: [0, 1],
+    translateY: [20, 0],
+    delay: 200
+  })
+  .add({
+    targets: '.ph-hero-title',
+    opacity: [0, 1],
+    translateY: [30, 0],
+  }, '-=700')
+  .add({
+    targets: '.ph-hero-desc',
+    opacity: [0, 1],
+    translateY: [20, 0],
+  }, '-=800');
+</script>

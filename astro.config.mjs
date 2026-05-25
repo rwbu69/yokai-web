@@ -3,6 +3,10 @@ import sanity from '@sanity/astro';
 import react from '@astrojs/react';
 import tailwindcss from '@tailwindcss/vite';
 import { loadEnv } from 'vite';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const { PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET } = loadEnv(
   process.env.NODE_ENV || 'development',
@@ -25,5 +29,17 @@ export default defineConfig({
   ],
   vite: {
     plugins: [tailwindcss()],
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, './src'),
+        '@components': path.resolve(__dirname, './src/components'),
+        '@data': path.resolve(__dirname, './src/data'),
+        '@lib': path.resolve(__dirname, './src/lib'),
+        '@layouts': path.resolve(__dirname, './src/layouts'),
+        '@assets': path.resolve(__dirname, './src/assets'),
+        '@content': path.resolve(__dirname, './src/content'),
+      },
+    },
   },
-});
+});
+

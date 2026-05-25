@@ -1,0 +1,102 @@
+---
+// src/components/about/OurStory.astro
+---
+
+<section
+  id="our-story"
+  class="w-full bg-yokai-dark-blue border-t border-white/[0.06] py-28 md:py-36 px-6 md:px-12 lg:px-16"
+>
+  <div class="max-w-[1400px] mx-auto">
+
+    <!-- Section marker -->
+    <div class="story-marker flex items-center gap-5 mb-20 opacity-0">
+      <span class="font-inter text-[9px] tracking-[0.6em] uppercase text-white/18">01</span>
+      <div class="w-10 h-[1px] bg-yokai-purple/50"></div>
+      <span class="font-inter text-[9px] tracking-[0.5em] uppercase text-yokai-purple/80">Our Story</span>
+    </div>
+
+    <!-- Asymmetric grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-0 items-start">
+
+      <!-- Decorative index number -->
+      <div class="story-deco lg:col-span-3 opacity-0">
+        <span
+          aria-hidden="true"
+          class="font-jakarta font-black leading-none text-white select-none"
+          style="font-size: clamp(5rem, 12vw, 12rem); opacity: 0.035; letter-spacing: -0.04em; display: block;"
+        >
+          01
+        </span>
+      </div>
+
+      <!-- Main content -->
+      <div class="story-content lg:col-span-9 opacity-0">
+        <!-- Vertical rule on large screens -->
+        <div class="hidden lg:block w-[1px] h-full bg-white/[0.06] absolute left-0"></div>
+
+        <p
+          class="font-outfit text-yokai-white leading-relaxed mb-6"
+          style="font-size: clamp(1.2rem, 2.2vw, 1.85rem); font-weight: 300; max-width: 70ch;"
+        >
+          Born from the underground Wotagei scene in Yogyakarta, YOKAI was built
+          on a single principle:
+          <strong class="font-black text-yokai-purple not-italic">
+            the wand is not an accessory — it is a weapon.
+          </strong>
+        </p>
+
+        <p
+          class="font-outfit text-yokai-light-white/40 leading-relaxed font-light"
+          style="font-size: clamp(0.875rem, 1.15vw, 1rem); max-width: 52ch;"
+        >
+          We took the discipline of fanbase culture and turned it into performance
+          art. No shortcuts, no stages handed to us — twelve individuals committed
+          to mastery, and to each other.
+        </p>
+
+        <a
+          href="/members"
+          class="group inline-flex items-center gap-4 mt-12 font-inter text-[9px] tracking-[0.45em] uppercase text-white/45 hover:text-white transition-colors duration-300"
+        >
+          Meet the Twelve
+          <span class="w-8 h-[1px] bg-current group-hover:w-14 transition-all duration-400"></span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import anime from 'animejs/lib/anime.es.js';
+
+  const observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+
+      anime.timeline({ easing: 'easeOutQuart' })
+        .add({
+          targets: '.story-marker',
+          opacity: [0, 1],
+          translateY: [8, 0],
+          duration: 500,
+        })
+        .add({
+          targets: '.story-deco',
+          opacity: [0, 1],
+          translateX: [-16, 0],
+          duration: 700,
+        }, '-=200')
+        .add({
+          targets: '.story-content',
+          opacity: [0, 1],
+          translateY: [18, 0],
+          duration: 700,
+        }, '-=500');
+
+      observer.disconnect();
+    });
+  }, { threshold: 0.15 });
+
+  const section = document.querySelector('#our-story');
+  if (section) observer.observe(section);
+</script>

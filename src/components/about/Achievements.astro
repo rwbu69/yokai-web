@@ -1,0 +1,86 @@
+---
+// src/components/about/Achievements.astro
+
+const milestones = [
+  { year: '2024', event: 'Wotagei National Invitational', result: 'Finalist' },
+  { year: '2024', event: 'Jogja Idol Festival',           result: 'Best Formation Award' },
+  { year: '2023', event: 'Wota Jogja Open',               result: '1st Place' },
+  { year: '2023', event: 'Kolaborasi Budaya DIY',         result: 'Invited Performance' },
+  { year: '2022', event: 'Wotagei Exhibition · Malioboro', result: 'Featured Team' },
+];
+---
+
+<section
+  class="ach-section w-full border-t border-white/[0.06] py-28 md:py-36 px-6 md:px-12 lg:px-16"
+  style="background-color: #060408;"
+>
+  <div class="max-w-[1400px] mx-auto">
+
+    <!-- Section header row -->
+    <div class="ach-header flex items-end justify-between border-b border-white/[0.07] pb-8 mb-0 opacity-0">
+      <div class="flex items-center gap-5">
+        <span class="font-inter text-[9px] tracking-[0.6em] uppercase text-white/18">02</span>
+        <div class="w-10 h-[1px] bg-yokai-purple/50"></div>
+        <span class="font-inter text-[9px] tracking-[0.5em] uppercase text-yokai-purple/80">Track Record</span>
+      </div>
+      <span class="font-inter text-[8px] tracking-[0.4em] uppercase text-white/20 hidden sm:block">
+        {milestones.length} Milestones
+      </span>
+    </div>
+
+    <!-- Achievement rows — editorial ledger style -->
+    <div class="flex flex-col">
+      {milestones.map((item, i) => (
+        <div class="ach-row group flex flex-col sm:flex-row sm:items-center justify-between py-7 border-b border-white/[0.06] hover:border-yokai-purple/25 transition-colors duration-300 opacity-0">
+          <div class="flex items-baseline gap-8 sm:gap-12 mb-2 sm:mb-0">
+            <span class="font-inter text-[9px] tracking-[0.4em] text-white/22 flex-shrink-0 w-8">
+              {item.year}
+            </span>
+            <span
+              class="font-jakarta font-bold uppercase tracking-tight text-yokai-white group-hover:text-white transition-colors duration-300"
+              style="font-size: clamp(1rem, 1.8vw, 1.4rem); letter-spacing: -0.02em;"
+            >
+              {item.event}
+            </span>
+          </div>
+          <span class="font-inter text-[8px] tracking-[0.45em] uppercase text-yokai-purple/60 group-hover:text-yokai-purple transition-colors duration-300 sm:text-right flex-shrink-0">
+            {item.result}
+          </span>
+        </div>
+      ))}
+    </div>
+
+  </div>
+</section>
+
+<script>
+  import anime from 'animejs/lib/anime.es.js';
+
+  const observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+
+      anime({
+        targets: '.ach-header',
+        opacity: [0, 1],
+        translateY: [8, 0],
+        duration: 500,
+        easing: 'easeOutQuart',
+      });
+
+      anime({
+        targets: '.ach-row',
+        opacity: [0, 1],
+        translateX: [-20, 0],
+        duration: 500,
+        easing: 'easeOutQuart',
+        delay: anime.stagger(75, { start: 200 }),
+      });
+
+      observer.disconnect();
+    });
+  }, { threshold: 0.1 });
+
+  const section = document.querySelector('.ach-section');
+  if (section) observer.observe(section);
+</script>
