@@ -6,14 +6,16 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import ChekiHero from '../../components/shop/cheki/ChekiHero.astro';
 import ChekiOrderForm from '../../components/shop/cheki/ChekiOrderForm.astro';
 import ChekiClosed from '../../components/shop/cheki/ChekiClosed.astro';
-import { sanityClient } from '../../lib/sanity';
+import { sanityClient, urlFor } from '../../lib/sanity';
 
 import bgImg from '../../assets/photos/3.webp';
 
 const isDev = import.meta.env.DEV;
 
 const query = `{
-  "config": *[_type == "chekiConfig"][0],
+  "config": *[_type == "chekiConfig"][0] {
+    isOpen, closedMessage, heroBgImage
+  },
   "items": *[_type == "shopItem" && category == "cheki"] | order(_createdAt asc) {
     title,
     available
@@ -22,6 +24,7 @@ const query = `{
 
 const data = await sanityClient.fetch(query) || {};
 const chekiConfig = data.config || { isOpen: false, closedMessage: 'OUR CHEKI IS CLOSED AT THE MOMENT.' };
+const bgImageUrl = chekiConfig.heroBgImage ? urlFor(chekiConfig.heroBgImage).width(1920).format('webp').url() : bgImg.src;
 const items = (data.items || []).map((item: any) => ({
   name: item.title,
   available: item.available
@@ -31,7 +34,7 @@ const items = (data.items || []).map((item: any) => ({
 <BaseLayout title="Polaroid Cheki | Yokai" activePage="shop">
   <!-- Fullscreen Blurred Background -->
   <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-    <img src={bgImg.src} alt="Background" class="w-full h-full object-cover scale-110 blur-xl opacity-80" />
+    <img src={bgImageUrl} alt="Background" class="w-full h-full object-cover scale-110 blur-xl opacity-80" />
     <div class="absolute inset-0 bg-yokai-dark-blue/70"></div>
   </div>
 

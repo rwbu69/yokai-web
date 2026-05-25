@@ -4,7 +4,7 @@
  *
  * Props are passed from about.astro which fetches them from Sanity.
  */
-import bgImage from '../../assets/hero-images/3.webp';
+import bgImageFallback from '../../assets/hero-images/3.webp';
 
 interface Props {
   label: string;
@@ -12,8 +12,9 @@ interface Props {
   line2: string;
   sub: string;
   footerText: string;
+  bgImage?: string;
 }
-const { label, line1, line2, sub, footerText } = Astro.props;
+const { label, line1, line2, sub, footerText, bgImage } = Astro.props;
 ---
 
 <section
@@ -22,7 +23,7 @@ const { label, line1, line2, sub, footerText } = Astro.props;
 >
   <div class="absolute inset-0 z-0 pointer-events-none" aria-hidden="true">
     <img
-      src={bgImage.src}
+      src={bgImage || bgImageFallback.src}
       alt=""
       class="w-full h-full object-cover object-center"
       style="opacity: 0.12; mix-blend-mode: luminosity;"

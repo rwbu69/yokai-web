@@ -15,6 +15,7 @@ import livePerformance from './src/sanity/schemas/livePerformance';
 // New schemas
 import article from './src/sanity/schemas/article';
 import chekiConfig from './src/sanity/schemas/chekiConfig';
+import merchConfig from './src/sanity/schemas/merchConfig';
 import videoItem from './src/sanity/schemas/videoItem';
 import landingPage from './src/sanity/schemas/landingPage';
 
@@ -33,6 +34,7 @@ export default defineConfig({
       landingPage,
       aboutUs,
       chekiConfig,
+      merchConfig,
 
       // === Content ===
       member,

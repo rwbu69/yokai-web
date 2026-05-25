@@ -37,6 +37,13 @@ export default defineType({
       type: 'string',
       description: 'Teks kecil di pojok kiri bawah (contoh: "Yogyakarta · Wotagei")',
     }),
+    defineField({
+      name: 'heroBgImage',
+      title: 'Hero Background Image',
+      type: 'image',
+      options: { hotspot: true },
+      description: 'Background image for the About Us hero section',
+    }),
     
     // ── Our Story Section ───────────────────────────────────────────────────
     defineField({

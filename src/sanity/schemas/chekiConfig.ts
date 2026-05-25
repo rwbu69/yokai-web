@@ -33,6 +33,13 @@ export default defineType({
       description: 'Shown to visitors when Cheki is closed.',
       initialValue: 'OUR CHEKI IS CLOSED AT THE MOMENT.',
     }),
+    defineField({
+      name: 'heroBgImage',
+      title: 'Hero Background Image',
+      type: 'image',
+      options: { hotspot: true },
+      description: 'Background image for the Cheki page hero section',
+    }),
   ],
   // Prevent creating more than one chekiConfig document
 });

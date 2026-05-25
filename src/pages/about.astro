@@ -7,12 +7,12 @@ import HeroAbout       from '../components/about/HeroAbout.astro';
 import OurStory        from '../components/about/OurStory.astro';
 import TrackRecord     from '../components/about/TrackRecord.astro';
 import ContactSocials  from '../components/about/ContactSocials.astro';
-import { sanityClient } from '../lib/sanity';
+import { sanityClient, urlFor } from '../lib/sanity';
 
 // Fetch ALL aboutUs data in one central query
 // We only fetch the data, image URLs are resolved in child components
 const query = `*[_type == "aboutUs"][0] {
-  heroLabel, heroLine1, heroLine2, heroSub, heroFooterText,
+  heroLabel, heroLine1, heroLine2, heroSub, heroFooterText, heroBgImage,
   storyTitle, storyMainStatement, storySubStatement,
   trackRecordHeader, trackRecords,
   contactHeading, contactSub, socialLinks, contactEmail
@@ -27,6 +27,7 @@ const heroProps = {
   line2: data.heroLine2 || 'Fans.',
   sub: data.heroSub || 'We are the ceremony. Every waza, every formation, every synchronized breath on stage is a declaration — not a performance.',
   footerText: data.heroFooterText || 'Yogyakarta · Wotagei',
+  bgImage: data.heroBgImage ? urlFor(data.heroBgImage).width(1920).format('webp').url() : '',
 };
 
 const storyProps = {
