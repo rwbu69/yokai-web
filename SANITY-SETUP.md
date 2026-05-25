@@ -173,28 +173,55 @@ bun run preview   # Untuk melihat hasil build
 
 Setup webhook agar Sanity otomatis trigger rebuild ketika konten dipublish.
 
-#### Untuk Vercel:
+#### Untuk Cloudflare Pages:
 
-1. Di Vercel dashboard → project Anda → **Settings → Git → Deploy Hooks**
-2. Buat hook baru: nama `Sanity Content Update`, branch `main`
-3. Copy URL webhook yang dihasilkan (contoh: `https://api.vercel.com/v1/integrations/deploy/...`)
+**Langkah 1 — Buat Deploy Hook di Cloudflare:**
 
-4. Di Sanity dashboard → project Anda → **API → Webhooks**
-5. Klik **"Add webhook"**
-6. Isi:
-   - Name: `Vercel Deploy`
-   - URL: paste URL dari Vercel
-   - Dataset: `production`
-   - Trigger on: centang **"publish"** dan **"unpublish"**
-7. Klik **"Save"**
+1. Buka [Cloudflare Dashboard](https://dash.cloudflare.com) → pilih akun Anda
+2. Di sidebar kiri, klik **Workers & Pages**
+3. Klik nama project Yokai Anda
+4. Buka tab **Settings → Build & deployments**
+5. Scroll ke bagian **Deploy hooks**
+6. Klik **Add deploy hook**
+7. Isi:
+   - Hook name: `Sanity Content Update`
+   - Branch: `main` (atau branch production Anda)
+8. Klik **Save**
+9. **Copy URL** yang muncul (formatnya: `https://api.cloudflare.com/client/v4/pages/webhooks/deploy_hooks/...`)
 
-Sekarang setiap kali Anda klik **"Publish"** di Studio, website otomatis rebuild di Vercel (biasanya selesai dalam 1–3 menit).
+**Langkah 2 — Daftarkan Hook ke Sanity:**
 
-#### Untuk Netlify:
+1. Buka [sanity.io/manage](https://sanity.io/manage) → pilih project Yokai
+2. Klik tab **API** di sidebar
+3. Scroll ke bagian **Webhooks** → klik **Add webhook**
+4. Isi form:
+   - **Name:** `Cloudflare Pages Deploy`
+   - **URL:** paste URL dari Cloudflare di atas
+   - **Dataset:** `production`
+   - **Trigger on:** centang ✅ `publish`, ✅ `unpublish`
+   - **HTTP method:** `POST`
+   - **HTTP Headers:** biarkan kosong
+5. Klik **Save**
 
-1. Netlify dashboard → **Site configuration → Build & deploy → Build hooks**
-2. Buat hook baru → copy URL
-3. Ikuti langkah Sanity webhook di atas, gunakan URL Netlify
+Sekarang setiap kali Anda klik **"Publish"** di Studio, Cloudflare Pages otomatis memulai build baru (biasanya selesai dalam 1–3 menit).
+
+**Cara memantau build:**
+- Cloudflare Dashboard → Workers & Pages → nama project → tab **Deployments**
+- Setiap deploy baru akan muncul di sini beserta status dan log-nya
+
+#### Environment Variables di Cloudflare Pages:
+
+Jangan lupa menambahkan environment variables di Cloudflare — file `.env` lokal tidak ikut di-deploy:
+
+1. Cloudflare Dashboard → Workers & Pages → project Yokai
+2. Tab **Settings → Environment variables**
+3. Klik **Add variable** untuk setiap variable:
+   - `PUBLIC_SANITY_PROJECT_ID` = nilai Project ID Sanity Anda
+   - `PUBLIC_SANITY_DATASET` = `production`
+   - `PUBLIC_SANITY_API_VERSION` = `2024-03-01`
+4. Pastikan pilih environment **Production** (dan **Preview** jika perlu)
+5. Klik **Save**
+6. Trigger deploy ulang agar variable baru terbaca
 
 ---
 
