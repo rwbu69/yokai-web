@@ -8,10 +8,13 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
+    "preview": "npm run build && wrangler dev",
+    "astro": "astro",
+    "generate-types": "wrangler types",
+    "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
+    "@astrojs/cloudflare": "^13.5.4",
     "@astrojs/react": "^5.0.5",
     "@sanity/astro": "^3.4.0",
     "@sanity/client": "^7.22.0",
@@ -28,6 +31,10 @@
     "tailwindcss": "^4.3.0"
   },
   "devDependencies": {
-    "@types/animejs": "^3.1.13"
+    "@types/animejs": "^3.1.13",
+    "wrangler": "^4.94.0"
+  },
+  "overrides": {
+    "vite": "^7"
   }
 }

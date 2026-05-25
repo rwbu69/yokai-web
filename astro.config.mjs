@@ -6,6 +6,8 @@ import { loadEnv } from 'vite';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+import cloudflare from '@astrojs/cloudflare';
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const { PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET } = loadEnv(
@@ -17,6 +19,7 @@ const { PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET } = loadEnv(
 // https://astro.build/config
 export default defineConfig({
   output: 'static',
+
   integrations: [
     sanity({
       projectId: PUBLIC_SANITY_PROJECT_ID || 'your-project-id',
@@ -27,6 +30,7 @@ export default defineConfig({
     }),
     react(),
   ],
+
   vite: {
     plugins: [tailwindcss()],
     resolve: {
@@ -41,5 +45,6 @@ export default defineConfig({
       },
     },
   },
+
+  adapter: cloudflare(),
 });
-
