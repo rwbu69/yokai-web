@@ -44,7 +44,7 @@ Lalu edit `.env` dan isi nilai yang benar:
 ```env
 PUBLIC_SANITY_PROJECT_ID=abc123def   # ← Ganti dengan Project ID Anda
 PUBLIC_SANITY_DATASET=production
-PUBLIC_SANITY_API_VERSION=2024-03-01
+PUBLIC_SANITY_API_VERSION=2025-02-19
 SANITY_API_TOKEN=                    # Opsional, untuk draft access
 ```
 
@@ -218,7 +218,7 @@ Jangan lupa menambahkan environment variables di Cloudflare — file `.env` loka
 3. Klik **Add variable** untuk setiap variable:
    - `PUBLIC_SANITY_PROJECT_ID` = nilai Project ID Sanity Anda
    - `PUBLIC_SANITY_DATASET` = `production`
-   - `PUBLIC_SANITY_API_VERSION` = `2024-03-01`
+   - `PUBLIC_SANITY_API_VERSION` = `2025-02-19`
 4. Pastikan pilih environment **Production** (dan **Preview** jika perlu)
 5. Klik **Save**
 6. Trigger deploy ulang agar variable baru terbaca

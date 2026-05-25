@@ -24,7 +24,7 @@ import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
 export const sanityClient = createClient({
   projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID ?? 'your-project-id',
   dataset: import.meta.env.PUBLIC_SANITY_DATASET ?? 'production',
-  apiVersion: import.meta.env.PUBLIC_SANITY_API_VERSION ?? '2024-03-01',
+  apiVersion: import.meta.env.PUBLIC_SANITY_API_VERSION ?? '2025-02-19',
   useCdn: true,  // true = use CDN for faster reads (safe for build-time data)
   token: import.meta.env.SANITY_API_TOKEN, // only needed for mutations / drafts
 });

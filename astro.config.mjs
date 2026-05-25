@@ -24,7 +24,7 @@ export default defineConfig({
     sanity({
       projectId: PUBLIC_SANITY_PROJECT_ID || 'your-project-id',
       dataset: PUBLIC_SANITY_DATASET || 'production',
-      apiVersion: '2024-03-01',
+      apiVersion: '2025-02-19',
       useCdn: false,
       studioBasePath: '/admin',
     }),
