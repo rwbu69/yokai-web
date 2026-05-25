@@ -48,27 +48,36 @@ const { heading, sub, email, socialLinks } = Astro.props;
       <div class="lg:col-span-8">
         <div class="flex flex-col">
 
-          {socialLinks.map((s) => (
-            <a
-              href={s.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="social-link group flex items-center justify-between py-6 border-b border-white/[0.07] hover:border-yokai-purple/30 transition-colors duration-300 opacity-0"
-            >
-              <div class="flex items-center gap-5">
-                <span class="w-4 h-[1px] bg-yokai-purple/40 group-hover:w-8 transition-all duration-300 flex-shrink-0"></span>
-                <span class="font-inter text-[9px] tracking-[0.45em] uppercase text-white/35 group-hover:text-white/70 transition-colors duration-300">
-                  {s.platform}
-                </span>
-              </div>
-              <span
-                class="font-jakarta font-bold text-white/60 group-hover:text-yokai-white transition-colors duration-300"
-                style="font-size: clamp(1rem, 1.5vw, 1.2rem);"
+          {socialLinks && socialLinks.length > 0 ? (
+            socialLinks.map((s) => (
+              <a
+                href={s.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="social-link group flex items-center justify-between py-6 border-b border-white/[0.07] hover:border-yokai-purple/30 transition-colors duration-300 opacity-0"
               >
-                {s.handle}
+                <div class="flex items-center gap-5">
+                  <span class="w-4 h-[1px] bg-yokai-purple/40 group-hover:w-8 transition-all duration-300 flex-shrink-0"></span>
+                  <span class="font-inter text-[9px] tracking-[0.45em] uppercase text-white/35 group-hover:text-white/70 transition-colors duration-300">
+                    {s.platform}
+                  </span>
+                </div>
+                <span
+                  class="font-jakarta font-bold text-white/60 group-hover:text-yokai-white transition-colors duration-300"
+                  style="font-size: clamp(1rem, 1.5vw, 1.2rem);"
+                >
+                  {s.handle}
+                </span>
+              </a>
+            ))
+          ) : (
+            <div class="py-8 flex items-center gap-4 border-b border-white/[0.07]">
+              <div class="w-8 h-[1px] bg-yokai-purple/30"></div>
+              <span class="font-inter text-[8px] tracking-[0.5em] uppercase text-white/20">
+                Social links not configured yet
               </span>
-            </a>
-          ))}
+            </div>
+          )}
 
           <div class="contact-email mt-10 opacity-0">
             <p class="font-inter text-[8px] tracking-[0.5em] uppercase text-white/22 mb-2">

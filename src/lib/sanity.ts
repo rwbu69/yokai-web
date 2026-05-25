@@ -25,7 +25,9 @@ export const sanityClient = createClient({
   projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID ?? 'your-project-id',
   dataset: import.meta.env.PUBLIC_SANITY_DATASET ?? 'production',
   apiVersion: import.meta.env.PUBLIC_SANITY_API_VERSION ?? '2025-02-19',
-  useCdn: true,  // true = use CDN for faster reads (safe for build-time data)
+  // IMPORTANT: useCdn MUST be false for build-time fetches to always get fresh data.
+  // CDN may serve stale content up to ~60 seconds behind Sanity's Content Lake.
+  useCdn: false,
   token: import.meta.env.SANITY_API_TOKEN, // only needed for mutations / drafts
 });
 
@@ -151,8 +153,18 @@ export interface SanityVideoItem {
   _type: 'videoItem';
   title: string;
   date: string;
+  /** Resolved URL dari videoAsset (file GIF atau WebM yang diupload ke Sanity) */
+  videoUrl?: string;
+  /** Tipe file animasi: 'gif' atau 'webm'. Null jika tidak diset. */
+  videoType?: 'gif' | 'webm';
+  /** Gambar statis untuk preview sebelum hover (thumbnail) */
+  thumbnail?: SanityImage;
+  /** Legacy: GIF image preview (deprecated — gunakan videoAsset + videoType) */
   thumbnailGif?: SanityImage;
-  youtubeUrl: string;
+  /** URL YouTube untuk video yang hanya punya link eksternal */
+  youtubeUrl?: string;
+  /** Alias untuk youtubeUrl — digunakan sebagai link href di komponen */
+  link?: string;
   caption?: string;
 }
 
@@ -304,7 +316,16 @@ export async function getPhotoEvents(): Promise<SanityPhotoEvent[]> {
 export async function getVideoItems(): Promise<SanityVideoItem[]> {
   return sanityClient.fetch<SanityVideoItem[]>(
     `*[_type == "videoItem"] | order(date desc) {
-      _id, _type, title, date, thumbnailGif, youtubeUrl, caption
+      _id,
+      _type,
+      title,
+      date,
+      "videoUrl": videoAsset.asset->url,
+      videoType,
+      thumbnail,
+      thumbnailGif,
+      youtubeUrl,
+      caption
     }`
   );
 }

@@ -92,10 +92,10 @@ export async function migrateAbout() {
       contactHeading: 'Find Us.',
       contactSub: 'Follow our journey, catch our next performance, or reach out directly.',
       socialLinks: [
-        { _key: 'soc-1', platform: 'INSTAGRAM', handle: '@yokaiwotagei', href: 'https://instagram.com/yokaiwotagei' },
-        { _key: 'soc-2', platform: 'YOUTUBE', handle: 'Yokai Wotagei Official', href: 'https://youtube.com/@yokaiwotagei' },
-        { _key: 'soc-3', platform: 'X / TWITTER', handle: '@yokaiwotagei', href: 'https://x.com/yokaiwotagei' },
-        { _key: 'soc-4', platform: 'TIKTOK', handle: '@yokaiwotagei', href: 'https://tiktok.com/@yokaiwotagei' },
+        { _key: 'soc-1', platform: 'INSTAGRAM', handle: '@yokai.ind', href: 'https://instagram.com/yokai.ind' },
+        { _key: 'soc-2', platform: 'YOUTUBE', handle: 'Yokai Wotagei Official', href: 'https://youtube.com/@yokai_ind' },
+        { _key: 'soc-3', platform: 'X / TWITTER', handle: '@yokai_ind', href: 'https://x.com/yokai_ind' },
+        { _key: 'soc-4', platform: 'TIKTOK', handle: '@yokai.wotagei', href: 'https://tiktok.com/@yokai.wotagei' },
       ],
       contactEmail: 'yokai.wotagei@gmail.com',
     });

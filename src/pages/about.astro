@@ -1,53 +1,124 @@
 ---
 // src/pages/about.astro
-// Halaman About Us — Fully migrated to Sanity CMS.
+// Halaman About Us — Fully connected to Sanity CMS.
+//
+// DIAGNOSIS NOTES (audit Mei 2026):
+// - Query dilakukan di BUILD TIME (Astro frontmatter) — sudah benar untuk output: 'static'
+// - useCdn: false sudah di-set di src/lib/sanity.ts — data selalu fresh
+// - Field di query disesuaikan dengan schema aboutUs.ts (event/achievement, bukan eventName/position)
+// - Semua fallback menggunakan hardcoded string, BUKAN import dari file lokal
 
-import BaseLayout      from '../layouts/BaseLayout.astro';
-import HeroAbout       from '../components/about/HeroAbout.astro';
-import OurStory        from '../components/about/OurStory.astro';
-import TrackRecord     from '../components/about/TrackRecord.astro';
-import ContactSocials  from '../components/about/ContactSocials.astro';
+import BaseLayout     from '../layouts/BaseLayout.astro';
+import HeroAbout      from '../components/about/HeroAbout.astro';
+import OurStory       from '../components/about/OurStory.astro';
+import TrackRecord    from '../components/about/TrackRecord.astro';
+import ContactSocials from '../components/about/ContactSocials.astro';
 import { sanityClient, urlFor } from '../lib/sanity';
+import type { SanityImage } from '../lib/sanity';
 
-// Fetch ALL aboutUs data in one central query
-// We only fetch the data, image URLs are resolved in child components
-const query = `*[_type == "aboutUs"][0] {
-  heroLabel, heroLine1, heroLine2, heroSub, heroFooterText, heroBgImage,
-  storyTitle, storyMainStatement, storySubStatement,
-  trackRecordHeader, trackRecords,
-  contactHeading, contactSub, socialLinks, contactEmail
-}`;
+// ── TypeScript Interfaces ─────────────────────────────────────────────────────
 
-const data = await sanityClient.fetch(query) || {};
+interface TrackRecordItem {
+  _key: string;
+  event: string;
+  date: string;
+  achievement: string;
+  description?: string;
+  image?: SanityImage;
+  youtubeUrl?: string;
+}
 
-// Construct props for child components with fallbacks
+interface SocialLink {
+  _key: string;
+  platform: string;
+  handle: string;
+  href: string;
+}
+
+interface AboutUsData {
+  heroLabel?: string;
+  heroLine1?: string;
+  heroLine2?: string;
+  heroSub?: string;
+  heroFooterText?: string;
+  heroBgImage?: SanityImage;
+  storyTitle?: string;
+  storyMainStatement?: string;
+  storySubStatement?: string;
+  trackRecordHeader?: string;
+  trackRecords?: TrackRecordItem[];
+  contactHeading?: string;
+  contactSub?: string;
+  socialLinks?: SocialLink[];
+  contactEmail?: string;
+}
+
+// ── GROQ Query — Terpusat untuk seluruh halaman About ────────────────────────
+// Semua field di query ini harus match dengan schema di src/sanity/schemas/aboutUs.ts
+// Schema menggunakan: event, achievement (BUKAN eventName, position)
+
+const data: AboutUsData = await sanityClient.fetch<AboutUsData>(`
+  *[_type == "aboutUs"][0] {
+    heroLabel,
+    heroLine1,
+    heroLine2,
+    heroSub,
+    heroFooterText,
+    heroBgImage,
+    storyTitle,
+    storyMainStatement,
+    storySubStatement,
+    trackRecordHeader,
+    "trackRecords": trackRecords[] {
+      _key,
+      event,
+      date,
+      achievement,
+      description,
+      image,
+      youtubeUrl
+    },
+    contactHeading,
+    contactSub,
+    "socialLinks": socialLinks[] {
+      _key,
+      platform,
+      handle,
+      href
+    },
+    contactEmail
+  }
+`) ?? {};
+
+// ── Construct Props ───────────────────────────────────────────────────────────
+
 const heroProps = {
-  label: data.heroLabel || 'About Us',
-  line1: data.heroLine1 || 'We Are Not',
-  line2: data.heroLine2 || 'Fans.',
-  sub: data.heroSub || 'We are the ceremony. Every waza, every formation, every synchronized breath on stage is a declaration — not a performance.',
+  label:      data.heroLabel      || 'About Us',
+  line1:      data.heroLine1      || 'We Are',
+  line2:      data.heroLine2      || 'YOKAI',
+  sub:        data.heroSub        || 'Every waza, every formation, every synchronized breath on stage is a declaration — not a performance.',
   footerText: data.heroFooterText || 'Yogyakarta · Wotagei',
-  bgImage: data.heroBgImage ? urlFor(data.heroBgImage).width(1920).format('webp').url() : '',
+  bgImage: data.heroBgImage
+    ? urlFor(data.heroBgImage).width(1920).format('webp').url()
+    : '',
 };
 
 const storyProps = {
-  title: data.storyTitle || 'Our Story',
-  mainStatement: data.storyMainStatement || 'Born from the underground Wotagei scene in Yogyakarta, YOKAI was built on a single principle: the wand is not an accessory — it is a weapon.',
-  subStatement: data.storySubStatement || 'We took the discipline of fanbase culture and turned it into performance art. No shortcuts, no stages handed to us — twelve individuals committed to mastery, and to each other.',
+  title:          data.storyTitle          || 'Our Story',
+  mainStatement:  data.storyMainStatement  || 'Born from the underground Wotagei scene in Yogyakarta, YOKAI was built on a single principle: the wand is not an accessory — it is a weapon.',
+  subStatement:   data.storySubStatement   || 'We took the discipline of fanbase culture and turned it into performance art. No shortcuts, no stages handed to us — twelve individuals committed to mastery, and to each other.',
 };
 
 const trackRecordProps = {
-  header: data.trackRecordHeader || 'Track Record',
-  // if empty, the component will fall back to local `trackRecord.ts`
-  records: data.trackRecords || [],
+  header:  data.trackRecordHeader || 'Track Record',
+  records: data.trackRecords      || [],
 };
 
 const contactProps = {
-  heading: data.contactHeading || 'Find Us.',
-  sub: data.contactSub || 'Follow our journey, catch our next performance, or reach out directly.',
-  email: data.contactEmail || 'yokai.wotagei@gmail.com',
-  // if empty, the component will fall back to local `socials.ts`
-  socialLinks: data.socialLinks || [],
+  heading:     data.contactHeading || 'Find Us.',
+  sub:         data.contactSub     || 'Follow our journey, catch our next performance, or reach out directly.',
+  email:       data.contactEmail   || 'yokai.wotagei@gmail.com',
+  socialLinks: data.socialLinks    || [],
 };
 ---
 

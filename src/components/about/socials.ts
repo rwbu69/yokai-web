@@ -32,17 +32,17 @@ export interface Social {
 export const socials: Social[] = [
   {
     platform: 'Instagram',
-    handle:   '@yokai.wotagei',
-    href:     'https://instagram.com/yokai.wotagei',
+    handle:   '@yokai.ind',
+    href:     'https://instagram.com/yokai.ind',
   },
   {
     platform: 'Twitter / X',
-    handle:   '@yokai_wt',
-    href:     'https://x.com/yokai_wt',
+    handle:   '@yokai_ind',
+    href:     'https://x.com/yokai_ind',
   },
   {
     platform: 'YouTube',
     handle:   'Yokai Wotagei',
-    href:     'https://youtube.com/@yokaiwotagei',
+    href:     'https://youtube.com/@yokai_ind',
   },
 ];

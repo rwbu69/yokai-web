@@ -1,14 +1,30 @@
 ---
 /**
  * VideosGrid.astro
+ *
+ * DIAGNOSIS NOTES (audit Mei 2026):
+ * - Import dari data/videos.ts (lokal) DIHAPUS — komponen ini hanya menerima data via props
+ * - Fallback ke localVideos DIHAPUS — jika data kosong, tampilkan empty state
+ * - Support GIF dan WebM:
+ *     videoType === 'webm' → render <video> — hover play/pause via video API
+ *     videoType === 'gif'  → render <img>  — hover toggle via canvas snapshot
+ *     videoType === null   → fallback graceful ke thumbnailUrl saja (no animation)
+ * - WebM TIDAK autoplay saat halaman load — hanya play on hover
+ * - Canvas snapshot technique dipertahankan untuk GIF
+ * - Tidak ada operasi file system (fs, path) — aman untuk Cloudflare Pages
  */
-import { videos as localVideos } from '../../../data/videos';
 
 interface VideoItem {
   id: string;
   title: string;
   date: string;
-  gif: string;
+  /** URL file animasi langsung (WebM atau GIF dari Sanity asset) */
+  videoUrl: string;
+  /** 'gif' | 'webm' | null */
+  videoType: 'gif' | 'webm' | null;
+  /** URL gambar statis untuk preview (thumbnail sebelum hover) */
+  thumbnailUrl: string;
+  /** URL YouTube untuk link eksternal */
   link: string;
   caption?: string;
 }
@@ -18,13 +34,27 @@ interface Props {
 }
 const { videos } = Astro.props;
 
-const activeVideos = videos && videos.length > 0 ? videos : localVideos;
+// Gunakan data dari props saja — tidak ada fallback ke file lokal
+const activeVideos = videos ?? [];
 
-const chunkedVideos = [];
+const chunkedVideos: VideoItem[][] = [];
 for (let i = 0; i < activeVideos.length; i += 4) {
   chunkedVideos.push(activeVideos.slice(i, i + 4));
 }
 ---
+
+{activeVideos.length === 0 ? (
+  <section class="w-full h-[100svh] fixed inset-0 bg-yokai-dark-blue flex flex-col items-center justify-center gap-6 text-center px-6">
+    <div class="w-12 h-[1px] bg-yokai-purple/30"></div>
+    <p class="font-inter text-[9px] tracking-[0.6em] uppercase text-white/25">
+      No Videos Yet
+    </p>
+    <p class="font-outfit text-white/30 text-sm font-light max-w-xs">
+      Video entries will appear here once added via Sanity Studio.
+    </p>
+    <div class="w-12 h-[1px] bg-yokai-purple/30"></div>
+  </section>
+) : (
 
 <section class="vg-fullscreen-wrapper w-full h-[100svh] relative z-0 overflow-hidden fixed inset-0 bg-yokai-dark-blue">
   
@@ -34,42 +64,84 @@ for (let i = 0; i < activeVideos.length; i += 4) {
         class="vg-set w-[100vw] h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 grid-rows-4 md:grid-rows-2"
         data-index={setIndex}
       >
-        {set.map((vid) => (
-          <a 
-            href={vid.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="vg-cell relative w-full h-full overflow-hidden block group bg-yokai-dark-blue cursor-pointer"
-          >
-            <img 
-              src={vid.gif} 
-              alt={vid.title} 
-              class="vg-gif absolute inset-0 w-full h-full object-cover z-0 opacity-0"
-            />
-            <canvas class="vg-canvas absolute inset-0 w-full h-full object-cover z-10"></canvas>
-            
-            <div 
-              class="vg-cell-overlay absolute inset-0 z-20 pointer-events-none" 
-              style="background: linear-gradient(to top, rgba(42,30,82, 0.85) 0%, rgba(42,30,82, 0) 50%); opacity: 0;"
-            ></div>
+        {set.map((vid) => {
+          // Determine the effective video type — fallback graceful jika null
+          const effectiveType = vid.videoType ?? (vid.videoUrl ? 'gif' : null);
+          const hasAnimation = !!vid.videoUrl && effectiveType !== null;
+          const isWebM = effectiveType === 'webm';
+          const isGif  = effectiveType === 'gif';
+          // href: prefer YouTube link, fallback ke '#'
+          const href = vid.link || '#';
 
-            <div class="vg-cell-text absolute bottom-4 left-4 md:bottom-8 md:left-8 flex flex-col z-30 pointer-events-none" style="opacity: 0;">
-              <span class="font-inter text-[8px] md:text-[9px] tracking-[0.4em] uppercase text-yokai-white/60 mb-1 md:mb-2">
-                {vid.date}
-              </span>
-              <h2 class="font-jakarta font-black uppercase text-yokai-white text-lg md:text-2xl tracking-tighter leading-none pr-8">
-                {vid.title}
-              </h2>
-            </div>
+          return (
+            <a 
+              href={href}
+              target={vid.link ? "_blank" : undefined}
+              rel={vid.link ? "noopener noreferrer" : undefined}
+              class="vg-cell relative w-full h-full overflow-hidden block group bg-yokai-dark-blue cursor-pointer"
+              data-video-type={effectiveType}
+              data-has-animation={hasAnimation ? 'true' : 'false'}
+            >
+              {/* ── Thumbnail Statis (selalu ada, tampil sebagai base layer) ── */}
+              {vid.thumbnailUrl && (
+                <img
+                  src={vid.thumbnailUrl}
+                  alt={vid.title}
+                  class="vg-thumb absolute inset-0 w-full h-full object-cover z-0"
+                  loading="lazy"
+                />
+              )}
 
-            <div class="vg-cell-arrow absolute top-4 right-4 md:top-8 md:right-8 text-yokai-white z-30 pointer-events-none" style="opacity: 0;">
-              <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" />
-              </svg>
-            </div>
+              {/* ── Canvas snapshot untuk GIF (static frame saat tidak hover) ── */}
+              {isGif && vid.videoUrl && (
+                <>
+                  <img 
+                    src={vid.videoUrl}
+                    alt={vid.title}
+                    class="vg-gif absolute inset-0 w-full h-full object-cover z-10 opacity-0"
+                  />
+                  <canvas class="vg-canvas absolute inset-0 w-full h-full object-cover z-20"></canvas>
+                </>
+              )}
 
-          </a>
-        ))}
+              {/* ── WebM Video — NO autoplay, play only on hover ── */}
+              {isWebM && vid.videoUrl && (
+                <video
+                  class="vg-video absolute inset-0 w-full h-full object-cover z-10 opacity-0"
+                  src={vid.videoUrl}
+                  muted
+                  loop
+                  playsinline
+                  preload="none"
+                  aria-hidden="true"
+                >
+                  {/* Tidak ada autoplay — dikontrol via JS hover */}
+                </video>
+              )}
+              
+              <div 
+                class="vg-cell-overlay absolute inset-0 z-30 pointer-events-none" 
+                style="background: linear-gradient(to top, rgba(42,30,82, 0.85) 0%, rgba(42,30,82, 0) 50%); opacity: 0;"
+              ></div>
+
+              <div class="vg-cell-text absolute bottom-4 left-4 md:bottom-8 md:left-8 flex flex-col z-40 pointer-events-none" style="opacity: 0;">
+                <span class="font-inter text-[8px] md:text-[9px] tracking-[0.4em] uppercase text-yokai-white/60 mb-1 md:mb-2">
+                  {vid.date}
+                </span>
+                <h2 class="font-jakarta font-black uppercase text-yokai-white text-lg md:text-2xl tracking-tighter leading-none pr-8">
+                  {vid.title}
+                </h2>
+              </div>
+
+              <div class="vg-cell-arrow absolute top-4 right-4 md:top-8 md:right-8 text-yokai-white z-40 pointer-events-none" style="opacity: 0;">
+                <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" />
+                </svg>
+              </div>
+
+            </a>
+          );
+        })}
       </div>
     ))}
   </div>
@@ -101,6 +173,8 @@ for (let i = 0; i < activeVideos.length; i += 4) {
 
 </section>
 
+)}
+
 <style>
   :global(body.videos-page) {
     overflow: hidden;
@@ -110,71 +184,138 @@ for (let i = 0; i < activeVideos.length; i += 4) {
 <script>
   import anime from 'animejs/lib/anime.es.js';
 
-  const cells = document.querySelectorAll('.vg-cell');
+  const cells = document.querySelectorAll<HTMLElement>('.vg-cell');
+
+  // ────────────────────────────────────────────────────────────────────────────
+  // Inisialisasi per cell berdasarkan tipe video
+  // ────────────────────────────────────────────────────────────────────────────
   cells.forEach(cell => {
-    const img = cell.querySelector('.vg-gif') as HTMLImageElement;
-    const canvas = cell.querySelector('.vg-canvas') as HTMLCanvasElement;
-    
-    // In case there is no gif uploaded yet, handle it gracefully
-    if (!img.src || img.src === window.location.href) {
-      drawCanvas();
-      return;
-    }
+    const videoType    = cell.dataset.videoType as 'gif' | 'webm' | null;
+    const hasAnimation = cell.dataset.hasAnimation === 'true';
 
-    if (img.complete) {
-      drawCanvas();
-    } else {
-      img.addEventListener('load', drawCanvas);
-    }
+    if (!hasAnimation) return;
 
-    function drawCanvas() {
-      canvas.width = 640;
-      canvas.height = 360;
-      const ctx = canvas.getContext('2d');
-      if (ctx) ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    if (videoType === 'gif') {
+      // ── GIF: Canvas snapshot technique ──────────────────────────────────────
+      const img    = cell.querySelector<HTMLImageElement>('.vg-gif');
+      const canvas = cell.querySelector<HTMLCanvasElement>('.vg-canvas');
+      if (!img || !canvas) return;
+
+      function drawCanvas() {
+        if (!canvas || !img) return;
+        canvas.width  = 640;
+        canvas.height = 360;
+        const ctx = canvas.getContext('2d');
+        if (ctx) ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      }
+
+      // Tampilkan canvas (static frame) sebagai placeholder
+      if (img.complete && img.naturalWidth > 0) {
+        drawCanvas();
+      } else {
+        img.addEventListener('load', drawCanvas);
+      }
+
+    } else if (videoType === 'webm') {
+      // ── WebM: Tidak ada inisialisasi khusus saat load ────────────────────────
+      // Video sengaja tidak autoplay — hanya play saat hover
+      const video = cell.querySelector<HTMLVideoElement>('.vg-video');
+      if (video) {
+        // Pastikan video benar-benar paused dan di posisi 0
+        video.pause();
+        video.currentTime = 0;
+      }
     }
   });
 
+  // ────────────────────────────────────────────────────────────────────────────
+  // Hover effects per cell
+  // ────────────────────────────────────────────────────────────────────────────
   cells.forEach(cell => {
-    const overlay = cell.querySelector('.vg-cell-overlay') as HTMLElement;
-    const text = cell.querySelector('.vg-cell-text') as HTMLElement;
-    const arrow = cell.querySelector('.vg-cell-arrow') as HTMLElement;
-    const canvas = cell.querySelector('.vg-canvas') as HTMLCanvasElement;
-    const img = cell.querySelector('.vg-gif') as HTMLImageElement;
+    const overlay  = cell.querySelector<HTMLElement>('.vg-cell-overlay');
+    const text     = cell.querySelector<HTMLElement>('.vg-cell-text');
+    const arrow    = cell.querySelector<HTMLElement>('.vg-cell-arrow');
+    const videoType = cell.dataset.videoType as 'gif' | 'webm' | null;
+    const hasAnimation = cell.dataset.hasAnimation === 'true';
 
     const isMobile = window.matchMedia('(max-width: 767px)').matches;
 
     if (!isMobile) {
       cell.addEventListener('mouseenter', () => {
-        anime({ targets: canvas, opacity: 0, duration: 300, easing: 'linear' });
-        anime({ targets: img, opacity: 1, duration: 300, easing: 'linear' });
-
+        // Tampilkan overlay & text
         anime({ targets: overlay, opacity: 1, duration: 400, easing: 'easeOutQuart' });
-        anime({ targets: text, opacity: 1, translateY: [15, 0], duration: 400, easing: 'easeOutQuart' });
-        anime({ targets: arrow, opacity: 1, translateX: [-10, 0], translateY: [10, 0], duration: 400, easing: 'easeOutQuart' });
+        anime({ targets: text,    opacity: 1, translateY: [15, 0], duration: 400, easing: 'easeOutQuart' });
+        anime({ targets: arrow,   opacity: 1, translateX: [-10, 0], translateY: [10, 0], duration: 400, easing: 'easeOutQuart' });
+
+        if (!hasAnimation) return;
+
+        if (videoType === 'gif') {
+          // GIF: sembunyikan canvas, tampilkan GIF animasi
+          const canvas = cell.querySelector<HTMLCanvasElement>('.vg-canvas');
+          const img    = cell.querySelector<HTMLImageElement>('.vg-gif');
+          anime({ targets: canvas, opacity: 0, duration: 300, easing: 'linear' });
+          anime({ targets: img,    opacity: 1, duration: 300, easing: 'linear' });
+
+        } else if (videoType === 'webm') {
+          // WebM: tampilkan video dan mulai play
+          const video = cell.querySelector<HTMLVideoElement>('.vg-video');
+          if (video) {
+            anime({ targets: video, opacity: 1, duration: 300, easing: 'linear' });
+            video.play().catch(() => {/* browser mungkin blokir autoplay — diabaikan */});
+          }
+        }
       });
 
       cell.addEventListener('mouseleave', () => {
-        anime({ targets: canvas, opacity: 1, duration: 300, easing: 'linear' });
-        anime({ targets: img, opacity: 0, duration: 300, easing: 'linear' });
-
+        // Sembunyikan overlay & text
         anime({ targets: overlay, opacity: 0, duration: 300, easing: 'easeInQuart' });
-        anime({ targets: text, opacity: 0, translateY: [0, 15], duration: 300, easing: 'easeInQuart' });
-        anime({ targets: arrow, opacity: 0, translateX: [0, -10], translateY: [0, 10], duration: 300, easing: 'easeInQuart' });
+        anime({ targets: text,    opacity: 0, translateY: [0, 15], duration: 300, easing: 'easeInQuart' });
+        anime({ targets: arrow,   opacity: 0, translateX: [0, -10], translateY: [0, 10], duration: 300, easing: 'easeInQuart' });
+
+        if (!hasAnimation) return;
+
+        if (videoType === 'gif') {
+          // GIF: sembunyikan GIF, tampilkan canvas (static frame)
+          const canvas = cell.querySelector<HTMLCanvasElement>('.vg-canvas');
+          const img    = cell.querySelector<HTMLImageElement>('.vg-gif');
+          anime({ targets: canvas, opacity: 1, duration: 300, easing: 'linear' });
+          anime({ targets: img,    opacity: 0, duration: 300, easing: 'linear' });
+
+        } else if (videoType === 'webm') {
+          // WebM: pause dan reset ke awal, sembunyikan
+          const video = cell.querySelector<HTMLVideoElement>('.vg-video');
+          if (video) {
+            anime({ targets: video, opacity: 0, duration: 300, easing: 'linear' });
+            video.pause();
+            video.currentTime = 0;
+          }
+        }
       });
+
     } else {
-      overlay.style.opacity = '1';
-      text.style.opacity = '1';
-      text.style.transform = 'translateY(0)';
-      arrow.style.opacity = '1';
-      arrow.style.transform = 'translate(0, 0)';
+      // Mobile: tampilkan overlay & text secara langsung
+      if (overlay) { overlay.style.opacity = '1'; }
+      if (text)    { text.style.opacity = '1'; text.style.transform = 'translateY(0)'; }
+      if (arrow)   { arrow.style.opacity = '1'; arrow.style.transform = 'translate(0, 0)'; }
+
+      // Mobile: WebM autoplay dengan muted untuk UX yang lebih baik di mobile
+      if (videoType === 'webm' && hasAnimation) {
+        const video = cell.querySelector<HTMLVideoElement>('.vg-video');
+        if (video) {
+          video.style.opacity = '1';
+          video.play().catch(() => {/* diabaikan jika browser blokir */});
+        }
+      }
     }
   });
 
-  const track = document.querySelector('.vg-track') as HTMLElement;
-  const prevBtn = document.querySelector('.vg-prev-btn') as HTMLButtonElement;
-  const nextBtn = document.querySelector('.vg-next-btn') as HTMLButtonElement;
-  const dots = document.querySelectorAll('.vg-dot');
+  // ────────────────────────────────────────────────────────────────────────────
+  // Paginasi
+  // ────────────────────────────────────────────────────────────────────────────
+  const track   = document.querySelector<HTMLElement>('.vg-track');
+  const prevBtn = document.querySelector<HTMLButtonElement>('.vg-prev-btn');
+  const nextBtn = document.querySelector<HTMLButtonElement>('.vg-next-btn');
+  const dots    = document.querySelectorAll<HTMLElement>('.vg-dot');
   const totalPages = document.querySelectorAll('.vg-set').length;
   
   let currentPage = 0;
@@ -183,21 +324,10 @@ for (let i = 0; i < activeVideos.length; i += 4) {
   const updateUI = () => {
     if (!prevBtn || !nextBtn) return;
     
-    if (currentPage === 0) {
-      prevBtn.style.opacity = '0';
-      prevBtn.style.pointerEvents = 'none';
-    } else {
-      prevBtn.style.opacity = '1';
-      prevBtn.style.pointerEvents = 'auto';
-    }
-
-    if (currentPage === totalPages - 1) {
-      nextBtn.style.opacity = '0';
-      nextBtn.style.pointerEvents = 'none';
-    } else {
-      nextBtn.style.opacity = '1';
-      nextBtn.style.pointerEvents = 'auto';
-    }
+    prevBtn.style.opacity      = currentPage === 0 ? '0' : '1';
+    prevBtn.style.pointerEvents = currentPage === 0 ? 'none' : 'auto';
+    nextBtn.style.opacity      = currentPage === totalPages - 1 ? '0' : '1';
+    nextBtn.style.pointerEvents = currentPage === totalPages - 1 ? 'none' : 'auto';
 
     dots.forEach((dot, idx) => {
       if (idx === currentPage) {
@@ -211,7 +341,7 @@ for (let i = 0; i < activeVideos.length; i += 4) {
   };
 
   const goToPage = (pageIndex: number) => {
-    if (isAnimating || pageIndex < 0 || pageIndex >= totalPages) return;
+    if (isAnimating || pageIndex < 0 || pageIndex >= totalPages || !track) return;
     isAnimating = true;
     
     if (prevBtn) prevBtn.style.pointerEvents = 'none';

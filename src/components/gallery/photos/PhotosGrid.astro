@@ -1,8 +1,12 @@
 ---
 /**
  * PhotosGrid.astro
+ *
+ * DIAGNOSIS NOTES (audit Mei 2026):
+ * - Import dari data/photos.ts (lokal) DIHAPUS — komponen ini hanya menerima data via props
+ * - Fallback ke localPhotoEvents DIHAPUS — jika data kosong, tampilkan empty state
+ * - Tidak ada operasi file system (fs, path) — aman untuk Cloudflare Pages
  */
-import { photoEvents as localPhotoEvents } from '../../../data/photos';
 
 interface PhotoEvent {
   id: string;
@@ -18,13 +22,27 @@ interface Props {
 }
 const { events } = Astro.props;
 
-const activeEvents = events && events.length > 0 ? events : localPhotoEvents;
+// Gunakan data dari props saja — tidak ada fallback ke file lokal
+const activeEvents = events ?? [];
 
-const chunkedEvents = [];
+const chunkedEvents: PhotoEvent[][] = [];
 for (let i = 0; i < activeEvents.length; i += 4) {
   chunkedEvents.push(activeEvents.slice(i, i + 4));
 }
 ---
+
+{activeEvents.length === 0 ? (
+  <section class="w-full h-[100svh] fixed inset-0 bg-yokai-dark-blue flex flex-col items-center justify-center gap-6 text-center px-6">
+    <div class="w-12 h-[1px] bg-yokai-purple/30"></div>
+    <p class="font-inter text-[9px] tracking-[0.6em] uppercase text-white/25">
+      No Photos Yet
+    </p>
+    <p class="font-outfit text-white/30 text-sm font-light max-w-xs">
+      Photo events will appear here once added via Sanity Studio.
+    </p>
+    <div class="w-12 h-[1px] bg-yokai-purple/30"></div>
+  </section>
+) : (
 
 <section class="pg-fullscreen-wrapper w-full h-[100svh] relative z-0 overflow-hidden fixed inset-0 bg-yokai-dark-blue">
   
@@ -94,6 +112,8 @@ for (let i = 0; i < activeEvents.length; i += 4) {
   )}
 
 </section>
+
+)}
 
 <div class="fixed bottom-4 left-4 md:bottom-8 md:left-8 z-40 pointer-events-none">
   <span class="font-inter text-[8px] md:text-[10px] tracking-[0.5em] uppercase text-yokai-white/40 mix-blend-difference">

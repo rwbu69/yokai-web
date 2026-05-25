@@ -1,41 +1,107 @@
 ---
 /**
  * src/pages/gallery/videos.astro
+ *
+ * DIAGNOSIS NOTES (audit Mei 2026):
+ * - Fix: `order(dateDesc)` → `order(date desc)` — dateDesc bukan field valid
+ * - Fix: Tambah field videoUrl, videoType, thumbnail dari schema baru
+ * - Fix: Hapus tipe `any` — ganti dengan interface yang proper
+ * - GIF legacy: thumbnailGif masih di-fetch untuk kompatibilitas mundur
+ * - Data di-fetch BUILD TIME — sudah benar untuk output: 'static'
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import VideosGrid from '../../components/gallery/videos/VideosGrid.astro';
 import { sanityClient, urlFor } from '../../lib/sanity';
+import type { SanityImage } from '../../lib/sanity';
 
-const query = `*[_type == "videoItem"] | order(dateDesc) {
+// ── TypeScript Interfaces ─────────────────────────────────────────────────────
+
+interface SanityVideoRaw {
+  id: string;
+  title: string;
+  date: string;
+  /** Resolved URL dari videoAsset.asset->url (file GIF/WebM) */
+  videoUrl?: string;
+  videoType?: 'gif' | 'webm';
+  thumbnail?: SanityImage;
+  /** Legacy GIF image field */
+  thumbnailGif?: SanityImage;
+  youtubeUrl?: string;
+  caption?: string;
+}
+
+interface FormattedVideo {
+  id: string;
+  title: string;
+  date: string;
+  /** URL file animasi (WebM atau GIF langsung dari Sanity) */
+  videoUrl: string;
+  /** 'gif' | 'webm' | null — null jika belum diset */
+  videoType: 'gif' | 'webm' | null;
+  /** URL gambar statis untuk thumbnail sebelum hover */
+  thumbnailUrl: string;
+  /** URL YouTube untuk link eksternal */
+  link: string;
+  caption?: string;
+}
+
+// ── GROQ Query ────────────────────────────────────────────────────────────────
+// Fix: order(date desc) — bukan order(dateDesc)
+// "videoUrl": videoAsset.asset->url — dereference asset untuk mendapat URL langsung
+
+const query = `*[_type == "videoItem"] | order(date desc) {
   "id": _id,
   title,
   date,
+  "videoUrl": videoAsset.asset->url,
+  videoType,
+  thumbnail {
+    asset,
+    hotspot
+  },
+  thumbnailGif {
+    asset,
+    hotspot
+  },
   youtubeUrl,
-  caption,
-  thumbnailGif
+  caption
 }`;
 
-const data = await sanityClient.fetch(query) || [];
+const data = await sanityClient.fetch<SanityVideoRaw[]>(query) ?? [];
 
-// For Sanity, video ID has to be parsed from youtubeUrl
-const getYouTubeId = (urlOrId: string) => {
+// ── Helper: Parse YouTube ID dari URL ─────────────────────────────────────────
+
+function getYouTubeId(urlOrId: string | undefined): string {
   if (!urlOrId) return '';
   if (urlOrId.includes('youtube.com') || urlOrId.includes('youtu.be')) {
-    const match = urlOrId.match(/[?&]v=([^&]+)/) || urlOrId.match(/youtu\.be\/([^?]+)/);
+    const match = urlOrId.match(/[?&]v=([^&]+)/) ?? urlOrId.match(/youtu\.be\/([^?]+)/);
     return match ? match[1] : '';
   }
   return urlOrId;
-};
+}
 
-const formattedVideos = data.map((v: any) => {
+// ── Resolve Image URLs & Format ───────────────────────────────────────────────
+
+const formattedVideos: FormattedVideo[] = data.map((v) => {
+  // Thumbnail statis: prioritas thumbnail > thumbnailGif (legacy)
+  let thumbnailUrl = '';
+  if (v.thumbnail?.asset) {
+    thumbnailUrl = urlFor(v.thumbnail).width(960).height(540).format('webp').url();
+  } else if (v.thumbnailGif?.asset) {
+    // thumbnailGif legacy — jangan convert ke webp agar GIF animasi tetap berjalan
+    // (hanya dipakai jika videoType=gif dan videoUrl kosong)
+    thumbnailUrl = urlFor(v.thumbnailGif).width(960).url();
+  }
+
   return {
-    id: v.id,
-    title: v.title,
-    date: v.date,
-    link: v.youtubeUrl,
-    videoId: getYouTubeId(v.youtubeUrl),
-    gif: v.thumbnailGif ? urlFor(v.thumbnailGif).width(800).url() : '', // GIF should not be formatted to webp if we want it to animate
-    caption: v.caption,
+    id:           v.id,
+    title:        v.title,
+    date:         v.date,
+    videoUrl:     v.videoUrl ?? '',
+    videoType:    v.videoType ?? null,
+    thumbnailUrl,
+    link:         v.youtubeUrl ?? '',
+    caption:      v.caption,
   };
 });
 ---

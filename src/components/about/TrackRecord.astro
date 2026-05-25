@@ -1,66 +1,101 @@
 ---
 /**
  * TrackRecord.astro
+ *
+ * DIAGNOSIS NOTES (audit Mei 2026):
+ * - Import dari ./trackRecord (file lokal) DIHAPUS — komponen ini hanya menerima data via props
+ * - Fallback ke localTrackRecords DIHAPUS — jika data kosong, tampilkan empty state
+ * - Tipe `any` DIGANTI dengan interface yang proper
+ * - urlFor() digunakan untuk me-resolve Sanity image asset
+ * - Schema aboutUs.ts menggunakan field `event` dan `achievement` (bukan eventName/position)
  */
 
-import { trackRecords as localTrackRecords } from './trackRecord';
 import { urlFor } from '../../lib/sanity';
+import type { SanityImage } from '../../lib/sanity';
+
+interface TrackRecordItem {
+  _key?: string;
+  event?: string;
+  eventName?: string;   // legacy alias — schema lama mungkin menggunakan ini
+  date?: string;
+  achievement?: string;
+  position?: string;    // legacy alias
+  image?: SanityImage;
+  description?: string;
+  youtubeUrl?: string;
+}
 
 interface Props {
   header: string;
-  records: any[];
+  records: TrackRecordItem[];
 }
 
 const { header, records } = Astro.props;
 
-// Use Sanity records if available, otherwise fallback to local trackRecords
-const activeRecords = records && records.length > 0 ? records : localTrackRecords;
-
-// ── Parsing dan Urutkan Data ───────────────────────────────────────────────
+// ── Parsing & Sorting ─────────────────────────────────────────────────────────
 const EN_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const ID_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
-function parseDateStr(dateStr: string) {
-  if (!dateStr) return new Date();
-  const [monStr, yearStr] = dateStr.split(' ');
-  const monthIdx = EN_MONTHS.indexOf(monStr);
-  const year = parseInt(yearStr, 10) || 2020;
-  return new Date(year, monthIdx !== -1 ? monthIdx : 0, 1);
+function parseDateStr(dateStr: string | undefined): Date {
+  if (!dateStr) return new Date(0);
+  const parts = dateStr.trim().split(/[\s,]+/);
+  // Try "Mon YYYY" format (e.g. "Dec 2024")
+  if (parts.length >= 2) {
+    const monStr = parts[0];
+    const yearStr = parts[parts.length - 1];
+    const monthIdx = EN_MONTHS.indexOf(monStr);
+    const year = parseInt(yearStr, 10) || 2020;
+    return new Date(year, monthIdx !== -1 ? monthIdx : 0, 1);
+  }
+  const d = new Date(dateStr);
+  return isNaN(d.getTime()) ? new Date(0) : d;
 }
 
-const sortedRecords = activeRecords.map((r, index) => {
-  const d = parseDateStr(r.date);
-  const monIdx = d.getMonth();
-  const idnMothYear = `${ID_MONTHS[monIdx]} ${d.getFullYear()}`;
-  
-  let shortEvent = r.event || r.eventName || 'Event';
-  if (shortEvent.length > 20) {
-     shortEvent = shortEvent.substring(0, 17) + '...';
-  }
+interface ProcessedRecord {
+  _key?: string;
+  event: string;
+  date: string;
+  achievement: string;
+  description?: string;
+  youtubeUrl?: string;
+  imageUrl: string;
+  parsedDate: Date;
+  idnMonthYear: string;
+  shortEvent: string;
+}
 
-  // Handle image: If Sanity image exists, use urlFor. Else if local, use r.image.src or r.image
-  let imageUrl = '';
-  if (r.image && r.image.asset) {
-    imageUrl = urlFor(r.image).width(1200).format('webp').url();
-  } else if (r.image && typeof r.image === 'string') {
-    imageUrl = r.image;
-  } else if (localTrackRecords[index] && localTrackRecords[index].image) {
-    // Ultimate fallback to local image if Sanity data is missing the image upload
-    imageUrl = typeof localTrackRecords[index].image === 'string' 
-      ? localTrackRecords[index].image 
-      : localTrackRecords[index].image;
-  }
+const sortedRecords: ProcessedRecord[] = records
+  .map((r) => {
+    const eventName = r.event || r.eventName || 'Event';
+    const achievement = r.achievement || r.position || '';
+    const d = parseDateStr(r.date);
+    const monIdx = d.getMonth();
+    const idnMonthYear = `${ID_MONTHS[monIdx]} ${d.getFullYear()}`;
 
-  return { 
-    ...r, 
-    event: r.event || r.eventName,
-    achievement: r.achievement || r.position,
-    parsedDate: d, 
-    idnMothYear, 
-    shortEvent,
-    imageUrl 
-  };
-}).sort((a, b) => b.parsedDate.getTime() - a.parsedDate.getTime());
+    const shortEvent = eventName.length > 20
+      ? eventName.substring(0, 17) + '...'
+      : eventName;
+
+    // Resolve Sanity image asset — urlFor() hanya dipanggil jika asset reference ada
+    let imageUrl = '';
+    if (r.image && r.image.asset) {
+      imageUrl = urlFor(r.image).width(1200).format('webp').url();
+    }
+
+    return {
+      _key: r._key,
+      event: eventName,
+      date: r.date || '',
+      achievement,
+      description: r.description,
+      youtubeUrl: r.youtubeUrl,
+      imageUrl,
+      parsedDate: d,
+      idnMonthYear,
+      shortEvent,
+    };
+  })
+  .sort((a, b) => b.parsedDate.getTime() - a.parsedDate.getTime());
 ---
 
 <section class="tr-section relative w-full border-t border-white/[0.06] py-20 bg-yokai-dark-blue overflow-hidden">
@@ -78,81 +113,100 @@ const sortedRecords = activeRecords.map((r, index) => {
       </span>
     </div>
 
-    <button id="tr-prev" class="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 flex items-center justify-center opacity-0 pointer-events-none transition-colors hover:text-yokai-purple text-white/40" aria-label="Previous record">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M15 18l-6-6 6-6" stroke-linecap="square"/>
-      </svg>
-    </button>
-    <button id="tr-next" class="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 flex items-center justify-center opacity-0 pointer-events-none transition-colors hover:text-yokai-purple text-white/40" aria-label="Next record">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M9 18l6-6-6-6" stroke-linecap="square"/>
-      </svg>
-    </button>
+    {sortedRecords.length === 0 ? (
+      <!-- Empty State -->
+      <div class="flex flex-col items-center justify-center py-32 text-center">
+        <div class="w-16 h-[1px] bg-yokai-purple/30 mb-8"></div>
+        <p class="font-inter text-[9px] tracking-[0.5em] uppercase text-white/20 mb-3">
+          No Records Yet
+        </p>
+        <p class="font-outfit text-white/30 text-sm font-light max-w-xs">
+          Track record will appear here once added in Sanity Studio.
+        </p>
+        <div class="w-16 h-[1px] bg-yokai-purple/30 mt-8"></div>
+      </div>
+    ) : (
+      <>
+        <button id="tr-prev" class="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 flex items-center justify-center opacity-0 pointer-events-none transition-colors hover:text-yokai-purple text-white/40" aria-label="Previous record">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M15 18l-6-6 6-6" stroke-linecap="square"/>
+          </svg>
+        </button>
+        <button id="tr-next" class="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 flex items-center justify-center opacity-0 pointer-events-none transition-colors hover:text-yokai-purple text-white/40" aria-label="Next record">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M9 18l6-6-6-6" stroke-linecap="square"/>
+          </svg>
+        </button>
 
-    <div id="tr-scroll" class="flex overflow-x-auto snap-x snap-mandatory relative w-full scroll-smooth" style="scrollbar-width: none;">
-      
-      {sortedRecords.map((r, i) => (
-        <div class="tr-slide flex-none w-full snap-center px-4 md:px-12 relative" data-index={i}>
-          <div class="flex flex-col md:flex-row gap-8 lg:gap-16 items-center">
-             
-             <div class="w-full md:w-1/2 relative tr-anim-img opacity-0">
-                <div class="w-full aspect-video overflow-hidden border border-white/5 relative">
-                   {r.imageUrl ? (
-                     <img src={r.imageUrl} alt={r.event} class="w-full h-full object-cover grayscale opacity-80" loading={i === 0 ? "eager" : "lazy"} />
-                   ) : (
-                     <div class="w-full h-full bg-white/5 flex items-center justify-center font-inter text-white/20 text-xs">Image not available</div>
-                   )}
-                   <div class="absolute inset-0 bg-gradient-to-t from-[#080508]/80 via-transparent to-transparent"></div>
-                </div>
-             </div>
-             
-             <div class="w-full md:w-1/2 flex flex-col justify-center">
-                <div class="tr-anim-text opacity-0">
-                   <div class="flex items-center gap-4 mb-4">
-                      <span class="font-inter text-[8px] tracking-[0.5em] text-white/40 uppercase whitespace-nowrap">{r.idnMothYear}</span>
-                      <div class="h-[1px] w-8 bg-yokai-purple/40 shrink-0"></div>
-                      <span class="font-inter text-[8px] tracking-[0.4em] uppercase text-yokai-purple whitespace-nowrap overflow-hidden text-ellipsis">{r.achievement}</span>
-                   </div>
-                   
-                   <h3 class="font-jakarta text-3xl md:text-4xl lg:text-5xl font-black uppercase text-yokai-white mb-6 leading-[1.1] tracking-tight" style="text-shadow: 0 4px 20px rgba(0,0,0,0.5);">
-                      {r.event}
-                   </h3>
-                   
-                   <p class="font-outfit text-white/55 text-sm md:text-base leading-relaxed max-w-[50ch] mb-8 font-light">
-                      {r.description}
-                   </p>
-                   
-                   {r.youtubeUrl && (
-                      <a href={r.youtubeUrl} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-3 font-inter text-[9px] tracking-[0.4em] uppercase text-white/70 hover:text-yokai-white border border-white/10 hover:border-yokai-purple/50 px-6 py-4 transition-all duration-300">
-                         Watch Video
-                         <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                           <path d="M8 5v14l11-7z"/>
-                         </svg>
-                      </a>
-                   )}
-                </div>
-             </div>
+        <div id="tr-scroll" class="flex overflow-x-auto snap-x snap-mandatory relative w-full scroll-smooth" style="scrollbar-width: none;">
+          
+          {sortedRecords.map((r, i) => (
+            <div class="tr-slide flex-none w-full snap-center px-4 md:px-12 relative" data-index={i}>
+              <div class="flex flex-col md:flex-row gap-8 lg:gap-16 items-center">
+                 
+                 <div class="w-full md:w-1/2 relative tr-anim-img opacity-0">
+                    <div class="w-full aspect-video overflow-hidden border border-white/5 relative">
+                       {r.imageUrl ? (
+                         <img src={r.imageUrl} alt={r.event} class="w-full h-full object-cover grayscale opacity-80" loading={i === 0 ? "eager" : "lazy"} />
+                       ) : (
+                         <div class="w-full h-full bg-white/5 flex flex-col items-center justify-center gap-3">
+                           <div class="w-8 h-[1px] bg-yokai-purple/30"></div>
+                           <span class="font-inter text-[8px] tracking-[0.4em] uppercase text-white/20">No Image</span>
+                         </div>
+                       )}
+                       <div class="absolute inset-0 bg-gradient-to-t from-[#080508]/80 via-transparent to-transparent"></div>
+                    </div>
+                 </div>
+                 
+                 <div class="w-full md:w-1/2 flex flex-col justify-center">
+                    <div class="tr-anim-text opacity-0">
+                       <div class="flex items-center gap-4 mb-4">
+                          <span class="font-inter text-[8px] tracking-[0.5em] text-white/40 uppercase whitespace-nowrap">{r.idnMonthYear}</span>
+                          <div class="h-[1px] w-8 bg-yokai-purple/40 shrink-0"></div>
+                          <span class="font-inter text-[8px] tracking-[0.4em] uppercase text-yokai-purple whitespace-nowrap overflow-hidden text-ellipsis">{r.achievement}</span>
+                       </div>
+                       
+                       <h3 class="font-jakarta text-3xl md:text-4xl lg:text-5xl font-black uppercase text-yokai-white mb-6 leading-[1.1] tracking-tight" style="text-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+                          {r.event}
+                       </h3>
+                       
+                       <p class="font-outfit text-white/55 text-sm md:text-base leading-relaxed max-w-[50ch] mb-8 font-light">
+                          {r.description}
+                       </p>
+                       
+                       {r.youtubeUrl && (
+                          <a href={r.youtubeUrl} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-3 font-inter text-[9px] tracking-[0.4em] uppercase text-white/70 hover:text-yokai-white border border-white/10 hover:border-yokai-purple/50 px-6 py-4 transition-all duration-300">
+                             Watch Video
+                             <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                               <path d="M8 5v14l11-7z"/>
+                             </svg>
+                          </a>
+                       )}
+                    </div>
+                 </div>
 
+              </div>
+            </div>
+          ))}
+          
+        </div>
+
+        <div class="relative mt-16 md:mt-24 pb-4 px-4 md:px-12">
+          <div class="absolute top-1/2 left-4 md:left-12 right-4 md:right-12 h-[1px] bg-white/[0.08] -translate-y-1/2 pointer-events-none"></div>
+          
+          <div class="flex justify-between items-center relative z-10 w-full">
+            {sortedRecords.map((r, i) => (
+               <button class="tr-node relative w-8 h-8 flex items-center justify-center group outline-none" data-index={i} aria-label={`Go to event: ${r.event}`}>
+                  <span class="tr-node-dot w-[6px] h-[6px] rounded-full bg-white/20 transition-all duration-300 pointer-events-none shadow-none"></span>
+                  <span class="tr-node-tooltip absolute bottom-full mb-2 left-1/2 -translate-x-1/2 font-inter text-[7px] tracking-[0.4em] uppercase text-white/70 whitespace-nowrap opacity-0 pointer-events-none">
+                     {r.shortEvent} <span class="text-yokai-purple/70">·</span> {r.idnMonthYear}
+                  </span>
+               </button>
+            ))}
           </div>
         </div>
-      ))}
-      
-    </div>
-
-    <div class="relative mt-16 md:mt-24 pb-4 px-4 md:px-12">
-      <div class="absolute top-1/2 left-4 md:left-12 right-4 md:right-12 h-[1px] bg-white/[0.08] -translate-y-1/2 pointer-events-none"></div>
-      
-      <div class="flex justify-between items-center relative z-10 w-full">
-        {sortedRecords.map((r, i) => (
-           <button class="tr-node relative w-8 h-8 flex items-center justify-center group outline-none" data-index={i} aria-label={`Go to event: ${r.event}`}>
-              <span class="tr-node-dot w-[6px] h-[6px] rounded-full bg-white/20 transition-all duration-300 pointer-events-none shadow-none"></span>
-              <span class="tr-node-tooltip absolute bottom-full mb-2 left-1/2 -translate-x-1/2 font-inter text-[7px] tracking-[0.4em] uppercase text-white/70 whitespace-nowrap opacity-0 pointer-events-none">
-                 {r.shortEvent} <span class="text-yokai-purple/70">·</span> {r.idnMothYear}
-              </span>
-           </button>
-        ))}
-      </div>
-    </div>
+      </>
+    )}
 
   </div>
 </section>
@@ -166,7 +220,6 @@ const sortedRecords = activeRecords.map((r, index) => {
   import anime from 'animejs/lib/anime.es.js';
 
   var activeIndex = -1;
-  var isAnimating = false;
   
   var trContainer = document.getElementById('tr-container');
   var scrollContainer = document.getElementById('tr-scroll');
@@ -193,25 +246,29 @@ const sortedRecords = activeRecords.map((r, index) => {
         }
       });
 
-      if (index === 0) {
-        anime({ targets: prevBtn, opacity: 0, duration: 300, easing: 'easeOutQuart' });
-        prevBtn.style.pointerEvents = 'none';
-      } else {
-        anime({ targets: prevBtn, opacity: 1, duration: 300, easing: 'easeOutQuart' });
-        prevBtn.style.pointerEvents = 'auto';
+      if (prevBtn) {
+        if (index === 0) {
+          anime({ targets: prevBtn, opacity: 0, duration: 300, easing: 'easeOutQuart' });
+          prevBtn.style.pointerEvents = 'none';
+        } else {
+          anime({ targets: prevBtn, opacity: 1, duration: 300, easing: 'easeOutQuart' });
+          prevBtn.style.pointerEvents = 'auto';
+        }
       }
 
-      if (index === slides.length - 1) {
-        anime({ targets: nextBtn, opacity: 0, duration: 300, easing: 'easeOutQuart' });
-        nextBtn.style.pointerEvents = 'none';
-      } else {
-        anime({ targets: nextBtn, opacity: 1, duration: 300, easing: 'easeOutQuart' });
-        nextBtn.style.pointerEvents = 'auto';
+      if (nextBtn) {
+        if (index === slides.length - 1) {
+          anime({ targets: nextBtn, opacity: 0, duration: 300, easing: 'easeOutQuart' });
+          nextBtn.style.pointerEvents = 'none';
+        } else {
+          anime({ targets: nextBtn, opacity: 1, duration: 300, easing: 'easeOutQuart' });
+          nextBtn.style.pointerEvents = 'auto';
+        }
       }
 
       var currentSlide = slides[index];
-      var imgEl = currentSlide.querySelector('.tr-anim-img');
-      var txtEl = currentSlide.querySelector('.tr-anim-text');
+      var imgEl = currentSlide?.querySelector('.tr-anim-img');
+      var txtEl = currentSlide?.querySelector('.tr-anim-text');
 
       anime.remove([imgEl, txtEl]);
 
@@ -256,11 +313,11 @@ const sortedRecords = activeRecords.map((r, index) => {
     function goToSlide(index: number) {
       if (index < 0 || index >= slides.length) return;
       var slide = slides[index];
-      scrollContainer.scrollTo({ left: slide.offsetLeft, behavior: 'smooth' });
+      scrollContainer!.scrollTo({ left: slide.offsetLeft, behavior: 'smooth' });
     }
 
-    prevBtn.addEventListener('click', () => goToSlide(activeIndex - 1));
-    nextBtn.addEventListener('click', () => goToSlide(activeIndex + 1));
+    if (prevBtn) prevBtn.addEventListener('click', () => goToSlide(activeIndex - 1));
+    if (nextBtn) nextBtn.addEventListener('click', () => goToSlide(activeIndex + 1));
 
     nodes.forEach((node, i) => {
       var tooltip = node.querySelector<HTMLElement>('.tr-node-tooltip');
@@ -290,7 +347,7 @@ const sortedRecords = activeRecords.map((r, index) => {
     scrollContainer.addEventListener('wheel', (e) => {
       if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
         e.preventDefault();
-        scrollContainer.scrollBy({
+        scrollContainer!.scrollBy({
           left: e.deltaY,
           behavior: 'auto'
         });

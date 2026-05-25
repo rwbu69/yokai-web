@@ -213,3 +213,58 @@ Setelah Sanity Studio aktif, upload gambar **tidak perlu dilakukan ke folder** `
 ---
 
 *Dokumen ini diperbarui terakhir: Mei 2026*
+
+---
+
+## GIF vs WebM untuk Halaman Videos
+
+Halaman Videos sekarang mendukung dua format animasi: **GIF** dan **WebM**.
+
+### Perbandingan Format
+
+| Kriteria | GIF | WebM |
+|----------|-----|------|
+| Ukuran file | ❌ Sangat besar (13 MB untuk 10 detik) | ✅ Sangat kecil (1–3 MB untuk 10 detik) |
+| Kualitas | ❌ 256 warna saja | ✅ Full color, jernih |
+| Browser support | ✅ Semua browser | ✅ Semua browser modern (Chrome, Firefox, Safari 12+) |
+| Cara render | `<img>` | `<video muted loop playsinline>` |
+| Direkomendasikan? | Hanya untuk clip pendek (<3 detik) | **Ya — selalu pilih WebM** |
+
+### Rekomendasi
+
+- **WebM direkomendasikan** — 5–10× lebih kecil dari GIF dengan kualitas yang jauh lebih baik
+- Target ukuran: **di bawah 3 MB** per file untuk UX yang cepat
+- Resolusi: **maksimal 1280×720 px** untuk halaman Videos
+
+### Cara Konversi GIF → WebM (FFmpeg)
+
+```bash
+# Konversi dasar — kualitas bagus, ukuran kecil
+ffmpeg -i input.gif -c vp9 -b:v 0 -crf 41 output.webm
+
+# Konversi dengan resize ke 1280x720
+ffmpeg -i input.gif -vf scale=1280:720 -c vp9 -b:v 0 -crf 41 output.webm
+
+# Konversi dengan resize ke 960x540 (lebih ringan, cocok untuk thumbnail)
+ffmpeg -i input.gif -vf scale=960:540 -c vp9 -b:v 0 -crf 41 output.webm
+```
+
+> **Tips CRF:** Nilai CRF yang lebih tinggi = file lebih kecil. Range: 0 (lossless) – 63 (paling kecil).  
+> Untuk preview video, **CRF 33–45** memberikan keseimbangan ukuran-kualitas yang baik.
+
+### Alternatif Online (Tanpa FFmpeg)
+
+- **[Cloudconvert.com](https://cloudconvert.com/gif-to-webm)** — Upload GIF, download WebM
+- **[Ezgif.com/gif-to-webp](https://ezgif.com/gif-to-webp)** — Juga mendukung konversi ke WebM
+
+### Cara Upload di Sanity Studio
+
+1. Buka Sanity Studio → **Video Item** → pilih atau buat video baru
+2. Upload file di field **"File GIF / WebM"**
+3. Pilih **"Tipe File Animasi"**: centang **WebM** atau **GIF** sesuai file
+4. *(Opsional)* Upload gambar statis di **"Thumbnail (Gambar Statis)"** — dipakai saat tidak hover
+5. Publish → website otomatis rebuild (jika webhook sudah dikonfigurasi)
+
+> **Catatan teknis:** WebM render menggunakan `<video>` dengan `muted loop playsinline`.  
+> Video **tidak autoplay** saat halaman load — hanya play saat di-hover (UX lebih baik, hemat baterai mobile).
+
