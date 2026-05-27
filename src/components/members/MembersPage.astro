@@ -1,115 +1,150 @@
 ---
 // src/components/members/MembersPage.astro
-// Fetches member data from Sanity (with local fallback).
-// Photo and gallery URLs are resolved via Sanity image-url builder.
+//
+// AUDIT NOTES (Mei 2026):
+// - Import dari ./members.ts (lokal) DIHAPUS — hanya gunakan data dari Sanity
+// - Fallback ke localMembers DIHAPUS — empty state ditampilkan jika Sanity kosong
+// - Dead reference linkedin DIHAPUS — tidak ada di schema maupun frontend
+// - Dead references dp-tenure, dp-city DIHAPUS — elemen tersebut tidak ada di CreditsPanel
+// - Field yang di-fetch disesuaikan dengan schema member.ts yang sudah dibersihkan
+// - Tipe `any` diganti dengan typed interface
+// - useCdn: false sudah di-set di sanityClient
 
 import AccordionStrip from './AccordionStrip.astro';
 import CreditsPanel from './CreditsPanel.astro';
-import { members as localMembers, type Member } from './members.ts';
 import { sanityClient, urlFor } from '@lib/sanity';
+import type { SanityImage } from '@lib/sanity';
 
-// ── Sanity member shape ───────────────────────────────────────────────
+// ── TypeScript Interfaces ─────────────────────────────────────────────────────
+
 interface SanityMemberDoc {
   _id: string;
-  name: string;
   firstName: string;
   lastName: string;
-  initials: string;
   role: string;
-  tenure?: string;
-  city?: string;
-  tags?: [string, string];
   quote?: string;
   favoriteWaza?: string;
   favoriteUchishi?: string;
   instagram?: string;
   twitter?: string;
-  photo?: object;
-  gallery?: object[];
+  photo?: SanityImage;
+  gallery?: SanityImage[];
   sortOrder?: number;
 }
 
-// ── Try to load from Sanity, fallback to local ─────────────────────────
-let members: Member[] = localMembers; // start with local
-
-try {
-  const sanityMembers = await sanityClient.fetch<SanityMemberDoc[]>(
-    `*[_type == "member"] | order(sortOrder asc, _createdAt asc) {
-      _id, name, firstName, lastName, initials, role, tenure, city,
-      tags, quote, favoriteWaza, favoriteUchishi, instagram, twitter,
-      photo, gallery, sortOrder
-    }`
-  );
-
-  if (sanityMembers && sanityMembers.length > 0) {
-    const W = 400;
-    members = sanityMembers.map((m, i) => {
-      // Strip photo — use Sanity CDN or fall back to local webp
-      const photo = m.photo
-        ? urlFor(m.photo).width(W).height(600).format('webp').quality(85).url()
-        : (localMembers[i]?.photo ?? '');
-
-      // Gallery — 4 photos from Sanity, or fall back to local picsum placeholders
-      const gallery = (m.gallery && m.gallery.length === 4)
-        ? m.gallery.map((img) =>
-            urlFor(img).width(W).height(600).format('webp').quality(85).url()
-          ) as [string, string, string, string]
-        : (localMembers[i]?.gallery ?? [
-            `https://picsum.photos/seed/${i}a/400/600`,
-            `https://picsum.photos/seed/${i}b/400/600`,
-            `https://picsum.photos/seed/${i}c/400/600`,
-            `https://picsum.photos/seed/${i}d/400/600`,
-          ]) as [string, string, string, string];
-
-      return {
-        id:              i + 1,
-        initials:        m.initials ?? '??',
-        firstName:       m.firstName,
-        lastName:        m.lastName,
-        name:            m.name,
-        role:            m.role,
-        tenure:          m.tenure ?? '—',
-        city:            m.city ?? '—',
-        tags:            (m.tags ?? ['—', '—']) as [string, string],
-        quote:           m.quote ?? '',
-        favoriteWaza:    m.favoriteWaza ?? '—',
-        favoriteUchishi: m.favoriteUchishi ?? '—',
-        instagram:       m.instagram,
-        twitter:         m.twitter,
-        gallery,
-        photo,
-        socials: { instagram: m.instagram, twitter: m.twitter },
-      } satisfies Member;
-    });
-  }
-} catch {
-  // Silently fall back to local data — site still works
+// Shape yang digunakan oleh semua komponen members
+export interface Member {
+  id: number;
+  firstName: string;
+  lastName: string;
+  role: string;
+  quote: string;
+  favoriteWaza: string;
+  favoriteUchishi: string;
+  instagram?: string;
+  twitter?: string;
+  photo: string;
+  gallery: [string, string, string, string];
+  socials: { instagram?: string; twitter?: string };
 }
 
-// Slim client payload — only fields the script needs (no images in here)
+// ── Fetch dari Sanity ─────────────────────────────────────────────────────────
+// Field disesuaikan dengan schema member.ts yang sudah dibersihkan.
+// Tidak ada fallback ke file lokal — jika kosong, tampilkan empty state.
+
+const sanityMembers = await sanityClient.fetch<SanityMemberDoc[]>(`
+  *[_type == "member"] | order(sortOrder asc, _createdAt asc) {
+    _id,
+    firstName,
+    lastName,
+    role,
+    quote,
+    favoriteWaza,
+    favoriteUchishi,
+    instagram,
+    twitter,
+    photo {
+      asset,
+      hotspot
+    },
+    "gallery": gallery[] {
+      asset,
+      hotspot
+    },
+    sortOrder
+  }
+`) ?? [];
+
+// ── Resolve Sanity Image URLs ─────────────────────────────────────────────────
+
+const IMG_W = 400;
+
+const members: Member[] = sanityMembers.map((m, i) => {
+  const photo = m.photo?.asset
+    ? urlFor(m.photo).width(IMG_W).height(600).format('webp').quality(85).url()
+    : '';
+
+  // Gallery: harus tepat 4 foto. Jika kurang, isi dengan string kosong.
+  const galleryRaw = (m.gallery ?? []).slice(0, 4);
+  const gallery = [
+    galleryRaw[0]?.asset ? urlFor(galleryRaw[0]).width(IMG_W).height(600).format('webp').quality(85).url() : '',
+    galleryRaw[1]?.asset ? urlFor(galleryRaw[1]).width(IMG_W).height(600).format('webp').quality(85).url() : '',
+    galleryRaw[2]?.asset ? urlFor(galleryRaw[2]).width(IMG_W).height(600).format('webp').quality(85).url() : '',
+    galleryRaw[3]?.asset ? urlFor(galleryRaw[3]).width(IMG_W).height(600).format('webp').quality(85).url() : '',
+  ] as [string, string, string, string];
+
+  return {
+    id:              i + 1,
+    firstName:       m.firstName,
+    lastName:        m.lastName,
+    role:            m.role,
+    quote:           m.quote        ?? '',
+    favoriteWaza:    m.favoriteWaza    ?? '—',
+    favoriteUchishi: m.favoriteUchishi ?? '—',
+    instagram:       m.instagram,
+    twitter:         m.twitter,
+    photo,
+    gallery,
+    socials: { instagram: m.instagram, twitter: m.twitter },
+  };
+});
+
+// ── Slim client payload (hanya field yang dibutuhkan oleh JS browser) ─────────
+
 const clientData = members.map(m => ({
   id:        m.id,
   firstName: m.firstName,
   lastName:  m.lastName,
   role:      m.role,
-  tenure:    m.tenure,
-  city:      m.city,
   quote:     m.quote,
   socials:   m.socials,
-  gallery:   m.gallery,    // ← gallery URLs passed to client for live swap
-  photo:     m.photo,      // ← strip photo URL for client-side active update
+  gallery:   m.gallery,
+  photo:     m.photo,
 }));
 ---
 
-<!--
-  members-page class overrides pt-24 that BaseLayout adds for non-home pages.
-  Navbar is fixed/sticky and overlays on top — accordion starts flush at top.
--->
-<div class="members-page flex flex-col bg-[#0c0c0c] overflow-hidden" style="height: 100dvh;">
-  <AccordionStrip members={members} />
-  <CreditsPanel initial={members[0]} />
-</div>
-
+{members.length === 0 ? (
+  <!-- Empty State -->
+  <div class="w-full h-screen bg-[#0c0c0c] flex flex-col items-center justify-center gap-6 text-center px-6">
+    <div class="w-16 h-[1px] bg-yokai-purple/30"></div>
+    <p class="font-inter text-[9px] tracking-[0.6em] uppercase text-white/25">
+      No Members Yet
+    </p>
+    <p class="font-outfit text-white/30 text-sm font-light max-w-xs">
+      Anggota tim akan muncul di sini setelah ditambahkan melalui Sanity Studio.
+    </p>
+    <div class="w-16 h-[1px] bg-yokai-purple/30"></div>
+  </div>
+) : (
+  <!--
+    members-page class overrides pt-24 that BaseLayout adds for non-home pages.
+    Navbar is fixed/sticky and overlays on top — accordion starts flush at top.
+  -->
+  <div class="members-page flex flex-col bg-[#0c0c0c] overflow-hidden" style="height: 100dvh;">
+    <AccordionStrip members={members} />
+    <CreditsPanel initial={members[0]} />
+  </div>
+)}
 
 <!-- ① Data bridge -->
 <script define:vars={{ __m: clientData }}>
@@ -122,15 +157,15 @@ const clientData = members.map(m => ({
 
   var members      = (window as any).__YOKAI_M || [];
   var strips        = Array.from(document.querySelectorAll<HTMLElement>('[data-strip-id]'));
-  var creditsInner  = document.getElementById('credits-inner'); // directional slide target
+  var creditsInner  = document.getElementById('credits-inner');
   var accordion     = document.querySelector<HTMLElement>('.accordion-strip');
 
   // Detail panel DOM refs
   var dpName1  = document.getElementById('dp-name1');
   var dpName2  = document.getElementById('dp-name2');
   var dpRole   = document.getElementById('dp-role');
-  var dpTenure = document.getElementById('dp-tenure');
-  var dpCity   = document.getElementById('dp-city');
+  var dpFavWaza    = document.getElementById('dp-fav-waza');
+  var dpFavUchishi = document.getElementById('dp-fav-uchishi');
   var dpQuote  = document.getElementById('dp-quote');
 
   var active      = -1;
@@ -141,7 +176,7 @@ const clientData = members.map(m => ({
     var total  = accordion ? accordion.offsetWidth : window.innerWidth;
     var active = Math.round(total * 0.40);
     var rest   = Math.round((total - active) / (members.length - 1));
-    return members.map(function(_: any, i: number) { return i === activeIdx ? active : rest; });
+    return members.map(function(_: unknown, i: number) { return i === activeIdx ? active : rest; });
   }
 
   // ── Strip animation ──────────────────────────────────────────────────
@@ -193,15 +228,14 @@ const clientData = members.map(m => ({
   }
 
   // ── Detail panel text + gallery update ──────────────────────────────
-  function updateDetail(m: any) {
-    if (dpName1)  dpName1.textContent  = m.firstName;
-    if (dpName2)  dpName2.textContent  = m.lastName;
-    if (dpRole)   dpRole.textContent   = m.role;
-    if (dpTenure) dpTenure.textContent = m.tenure;
-    if (dpCity)   dpCity.textContent   = m.city;
-    if (dpQuote)  dpQuote.textContent  = m.quote;
+  function updateDetail(m: { firstName: string; lastName: string; role: string; quote: string; socials: { instagram?: string; twitter?: string }; gallery: string[] }) {
+    if (dpName1)      dpName1.textContent      = m.firstName;
+    if (dpName2)      dpName2.textContent      = m.lastName;
+    if (dpRole)       dpRole.textContent       = m.role;
+    if (dpFavWaza)    dpFavWaza.textContent    = (m as any).favoriteWaza    ?? '—';
+    if (dpFavUchishi) dpFavUchishi.textContent = (m as any).favoriteUchishi ?? '—';
+    if (dpQuote)      dpQuote.textContent      = m.quote;
     setSocial('instagram', m.socials.instagram, 'instagram.com');
-    setSocial('linkedin',  m.socials.linkedin,  'linkedin.com/in');
     setSocial('twitter',   m.socials.twitter,   'x.com');
     updateGallery(m.gallery || []);
   }

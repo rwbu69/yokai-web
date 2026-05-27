@@ -6,6 +6,6 @@ export interface CollectionMeta {
 
 export const meta: CollectionMeta = {
   title: "Original Waza",
-  description: "Eksplorasi teknik dan gerakan eksklusif yang dikembangkan oleh anggota Yokai Wotagei Team.",
+  description: "Waza original yang dibuat oleh para Uchisi dari Yokai Wotagei Team.",
   heroText: "ORIGINAL WAZA"
 };

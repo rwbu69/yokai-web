@@ -1,58 +1,124 @@
 import { defineField, defineType } from 'sanity';
 
+/**
+ * member.ts — Schema untuk anggota tim Yokai Wotagei.
+ *
+ * Field yang ditampilkan di frontend (Members page):
+ *  - photo      → background foto di accordion strip
+ *  - firstName  → nama di strip, detail panel (COL 1)
+ *  - lastName   → nama di detail panel (COL 1)
+ *  - role       → posisi di strip & detail panel (COL 1)
+ *  - favoriteWaza    → detail panel COL 2
+ *  - favoriteUchishi → detail panel COL 2
+ *  - quote      → detail panel COL 3
+ *  - instagram  → link sosial di detail panel COL 3
+ *  - twitter    → link sosial di detail panel COL 3
+ *  - gallery    → grid 2×2 foto di detail panel COL 4
+ *  - sortOrder  → urutan tampil di accordion strip
+ *
+ * Field yang DIHAPUS dari Studio (tidak ditampilkan di frontend):
+ *  - bio, description, joinedDate, tenure, city, tags, initials, name
+ */
 export default defineType({
   name: 'member',
   title: 'Member',
   type: 'document',
   fields: [
-    defineField({ name: 'name',      title: 'Full Name',       type: 'string', validation: (Rule) => Rule.required() }),
-    defineField({ name: 'firstName', title: 'First Name',      type: 'string', validation: (Rule) => Rule.required() }),
-    defineField({ name: 'lastName',  title: 'Last Name',       type: 'string', validation: (Rule) => Rule.required() }),
-    defineField({ name: 'initials',  title: 'Initials (2 char)', type: 'string', validation: (Rule) => Rule.required().max(2) }),
-    defineField({ name: 'role',      title: 'Role / Position', type: 'string', validation: (Rule) => Rule.required() }),
-    defineField({ name: 'tenure',    title: 'Tenure (e.g. "4y")', type: 'string' }),
-    defineField({ name: 'city',      title: 'City',            type: 'string' }),
+    // ── Identitas ─────────────────────────────────────────────────────────────
     defineField({
-      name: 'tags',
-      title: 'Tags (max 2)',
-      type: 'array',
-      of: [{ type: 'string' }],
-      options: { layout: 'tags' },
-      validation: (Rule) => Rule.max(2),
+      name: 'firstName',
+      title: 'First Name',
+      type: 'string',
+      description: 'Ditampilkan di strip dan panel detail.',
+      validation: (Rule) => Rule.required(),
     }),
-    defineField({ name: 'quote',         title: 'Personal Quote',     type: 'text', rows: 2 }),
-    defineField({ name: 'favoriteWaza',  title: 'Favorite Waza',      type: 'string' }),
-    defineField({ name: 'favoriteUchishi', title: 'Favorite Uchishi', type: 'string' }),
-    defineField({ name: 'instagram',     title: 'Instagram (handle only, no @)', type: 'string' }),
-    defineField({ name: 'twitter',       title: 'X / Twitter (handle only, no @)', type: 'string' }),
+    defineField({
+      name: 'lastName',
+      title: 'Last Name',
+      type: 'string',
+      description: 'Ditampilkan di panel detail.',
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'role',
+      title: 'Role / Position',
+      type: 'string',
+      description: 'Contoh: "Center / Lead Performer". Ditampilkan di strip dan panel detail.',
+      validation: (Rule) => Rule.required(),
+    }),
+
+    // ── Konten Panel Detail ───────────────────────────────────────────────────
+    defineField({
+      name: 'quote',
+      title: 'Personal Quote',
+      type: 'text',
+      rows: 2,
+      description: 'Kalimat singkat yang muncul di panel detail saat member dipilih.',
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'favoriteWaza',
+      title: 'Favorite Waza',
+      type: 'string',
+      description: 'Teknik wotagei favorit. Ditampilkan di panel detail.',
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'favoriteUchishi',
+      title: 'Favorite Uchishi',
+      type: 'string',
+      description: 'Partner / pasangan uchishi favorit. Ditampilkan di panel detail.',
+      validation: (Rule) => Rule.required(),
+    }),
+
+    // ── Sosial Media ──────────────────────────────────────────────────────────
+    defineField({
+      name: 'instagram',
+      title: 'Instagram Handle',
+      type: 'string',
+      description: 'Handle tanpa @. Contoh: yokai.ind — Ditampilkan sebagai link di panel detail.',
+    }),
+    defineField({
+      name: 'twitter',
+      title: 'X / Twitter Handle',
+      type: 'string',
+      description: 'Handle tanpa @. Contoh: yokai_ind — Ditampilkan sebagai link di panel detail.',
+    }),
+
+    // ── Foto ──────────────────────────────────────────────────────────────────
     defineField({
       name: 'photo',
-      title: 'Strip Photo (portrait, shown in accordion strip)',
+      title: 'Strip Photo',
       type: 'image',
       options: { hotspot: true },
-      description: 'Portrait orientation recommended. Displayed as background in the member strip.',
+      description: 'Foto portrait. Ditampilkan sebagai background di accordion strip member.',
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'gallery',
-      title: 'Gallery Photos (exactly 4, shown in Credits Panel)',
+      title: 'Gallery Photos (tepat 4 foto)',
       type: 'array',
       of: [{ type: 'image', options: { hotspot: true } }],
-      validation: (Rule) => Rule.min(4).max(4).error('Harus tepat 4 foto.'),
-      description: 'Ditampilkan sebagai grid 2×2 di bagian bawah halaman Members saat member ini dipilih.',
+      validation: (Rule) => Rule.min(4).max(4).error('Harus tepat 4 foto untuk grid 2×2.'),
+      description: 'Ditampilkan sebagai grid 2×2 di panel detail saat member ini dipilih.',
     }),
-    defineField({ name: 'bio', title: 'Biography', type: 'text', rows: 4 }),
+
+    // ── Urutan ────────────────────────────────────────────────────────────────
     defineField({
-      name: 'description',
-      title: 'Short Description (for Cheki label)',
-      type: 'string',
+      name: 'sortOrder',
+      title: 'Sort Order',
+      type: 'number',
+      initialValue: 99,
+      description: 'Angka lebih kecil = tampil lebih dulu di strip. Contoh: 1, 2, 3...',
     }),
-    defineField({ name: 'joinedDate', title: 'Joined Date', type: 'date' }),
-    defineField({ name: 'sortOrder',  title: 'Sort Order (lower = first)', type: 'number', initialValue: 99 }),
   ],
   orderings: [
     { title: 'Sort Order', name: 'sortOrderAsc', by: [{ field: 'sortOrder', direction: 'asc' }] },
   ],
   preview: {
-    select: { title: 'name', subtitle: 'role', media: 'photo' },
+    select: { title: 'firstName', subtitle: 'role', media: 'photo' },
+    prepare({ title, subtitle, media }) {
+      return { title, subtitle, media };
+    },
   },
 });

@@ -1,6 +1,6 @@
 ---
 // src/components/members/CreditsGrid.astro
-import type { Member } from './members.ts';
+import type { Member } from './MembersPage.astro';
 
 interface Props { members: Member[]; }
 const { members } = Astro.props;
@@ -21,9 +21,11 @@ const { members } = Astro.props;
         data-dot-id={m.id}
         aria-label={`${m.firstName} ${m.lastName}`}
       >
-        <!-- Initials circle -->
+        <!-- Initials circle (computed dari firstName + lastName) -->
         <div class="dot-circle w-7 h-7 rounded-full border border-white/12 flex items-center justify-center bg-white/[0.04]">
-          <span class="font-jakarta font-black text-[8px] text-white/40 leading-none">{m.initials}</span>
+          <span class="font-jakarta font-black text-[8px] text-white/40 leading-none">
+            {(m.firstName[0] ?? '') + (m.lastName[0] ?? '')}
+          </span>
         </div>
         <!-- Name label -->
         <span class="dot-name font-inter text-[5.5px] tracking-[0.18em] uppercase text-white/22 leading-none text-center">

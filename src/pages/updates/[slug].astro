@@ -1,38 +1,72 @@
 ---
+/**
+ * src/pages/updates/[slug].astro
+ *
+ * AUDIT NOTES (Mei 2026):
+ * - Fix: Hapus tipe `any` — ganti dengan typed interface
+ * - Fix: image projection dilengkapi dengan { asset }
+ * - category tidak di-fetch — sudah dihapus dari schema
+ */
 import BaseLayout from '@layouts/BaseLayout.astro';
 import PostHeader from '@components/blog/PostHeader.astro';
 import PostLayout from '@components/blog/PostLayout.astro';
 import { meta } from '@data/updates-meta';
 import { sanityClient, urlFor } from '../../lib/sanity';
+import type { SanityImage } from '../../lib/sanity';
 import { PortableText } from 'astro-portabletext';
 
-export async function getStaticPaths() {
-  const query = `*[_type == "update"] {
-    "slug": slug.current
-  }`;
-  const posts = await sanityClient.fetch(query) || [];
-  return posts.map((post: any) => ({
-    params: { slug: post.slug }
-  }));
+// ── TypeScript Interfaces ─────────────────────────────────────────────────────
+
+interface SanityUpdateSlug {
+  slug: string;
 }
+
+interface SanityUpdateDetail {
+  title: string;
+  date: string;
+  image?: SanityImage;
+  tags?: string[];
+  content?: unknown[];
+}
+
+// ── getStaticPaths — generate semua slug dari Sanity ─────────────────────────
+
+export async function getStaticPaths() {
+  const slugs = await sanityClient.fetch<SanityUpdateSlug[]>(`
+    *[_type == "update"] {
+      "slug": slug.current
+    }
+  `) ?? [];
+
+  return slugs
+    .filter((p) => !!p.slug) // skip entri tanpa slug
+    .map((p) => ({ params: { slug: p.slug } }));
+}
+
+// ── Fetch Detail Post ─────────────────────────────────────────────────────────
 
 const { slug } = Astro.params;
 
-const query = `*[_type == "update" && slug.current == $slug][0] {
-  title,
-  date,
-  image,
-  tags,
-  content
-}`;
-
-const post = await sanityClient.fetch(query, { slug });
+const post = await sanityClient.fetch<SanityUpdateDetail | null>(`
+  *[_type == "update" && slug.current == $slug][0] {
+    title,
+    date,
+    image {
+      asset,
+      hotspot
+    },
+    tags,
+    content
+  }
+`, { slug });
 
 if (!post) {
   return Astro.redirect('/404');
 }
 
-const coverImageUrl = post.image ? urlFor(post.image).width(1200).url() : '';
+const coverImageUrl = post.image?.asset
+  ? urlFor(post.image).width(1200).format('webp').url()
+  : '';
 ---
 
 <BaseLayout title={`${post.title} | ${meta.title}`} activePage="updates">
@@ -44,7 +78,7 @@ const coverImageUrl = post.image ? urlFor(post.image).width(1200).url() : '';
       tags={post.tags}
     />
     <PostLayout backUrl="/updates" backText={`Kembali ke ${meta.title}`}>
-      <PortableText value={post.content} />
+      <PortableText value={post.content ?? []} />
     </PostLayout>
   </main>
 </BaseLayout>

@@ -1,35 +1,73 @@
 ---
+/**
+ * src/pages/updates/index.astro
+ *
+ * AUDIT NOTES (Mei 2026):
+ * - Fix: `order(dateDesc)` → `order(date desc)` — dateDesc bukan field valid, itu nama ordering
+ * - Fix: Hapus `category` dari query — field ini dihapus dari schema (tidak pernah ditampilkan)
+ * - Fix: Hapus tipe `any` — ganti dengan typed interface
+ * - Fix: Hapus manual sort setelah fetch — sudah di-sort di GROQ query
+ * - image projection dilengkapi dengan { asset }
+ */
 import BaseLayout from '@layouts/BaseLayout.astro';
 import PostHero from '@components/blog/PostHero.astro';
 import PostGrid from '@components/blog/PostGrid.astro';
 import { meta } from '@data/updates-meta';
 import { sanityClient, urlFor } from '../../lib/sanity';
+import type { SanityImage } from '../../lib/sanity';
 
-const query = `*[_type == "update"] | order(dateDesc) {
+// ── TypeScript Interfaces ─────────────────────────────────────────────────────
+
+interface SanityUpdateRaw {
+  id: string;
+  title: string;
+  description?: string;
+  date: string;
+  image?: SanityImage;
+}
+
+interface FormattedPost {
+  id: string;
+  data: {
+    title: string;
+    description: string;
+    date: string;
+    coverImage: string;
+  };
+}
+
+// ── GROQ Query ────────────────────────────────────────────────────────────────
+// Fix: order(date desc) — bukan order(dateDesc)
+// Fix: image projection dengan { asset } agar referensi ter-resolve
+// Fix: category dihapus — tidak ada di schema baru
+
+const query = `*[_type == "update"] | order(date desc) {
   "id": slug.current,
   title,
   "description": excerpt,
   date,
-  image
+  image {
+    asset,
+    hotspot
+  }
 }`;
 
-const posts = await sanityClient.fetch(query) || [];
-const formattedPosts = posts.map((post: any) => ({
+const posts = await sanityClient.fetch<SanityUpdateRaw[]>(query) ?? [];
+
+const formattedPosts: FormattedPost[] = posts.map((post) => ({
   id: post.id,
   data: {
-    title: post.title,
-    description: post.description,
-    date: post.date,
-    coverImage: post.image ? urlFor(post.image).width(800).url() : '',
-  }
+    title:       post.title,
+    description: post.description ?? '',
+    date:        post.date,
+    coverImage:  post.image?.asset
+      ? urlFor(post.image).width(800).format('webp').url()
+      : '',
+  },
 }));
-
-formattedPosts.sort(
-  (a: any, b: any) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf()
-);
 ---
 
-<BaseLayout title={`${meta.title} | Yokai Library`} activePage="updates">
+<BaseLayout title={`${meta.title} | Yokai`} activePage="updates">
   <main class="min-h-screen bg-yokai-dark-blue pt-10">
     <PostHero title={meta.heroText} description={meta.description} />
     <PostGrid posts={formattedPosts} collection="updates" />
