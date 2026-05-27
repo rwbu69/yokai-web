@@ -19,6 +19,18 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'titleJp',
+      title: 'Japanese Name (Optional)',
+      type: 'string',
+      description: 'The Japanese text (Kanji/Kana) for the Waza name.',
+    }),
+    defineField({
+      name: 'honke',
+      title: 'Original Creator (Honke)',
+      type: 'string',
+      description: 'Who originally created this Waza? (Optional)',
+    }),
+    defineField({
       name: 'wazaType',
       title: 'Waza Type',
       type: 'string',

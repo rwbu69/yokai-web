@@ -16,11 +16,11 @@ interface Props {
 
 const { backUrl, backText } = Astro.props;
 ---
-<div class="w-full bg-yokai-dark-blue relative">
+<div class="w-full bg-[#FAFAFA] relative rounded-t-[2.5rem] -mt-10 z-20 pb-20 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
   <!-- Back Link -->
   <div class="absolute top-8 left-6 md:left-12 z-20">
-    <a href={backUrl} class="font-inter text-[10px] tracking-[0.2em] uppercase text-yokai-white/50 hover:text-yokai-purple transition-colors flex items-center gap-2">
-      <span>←</span> {backText}
+    <a href={backUrl} class="font-inter text-[10px] tracking-[0.2em] uppercase text-yokai-dark-blue/40 hover:text-yokai-purple transition-colors flex items-center gap-2">
+      <span class="text-lg leading-none mt-[-2px]">&larr;</span> {backText}
     </a>
   </div>
 
@@ -36,9 +36,9 @@ const { backUrl, backText } = Astro.props;
     Gaya custom untuk konten markdown tanpa bergantung pada Tailwind Typography.
   */
   .yokai-prose {
-    color: rgba(253, 255, 253, 0.85); /* yokai-white/85 */
+    color: #374151; /* text-gray-700 */
     font-family: 'Inter', sans-serif;
-    font-size: 1rem;
+    font-size: 1.125rem;
     line-height: 1.8;
   }
 
@@ -53,7 +53,7 @@ const { backUrl, backText } = Astro.props;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 900;
     text-transform: uppercase;
-    color: #FDFFFD; /* yokai-white */
+    color: #111827; /* text-gray-900 */
     letter-spacing: -0.02em;
     margin-top: 2.5em;
     margin-bottom: 1em;
@@ -86,7 +86,10 @@ const { backUrl, backText } = Astro.props;
     padding-left: 1.5em;
     border-left: 4px solid #9C72F6;
     font-style: italic;
-    color: rgba(253, 255, 253, 0.6);
+    color: #6B7280; /* text-gray-500 */
+    background: #F3F4F6; /* light gray background */
+    padding: 1.5em;
+    border-radius: 0 0.5rem 0.5rem 0;
   }
 
   .yokai-prose ul,
@@ -108,12 +111,13 @@ const { backUrl, backText } = Astro.props;
     height: auto;
     object-fit: cover;
     margin: 2em 0;
-    background-color: rgba(253, 255, 253, 0.05);
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   }
 
   .yokai-prose strong,
   .yokai-prose b {
     font-weight: 700;
-    color: #FDFFFD;
+    color: #111827;
   }
 </style>

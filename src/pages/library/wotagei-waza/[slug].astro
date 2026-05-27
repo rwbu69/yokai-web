@@ -20,9 +20,11 @@ const { slug } = Astro.params;
 
 const query = `*[_type == "waza" && wazaType == "wotagei" && slug.current == $slug][0] {
   title,
+  titleJp,
   date,
   coverImage,
   tags,
+  honke,
   body
 }`;
 
@@ -36,12 +38,14 @@ const coverImageUrl = post.coverImage ? urlFor(post.coverImage).width(1200).url(
 ---
 
 <BaseLayout title={`${post.title} | ${meta.title}`} activePage="library">
-  <main class="min-h-screen bg-yokai-dark-blue">
+  <main class="min-h-screen bg-[#FAFAFA]">
     <PostHeader
       title={post.title}
+      titleJp={post.titleJp}
       coverImage={coverImageUrl}
       date={post.date}
       tags={post.tags}
+      honke={post.honke}
     />
     <PostLayout backUrl="/library/wotagei-waza" backText={`Kembali ke ${meta.title}`}>
       <PortableText value={post.body} />

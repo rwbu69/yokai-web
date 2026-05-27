@@ -9,15 +9,19 @@
  * - coverImage: string
  * - date: string
  * - tags?: string[]
+ * - honke?: string
+ * - titleJp?: string
  */
 interface Props {
   title: string;
   coverImage: string;
   date: string;
   tags?: string[];
+  honke?: string;
+  titleJp?: string;
 }
 
-const { title, coverImage, date, tags } = Astro.props;
+const { title, coverImage, date, tags, honke, titleJp } = Astro.props;
 ---
 <header class="w-full h-[50vh] min-h-[400px] relative flex flex-col items-center justify-center pt-20 px-6 text-center">
   <!-- Background Image with Overlay -->
@@ -28,9 +32,22 @@ const { title, coverImage, date, tags } = Astro.props;
 
   <!-- Content -->
   <div class="relative z-10 flex flex-col items-center max-w-4xl mx-auto">
-    <h1 class="font-jakarta font-black uppercase text-yokai-white text-3xl md:text-5xl lg:text-6xl tracking-tighter leading-none mb-6 drop-shadow-lg">
+    {titleJp && (
+      <h1 class="font-jakarta font-black text-yokai-white text-5xl md:text-7xl lg:text-8xl tracking-tight leading-none mb-2 drop-shadow-lg">
+        {titleJp}
+      </h1>
+    )}
+    <h2 class={`font-jakarta font-black uppercase text-yokai-white/90 ${titleJp ? 'text-2xl md:text-3xl' : 'text-3xl md:text-5xl lg:text-6xl'} tracking-tighter leading-none mb-4 drop-shadow-lg`}>
       {title}
-    </h1>
+    </h2>
+    
+    {honke && (
+      <div class="mb-6">
+        <span class="font-jakarta font-bold text-yokai-white/90 text-sm md:text-base tracking-[0.1em] uppercase bg-yokai-purple/20 px-3 py-1 rounded border border-yokai-purple/50">
+          Original Creator: <span class="text-yokai-purple">{honke}</span>
+        </span>
+      </div>
+    )}
     
     <div class="flex flex-col items-center gap-3">
       <time datetime={date} class="font-inter text-xs tracking-[0.3em] uppercase text-yokai-white/70">

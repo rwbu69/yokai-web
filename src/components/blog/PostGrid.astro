@@ -7,6 +7,7 @@
  * Props:
  * - posts: array of CollectionEntry
  * - collection: string
+ * - showSearch: boolean (optional)
  */
 import PostCard from './PostCard.astro';
 import type { CollectionEntry } from 'astro:content';
@@ -14,28 +15,48 @@ import type { CollectionEntry } from 'astro:content';
 interface Props {
   posts: CollectionEntry<any>[];
   collection: string;
+  showSearch?: boolean;
 }
 
-const { posts, collection } = Astro.props;
+const { posts, collection, showSearch = false } = Astro.props;
 ---
 <section class="w-full max-w-7xl mx-auto px-6 md:px-12 pb-32">
+  {showSearch && (
+    <div class="mb-10 w-full max-w-md mx-auto relative opacity-0 translate-y-4" id="search-container">
+      <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+        <svg class="h-5 w-5 text-[#2A1E52]/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+      </div>
+      <input
+        type="text"
+        id="post-search-input"
+        placeholder="Cari Waza berdasarkan nama atau deskripsi..."
+        class="w-full bg-white border border-[#2A1E52]/20 rounded-lg py-3 pl-12 pr-4 text-[#2A1E52] placeholder-[#2A1E52]/40 shadow-[0_4px_20px_rgba(42,30,82,0.05)] focus:outline-none focus:ring-2 focus:ring-[#A045BB] focus:border-transparent transition-all font-inter text-sm"
+      />
+    </div>
+  )}
+
   {posts.length === 0 ? (
     <div class="w-full flex justify-center py-20">
-      <p class="font-jakarta font-black uppercase text-2xl tracking-[0.3em] text-yokai-white/20">
+      <p class="font-jakarta font-black uppercase text-2xl tracking-[0.3em] text-[#2A1E52]/20">
         NOTHING HERE YET.
       </p>
     </div>
   ) : (
     <div id="post-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
       {posts.map((post) => (
-        <PostCard 
-          title={post.data.title}
-          description={post.data.description}
-          coverImage={post.data.coverImage}
-          date={post.data.date}
-          slug={post.id}
-          collection={collection}
-        />
+        <div class="post-card-wrapper" data-title={post.data.title.toLowerCase()} data-description={(post.data.description || '').toLowerCase()} data-titlejp={(post.data.titleJp || '').toLowerCase()}>
+          <PostCard 
+            title={post.data.title}
+            titleJp={post.data.titleJp}
+            description={post.data.description}
+            coverImage={post.data.coverImage}
+            date={post.data.date}
+            slug={post.id}
+            collection={collection}
+          />
+        </div>
       ))}
     </div>
   )}
@@ -45,15 +66,49 @@ const { posts, collection } = Astro.props;
   import anime from 'animejs/lib/anime.es.js';
 
   document.addEventListener('DOMContentLoaded', () => {
+    // Entrance animations
+    const elementsToAnimate = [];
+    const searchContainer = document.getElementById('search-container');
+    if (searchContainer) elementsToAnimate.push(searchContainer);
+    
     const cards = document.querySelectorAll('.post-card');
     if (cards.length > 0) {
+      cards.forEach(card => elementsToAnimate.push(card));
+    }
+
+    if (elementsToAnimate.length > 0) {
       anime({
-        targets: cards,
+        targets: elementsToAnimate,
         translateY: [40, 0],
         opacity: [0, 1],
         duration: 800,
-        delay: anime.stagger(150),
+        delay: anime.stagger(100),
         easing: 'easeOutQuart'
+      });
+    }
+
+    // Search Filtering functionality
+    const searchInput = document.getElementById('post-search-input') as HTMLInputElement;
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        const query = (e.target as HTMLInputElement).value.toLowerCase().trim();
+        const cardWrappers = document.querySelectorAll('.post-card-wrapper');
+        
+        cardWrappers.forEach((wrapper: any) => {
+          const title = wrapper.getAttribute('data-title') || '';
+          const titleJp = wrapper.getAttribute('data-titlejp') || '';
+          const description = wrapper.getAttribute('data-description') || '';
+          
+          if (title.includes(query) || titleJp.includes(query) || description.includes(query)) {
+            wrapper.style.display = 'block';
+            // Slight fade in for matched elements if they were hidden
+            if (wrapper.style.opacity === '0') {
+              wrapper.style.opacity = '1';
+            }
+          } else {
+            wrapper.style.display = 'none';
+          }
+        });
       });
     }
   });
