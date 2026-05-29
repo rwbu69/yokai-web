@@ -19,12 +19,12 @@ const { members } = Astro.props;
       <button
         class="member-dot flex flex-col items-center gap-1 focus:outline-none"
         data-dot-id={m.id}
-        aria-label={`${m.firstName} ${m.lastName}`}
+        aria-label={m.firstName}
       >
-        <!-- Initials circle (computed dari firstName + lastName) -->
+        <!-- Initials circle (computed dari firstName) -->
         <div class="dot-circle w-7 h-7 rounded-full border border-white/12 flex items-center justify-center bg-white/[0.04]">
           <span class="font-jakarta font-black text-[8px] text-white/40 leading-none">
-            {(m.firstName[0] ?? '') + (m.lastName[0] ?? '')}
+            {m.firstName.substring(0, 2).toUpperCase()}
           </span>
         </div>
         <!-- Name label -->

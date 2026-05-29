@@ -95,8 +95,8 @@ const members: Member[] = sanityMembers.map((m, i) => {
     firstName:       m.firstName,
     role:            m.role,
     quote:           m.quote        ?? '',
-    favoriteWaza:    m.favoriteWaza    ?? [],
-    favoriteUchishi: m.favoriteUchishi ?? [],
+    favoriteWaza:    Array.isArray(m.favoriteWaza) ? m.favoriteWaza : (m.favoriteWaza ? [m.favoriteWaza as unknown as string] : []),
+    favoriteUchishi: Array.isArray(m.favoriteUchishi) ? m.favoriteUchishi : (m.favoriteUchishi ? [m.favoriteUchishi as unknown as string] : []),
     instagram:       m.instagram,
     twitter:         m.twitter,
     photo,
@@ -112,6 +112,8 @@ const clientData = members.map(m => ({
   firstName: m.firstName,
   role:      m.role,
   quote:     m.quote,
+  favoriteWaza: m.favoriteWaza,
+  favoriteUchishi: m.favoriteUchishi,
   socials:   m.socials,
   gallery:   m.gallery,
   photo:     m.photo,
@@ -225,8 +227,16 @@ const clientData = members.map(m => ({
   function updateDetail(m: { firstName: string; role: string; quote: string; socials: { instagram?: string; twitter?: string }; gallery: string[] }) {
     if (dpName1)      dpName1.textContent      = m.firstName;
     if (dpRole)       dpRole.textContent       = m.role;
-    if (dpFavWaza)    dpFavWaza.textContent    = ((m as any).favoriteWaza && (m as any).favoriteWaza.length > 0) ? (m as any).favoriteWaza.join(', ') : '—';
-    if (dpFavUchishi) dpFavUchishi.textContent = ((m as any).favoriteUchishi && (m as any).favoriteUchishi.length > 0) ? (m as any).favoriteUchishi.join(', ') : '—';
+    if (dpFavWaza) {
+      var w = (m as any).favoriteWaza;
+      if (!Array.isArray(w)) w = w ? [w] : [];
+      dpFavWaza.textContent = w.length > 0 ? w.join(', ') : '—';
+    }
+    if (dpFavUchishi) {
+      var u = (m as any).favoriteUchishi;
+      if (!Array.isArray(u)) u = u ? [u] : [];
+      dpFavUchishi.textContent = u.length > 0 ? u.join(', ') : '—';
+    }
     if (dpQuote)      dpQuote.textContent      = m.quote;
     setSocial('instagram', m.socials.instagram, 'instagram.com');
     setSocial('twitter',   m.socials.twitter,   'x.com');

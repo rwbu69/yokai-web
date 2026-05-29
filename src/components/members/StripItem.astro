@@ -35,11 +35,9 @@ const idStr = String(member.id).padStart(2, '0');
       {member.firstName}
     </p>
 
-    <!-- Full name: visible when active, delayed 0.3s.
-         Uses visibility + opacity — never display toggle — to avoid layout recalc. -->
     <p class="strip-name-full font-jakarta font-black uppercase leading-[1.05] text-white"
        style="white-space: nowrap; overflow: hidden; text-overflow: clip;">
-      {member.firstName}<br />{member.lastName}
+      {member.firstName}
     </p>
 
     <!-- Role: visible when active, delayed 0.3s -->
@@ -74,8 +72,8 @@ const idStr = String(member.id).padStart(2, '0');
     position: absolute;
     inset: 0;
     background-image: var(--strip-photo);
-    background-size: cover;
-    background-position: center 15%;
+    background-size: auto 100%;
+    background-position: center center;
     background-repeat: no-repeat;
     background-attachment: scroll;
     transform: translateZ(0); /* keep on same compositing layer as parent */
