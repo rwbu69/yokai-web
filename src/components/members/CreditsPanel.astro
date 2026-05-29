@@ -28,8 +28,7 @@ const twHref = m.twitter   ? `https://x.com/${m.twitter}`          : '#';
       <div class="detail-content">
         <p class="font-inter text-[7px] tracking-[0.5em] uppercase text-white/40 mb-3">Selected</p>
         <h2 class="font-jakarta font-medium uppercase text-white leading-[0.95] mb-2" style="font-size:30px;">
-          <span id="dp-name1">{m.firstName}</span><br />
-          <span id="dp-name2">{m.lastName}</span>
+          <span id="dp-name1">{m.firstName}</span>
         </h2>
         <p id="dp-role" class="font-inter text-[8px] tracking-[0.38em] uppercase leading-tight" style="color: #c06ad8;">{m.role}</p>
       </div>
@@ -40,11 +39,11 @@ const twHref = m.twitter   ? `https://x.com/${m.twitter}`          : '#';
       <div class="detail-content">
         <div class="mb-5">
           <p class="font-inter text-[7px] tracking-[0.5em] uppercase text-white/40 mb-1.5">Favorite Waza</p>
-          <p id="dp-fav-waza" class="font-jakarta font-medium text-white leading-none" style="font-size:18px;">{m.favoriteWaza}</p>
+          <p id="dp-fav-waza" class="font-jakarta font-medium text-white leading-none" style="font-size:18px;">{m.favoriteWaza.length > 0 ? m.favoriteWaza.join(', ') : '—'}</p>
         </div>
         <div>
           <p class="font-inter text-[7px] tracking-[0.5em] uppercase text-white/40 mb-1.5">Favorite Uchishi</p>
-          <p id="dp-fav-uchishi" class="font-jakarta font-medium text-white leading-none" style="font-size:18px;">{m.favoriteUchishi}</p>
+          <p id="dp-fav-uchishi" class="font-jakarta font-medium text-white leading-none" style="font-size:18px;">{m.favoriteUchishi.length > 0 ? m.favoriteUchishi.join(', ') : '—'}</p>
         </div>
       </div>
     </div>

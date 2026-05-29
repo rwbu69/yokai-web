@@ -17,7 +17,7 @@ import { defineField, defineType } from 'sanity';
  *  - sortOrder  → urutan tampil di accordion strip
  *
  * Field yang DIHAPUS dari Studio (tidak ditampilkan di frontend):
- *  - bio, description, joinedDate, tenure, city, tags, initials, name
+ *  - lastName, bio, description, joinedDate, tenure, city, tags, initials, name
  */
 export default defineType({
   name: 'member',
@@ -32,13 +32,7 @@ export default defineType({
       description: 'Ditampilkan di strip dan panel detail.',
       validation: (Rule) => Rule.required(),
     }),
-    defineField({
-      name: 'lastName',
-      title: 'Last Name',
-      type: 'string',
-      description: 'Ditampilkan di panel detail.',
-      validation: (Rule) => Rule.required(),
-    }),
+
     defineField({
       name: 'role',
       title: 'Role / Position',
@@ -59,14 +53,16 @@ export default defineType({
     defineField({
       name: 'favoriteWaza',
       title: 'Favorite Waza',
-      type: 'string',
+      type: 'array',
+      of: [{ type: 'string' }],
       description: 'Teknik wotagei favorit. Ditampilkan di panel detail.',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'favoriteUchishi',
       title: 'Favorite Uchishi',
-      type: 'string',
+      type: 'array',
+      of: [{ type: 'string' }],
       description: 'Partner / pasangan uchishi favorit. Ditampilkan di panel detail.',
       validation: (Rule) => Rule.required(),
     }),

@@ -20,11 +20,10 @@ import type { SanityImage } from '@lib/sanity';
 interface SanityMemberDoc {
   _id: string;
   firstName: string;
-  lastName: string;
   role: string;
   quote?: string;
-  favoriteWaza?: string;
-  favoriteUchishi?: string;
+  favoriteWaza?: string[];
+  favoriteUchishi?: string[];
   instagram?: string;
   twitter?: string;
   photo?: SanityImage;
@@ -36,11 +35,10 @@ interface SanityMemberDoc {
 export interface Member {
   id: number;
   firstName: string;
-  lastName: string;
   role: string;
   quote: string;
-  favoriteWaza: string;
-  favoriteUchishi: string;
+  favoriteWaza: string[];
+  favoriteUchishi: string[];
   instagram?: string;
   twitter?: string;
   photo: string;
@@ -56,7 +54,6 @@ const sanityMembers = await sanityClient.fetch<SanityMemberDoc[]>(`
   *[_type == "member"] | order(sortOrder asc, _createdAt asc) {
     _id,
     firstName,
-    lastName,
     role,
     quote,
     favoriteWaza,
@@ -96,11 +93,10 @@ const members: Member[] = sanityMembers.map((m, i) => {
   return {
     id:              i + 1,
     firstName:       m.firstName,
-    lastName:        m.lastName,
     role:            m.role,
     quote:           m.quote        ?? '',
-    favoriteWaza:    m.favoriteWaza    ?? '—',
-    favoriteUchishi: m.favoriteUchishi ?? '—',
+    favoriteWaza:    m.favoriteWaza    ?? [],
+    favoriteUchishi: m.favoriteUchishi ?? [],
     instagram:       m.instagram,
     twitter:         m.twitter,
     photo,
@@ -114,7 +110,6 @@ const members: Member[] = sanityMembers.map((m, i) => {
 const clientData = members.map(m => ({
   id:        m.id,
   firstName: m.firstName,
-  lastName:  m.lastName,
   role:      m.role,
   quote:     m.quote,
   socials:   m.socials,
@@ -162,7 +157,6 @@ const clientData = members.map(m => ({
 
   // Detail panel DOM refs
   var dpName1  = document.getElementById('dp-name1');
-  var dpName2  = document.getElementById('dp-name2');
   var dpRole   = document.getElementById('dp-role');
   var dpFavWaza    = document.getElementById('dp-fav-waza');
   var dpFavUchishi = document.getElementById('dp-fav-uchishi');
@@ -228,12 +222,11 @@ const clientData = members.map(m => ({
   }
 
   // ── Detail panel text + gallery update ──────────────────────────────
-  function updateDetail(m: { firstName: string; lastName: string; role: string; quote: string; socials: { instagram?: string; twitter?: string }; gallery: string[] }) {
+  function updateDetail(m: { firstName: string; role: string; quote: string; socials: { instagram?: string; twitter?: string }; gallery: string[] }) {
     if (dpName1)      dpName1.textContent      = m.firstName;
-    if (dpName2)      dpName2.textContent      = m.lastName;
     if (dpRole)       dpRole.textContent       = m.role;
-    if (dpFavWaza)    dpFavWaza.textContent    = (m as any).favoriteWaza    ?? '—';
-    if (dpFavUchishi) dpFavUchishi.textContent = (m as any).favoriteUchishi ?? '—';
+    if (dpFavWaza)    dpFavWaza.textContent    = ((m as any).favoriteWaza && (m as any).favoriteWaza.length > 0) ? (m as any).favoriteWaza.join(', ') : '—';
+    if (dpFavUchishi) dpFavUchishi.textContent = ((m as any).favoriteUchishi && (m as any).favoriteUchishi.length > 0) ? (m as any).favoriteUchishi.join(', ') : '—';
     if (dpQuote)      dpQuote.textContent      = m.quote;
     setSocial('instagram', m.socials.instagram, 'instagram.com');
     setSocial('twitter',   m.socials.twitter,   'x.com');
