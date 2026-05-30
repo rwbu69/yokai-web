@@ -6,6 +6,20 @@ export default defineType({
   type: 'document',
   fields: [
     defineField({
+      name: 'isOpen',
+      title: 'Is Merch Open?',
+      type: 'boolean',
+      description: 'Toggle on to open merch orders, off to close them.',
+      initialValue: false,
+    }),
+    defineField({
+      name: 'closedMessage',
+      title: 'Closed Message',
+      type: 'string',
+      description: 'Pesan yang ditampilkan saat merch tutup',
+      initialValue: 'OUR MERCH IS CLOSED AT THE MOMENT.',
+    }),
+    defineField({
       name: 'heroBgImage',
       title: 'Hero Background Image',
       type: 'image',

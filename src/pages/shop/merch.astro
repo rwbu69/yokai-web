@@ -3,14 +3,15 @@
  * src/pages/shop/merch.astro
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import MerchHero from '../../components/shop/merch/MerchHero.astro';
-import MerchOrderForm from '../../components/shop/merch/MerchOrderForm.astro';
+import ShopHero from '../../components/shop/ShopHero.astro';
+import ShopOrderForm from '../../components/shop/ShopOrderForm.astro';
+import ShopClosed from '../../components/shop/ShopClosed.astro';
 import { sanityClient, urlFor } from '../../lib/sanity';
 
 import bgImg from '../../assets/photos/3.webp';
 
 const query = `{
-  "config": *[_type == "merchConfig"][0] { heroBgImage, endpointUrl },
+  "config": *[_type == "merchConfig"][0] { isOpen, closedMessage, heroBgImage, endpointUrl },
   "items": *[_type == "shopItem" && category == "merch"] | order(_createdAt asc) {
     "id": slug.current,
     title,
@@ -22,7 +23,7 @@ const query = `{
 }`;
 const data = await sanityClient.fetch(query) || {};
 const merchItems = data.items || [];
-const merchConfig = data.config || {};
+const merchConfig = data.config || { isOpen: false, closedMessage: 'OUR MERCH IS CLOSED AT THE MOMENT.', endpointUrl: '' };
 const bgImageUrl = merchConfig.heroBgImage ? urlFor(merchConfig.heroBgImage).width(1920).format('webp').url() : bgImg.src;
 const endpointUrl = merchConfig.endpointUrl || "https://script.google.com/macros/s/AKfycbwnpOzGpvaOfWIqN-Acy-uVKXLe3VaCS2n6zCs9SsaCJRXbVfdrtpVAqYqzCiJXtSHk/exec";
 
@@ -34,6 +35,8 @@ const formattedItems = merchItems.map((item: any) => ({
   description: item.description,
   variants: item.variants
 }));
+
+const isDev = import.meta.env.DEV;
 ---
 
 <BaseLayout title="Official Merch | Yokai" activePage="shop">
@@ -44,10 +47,52 @@ const formattedItems = merchItems.map((item: any) => ({
   </div>
 
   <main class="relative z-10 min-h-screen flex flex-col">
-    <MerchHero />
+    <ShopHero 
+      title="OFFICIAL MERCH"
+      subtitle="Wear the spirit of Yokai. High-quality gear for wotagei practitioners."
+    />
     
-    <section class="w-full px-6 flex-grow flex items-start justify-center pb-32">
-      <MerchOrderForm items={formattedItems} endpointUrl={endpointUrl} />
-    </section>
+    <div id="merch-open-view" class="w-full px-6 flex-grow flex items-start justify-center pb-32" style={`display: ${merchConfig.isOpen ? 'flex' : 'none'};`}>
+      <ShopOrderForm type="merch" items={formattedItems} endpointUrl={endpointUrl} />
+    </div>
+
+    <div id="merch-closed-view" class="w-full px-6 flex-grow flex items-start justify-center" style={`display: ${merchConfig.isOpen ? 'none' : 'flex'};`}>
+      <ShopClosed message={merchConfig.closedMessage} />
+    </div>
+
+    {isDev && (
+      <button 
+        id="dev-merch-toggle"
+        class="fixed bottom-4 right-4 z-[999] bg-yokai-purple/20 text-yokai-white font-mono text-[10px] uppercase px-4 py-2 border border-yokai-white/20 backdrop-blur-sm cursor-pointer hover:bg-yokai-purple/40 transition-colors"
+        data-open={merchConfig.isOpen.toString()}
+      >
+        DEV: Merch [{merchConfig.isOpen ? 'OPEN' : 'CLOSED'}]
+      </button>
+    )}
   </main>
 </BaseLayout>
+
+<script>
+  const devToggle = document.getElementById('dev-merch-toggle');
+  const openView = document.getElementById('merch-open-view');
+  const closedView = document.getElementById('merch-closed-view');
+
+  if (devToggle) {
+    devToggle.addEventListener('click', () => {
+      const isCurrentlyOpen = devToggle.getAttribute('data-open') === 'true';
+      const newState = !isCurrentlyOpen;
+      
+      if (newState) {
+        openView!.style.display = 'flex';
+        closedView!.style.display = 'none';
+        devToggle.innerText = 'DEV: Merch [OPEN]';
+      } else {
+        openView!.style.display = 'none';
+        closedView!.style.display = 'flex';
+        devToggle.innerText = 'DEV: Merch [CLOSED]';
+      }
+
+      devToggle.setAttribute('data-open', newState.toString());
+    });
+  }
+</script>
