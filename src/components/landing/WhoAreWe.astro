@@ -4,57 +4,40 @@
  */
 import { urlFor } from '@lib/sanity';
 
-import local1  from '../../assets/hero-images/1.webp';
-import local2  from '../../assets/hero-images/2.webp';
-import local3  from '../../assets/hero-images/3.webp';
-import local4  from '../../assets/hero-images/4.webp';
-import local5  from '../../assets/hero-images/5.webp';
-import local6  from '../../assets/hero-images/6.webp';
-import local7  from '../../assets/hero-images/7.webp';
-import local8  from '../../assets/hero-images/8.webp';
-import local9  from '../../assets/hero-images/9.webp';
-import local10 from '../../assets/hero-images/10.webp';
-import local11 from '../../assets/hero-images/11.webp';
-import local12 from '../../assets/hero-images/12.webp';
+import local1  from '../../assets/who-are-we/1.webp';
+import local2  from '../../assets/who-are-we/2.webp';
+import local3  from '../../assets/who-are-we/3.webp';
+import local4  from '../../assets/who-are-we/4.webp';
+import local5  from '../../assets/who-are-we/5.webp';
+import local6  from '../../assets/who-are-we/6.webp';
+import local7  from '../../assets/who-are-we/7.webp';
+import local8  from '../../assets/who-are-we/8.webp';
 
 interface Props {
   title: string;
   highlight: string;
   body: string;
   buttonText: string;
-  heroImgs: any;
+  images: any[];
 }
 
-const { title, highlight, body, buttonText, heroImgs } = Astro.props;
+const { title, highlight, body, buttonText, images = [] } = Astro.props;
 
 let imagesA: string[] = [];
 let imagesB: string[] = [];
 let imagesC: string[] = [];
 
-if (heroImgs?.setA?.panel1) {
-  const w = 400; // Smaller width for marquee
-  imagesA = [
-    urlFor(heroImgs.setA.panel1).width(w).format('webp').url(),
-    urlFor(heroImgs.setA.panel2).width(w).format('webp').url(),
-    urlFor(heroImgs.setA.panel3).width(w).format('webp').url(),
-    urlFor(heroImgs.setA.panel4).width(w).format('webp').url(),
-  ];
-  imagesB = [
-    urlFor(heroImgs.setB.panel1).width(w).format('webp').url(),
-    urlFor(heroImgs.setB.panel2).width(w).format('webp').url(),
-    urlFor(heroImgs.setB.panel3).width(w).format('webp').url(),
-    urlFor(heroImgs.setB.panel4).width(w).format('webp').url(),
-  ];
-  imagesC = [
-    urlFor(heroImgs.setC.panel1).width(w).format('webp').url(),
-    urlFor(heroImgs.setC.panel2).width(w).format('webp').url(),
-    urlFor(heroImgs.setC.panel3).width(w).format('webp').url(),
-    urlFor(heroImgs.setC.panel4).width(w).format('webp').url(),
-  ];
+if (images && images.length === 12) {
+  const w = 400; // Width for marquee
+  const h = 300; // Height for consistent 4:3 aspect ratio
+  const formattedImages = images.map((img: any) => urlFor(img).width(w).height(h).format('webp').url());
+  imagesA = formattedImages.slice(0, 4);
+  imagesB = formattedImages.slice(4, 8);
+  imagesC = formattedImages.slice(8, 12);
 } else {
   imagesA = [local1.src,  local2.src,  local3.src,  local4.src];
   imagesB = [local5.src,  local6.src,  local7.src,  local8.src];
-  imagesC = [local9.src,  local10.src, local11.src, local12.src];
+  imagesC = [local1.src,  local2.src,  local3.src,  local4.src];
 }
 ---
 
@@ -62,24 +45,24 @@ if (heroImgs?.setA?.panel1) {
   class="waw-section w-full bg-yokai-dark-blue py-32 relative overflow-hidden flex flex-col items-center justify-center min-h-screen"
 >
   <div class="absolute inset-0 z-0 pointer-events-none opacity-35 flex flex-col gap-1 justify-center">
-    <div class="overflow-hidden h-1/3 flex-shrink-0">
-      <div class="flex w-max animate-slide-left h-full gap-1">
+    <div class="overflow-hidden flex-shrink-0">
+      <div class="flex w-max animate-slide-left gap-1">
         {[...imagesA, ...imagesA, ...imagesA, ...imagesA, ...imagesA, ...imagesA].map((src) => (
-          <img src={src} alt="" class="h-full w-[240px] flex-shrink-0 object-cover grayscale" />
+          <img src={src} alt="" class="h-[200px] md:h-[260px] lg:h-[320px] w-auto aspect-[4/3] flex-shrink-0 object-cover grayscale" />
         ))}
       </div>
     </div>
-    <div class="overflow-hidden h-1/3 flex-shrink-0">
-      <div class="flex w-max animate-slide-right h-full gap-1">
+    <div class="overflow-hidden flex-shrink-0">
+      <div class="flex w-max animate-slide-right gap-1">
         {[...imagesB, ...imagesB, ...imagesB, ...imagesB, ...imagesB, ...imagesB].map((src) => (
-          <img src={src} alt="" class="h-full w-[240px] flex-shrink-0 object-cover grayscale" />
+          <img src={src} alt="" class="h-[200px] md:h-[260px] lg:h-[320px] w-auto aspect-[4/3] flex-shrink-0 object-cover grayscale" />
         ))}
       </div>
     </div>
-    <div class="overflow-hidden h-1/3 flex-shrink-0">
-      <div class="flex w-max animate-slide-left-fast h-full gap-1">
+    <div class="overflow-hidden flex-shrink-0">
+      <div class="flex w-max animate-slide-left-fast gap-1">
         {[...imagesC, ...imagesC, ...imagesC, ...imagesC, ...imagesC, ...imagesC].map((src) => (
-          <img src={src} alt="" class="h-full w-[240px] flex-shrink-0 object-cover grayscale" />
+          <img src={src} alt="" class="h-[200px] md:h-[260px] lg:h-[320px] w-auto aspect-[4/3] flex-shrink-0 object-cover grayscale" />
         ))}
       </div>
     </div>

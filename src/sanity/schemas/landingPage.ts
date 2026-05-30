@@ -70,5 +70,13 @@ export default defineType({
       title: '"Who Are We" Button Text',
       type: 'string',
     }),
+    defineField({
+      name: 'whoAreWeImages',
+      title: '"Who Are We" Background Images',
+      type: 'array',
+      of: [{ type: 'image', options: { hotspot: true } }],
+      validation: (Rule) => Rule.length(12).error('Exactly 12 images are required for the marquee layout.'),
+      description: 'Exactly 12 images used for the background marquee (3 rows of 4).',
+    }),
   ],
 });
