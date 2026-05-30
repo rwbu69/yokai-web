@@ -31,6 +31,21 @@ export default {
       name: 'description',
       title: 'Description',
       type: 'text',
+    },
+    {
+      name: 'sortOrder',
+      title: 'Sort Order',
+      type: 'number',
+      description: 'Used to reorder items on the landing page (lower numbers appear first).',
+    }
+  ],
+  orderings: [
+    {
+      title: 'Sort Order',
+      name: 'sortOrderAsc',
+      by: [
+        {field: 'sortOrder', direction: 'asc'}
+      ]
     }
   ]
 };

@@ -253,6 +253,15 @@ for (let i = 0; i < activeVideos.length; i += 4) {
           // GIF: sembunyikan canvas, tampilkan GIF animasi
           const canvas = cell.querySelector<HTMLCanvasElement>('.vg-canvas');
           const img    = cell.querySelector<HTMLImageElement>('.vg-gif');
+          
+          if (img && img.dataset.src) {
+            img.src = img.dataset.src;
+          } else if (img) {
+            const currentSrc = img.src;
+            img.dataset.src = currentSrc;
+            img.src = currentSrc;
+          }
+
           anime({ targets: canvas, opacity: 0, duration: 300, easing: 'linear' });
           anime({ targets: img,    opacity: 1, duration: 300, easing: 'linear' });
 
@@ -298,14 +307,8 @@ for (let i = 0; i < activeVideos.length; i += 4) {
       if (text)    { text.style.opacity = '1'; text.style.transform = 'translateY(0)'; }
       if (arrow)   { arrow.style.opacity = '1'; arrow.style.transform = 'translate(0, 0)'; }
 
-      // Mobile: WebM autoplay dengan muted untuk UX yang lebih baik di mobile
-      if (videoType === 'webm' && hasAnimation) {
-        const video = cell.querySelector<HTMLVideoElement>('.vg-video');
-        if (video) {
-          video.style.opacity = '1';
-          video.play().catch(() => {/* diabaikan jika browser blokir */});
-        }
-      }
+      // Mobile: jangan autoplay, tampilkan thumbnail / static state saja.
+      // (Video/GIF akan dimainkan saat disentuh jika mendukung pseudo-class hover di OS).
     }
   });
 

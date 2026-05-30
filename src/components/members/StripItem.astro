@@ -19,7 +19,7 @@ const idStr = String(member.id).padStart(2, '0');
   style={`--strip-photo: url('${member.photo}');`}
 >
   <!-- Gradient overlay -->
-  <div class="strip-overlay absolute inset-0 pointer-events-none"></div>
+  <div class="strip-overlay absolute inset-0 pointer-events-none" style="z-index: 2;"></div>
 
   <!-- Number — top-left, always visible -->
   <span class="absolute top-3 left-3 z-10 font-inter text-[8px] font-black tracking-[0.45em] text-white/50">
@@ -63,10 +63,6 @@ const idStr = String(member.id).padStart(2, '0');
     backface-visibility: hidden;
   }
 
-  /*
-   * FIX 3: Photo lives on ::before, which is ALWAYS 100% of .strip-item.
-   * browser never recalculates background-size: cover during width animation.
-   */
   .strip-item::before {
     content: '';
     position: absolute;
@@ -77,6 +73,23 @@ const idStr = String(member.id).padStart(2, '0');
     background-repeat: no-repeat;
     background-attachment: scroll;
     transform: translateZ(0); /* keep on same compositing layer as parent */
+    will-change: auto;
+    z-index: 1;
+  }
+
+  /*
+   * Blurred background to fill empty space when active
+   */
+  .strip-item::after {
+    content: '';
+    position: absolute;
+    inset: -5%; /* Prevent white/transparent edges from blur */
+    background-image: var(--strip-photo);
+    background-size: cover;
+    background-position: center center;
+    filter: blur(25px) brightness(0.4);
+    transform: translateZ(0);
+    z-index: 0;
     will-change: auto;
   }
 
