@@ -9,8 +9,9 @@ interface ChekiItem {
 
 interface Props {
   items: ChekiItem[];
+  endpointUrl: string;
 }
-const { items } = Astro.props;
+const { items, endpointUrl } = Astro.props;
 ---
 <div class="w-full max-w-xl mx-auto bg-yokai-dark-blue/40 backdrop-blur-2xl border border-yokai-white/10 p-10 md:p-14 shadow-2xl relative overflow-hidden">
   
@@ -20,7 +21,7 @@ const { items } = Astro.props;
   <div class="absolute bottom-0 left-0 w-8 h-8 border-b border-l border-yokai-white/30"></div>
   <div class="absolute bottom-0 right-0 w-8 h-8 border-b border-r border-yokai-white/30"></div>
 
-  <form id="cheki-form" class="flex flex-col gap-10 w-full relative z-10">
+  <form id="cheki-form" class="flex flex-col gap-10 w-full relative z-10" data-endpoint={endpointUrl}>
     
     <div class="group relative">
       <label for="c-name" class="block font-jakarta font-bold text-xs uppercase tracking-[0.3em] text-yokai-white/50 mb-3 transition-colors group-focus-within:text-yokai-purple">NAMA LENGKAP</label>
@@ -70,9 +71,8 @@ const { items } = Astro.props;
 <script>
   import anime from "animejs/lib/anime.es.js";
 
-  const ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbwnpOzGpvaOfWIqN-Acy-uVKXLe3VaCS2n6zCs9SsaCJRXbVfdrtpVAqYqzCiJXtSHk/exec";
-
   const form = document.getElementById("cheki-form") as HTMLFormElement;
+  const ENDPOINT_URL = form.getAttribute("data-endpoint") || "";
   const submitBtn = document.getElementById("c-submit-btn") as HTMLButtonElement;
   const btnTexts = submitBtn?.querySelectorAll(".c-btn-text");
   const loadingDots = submitBtn?.querySelector(".c-loading-dots") as HTMLElement;

@@ -40,6 +40,12 @@ export default defineType({
       options: { hotspot: true },
       description: 'Background image for the Cheki page hero section',
     }),
+    defineField({
+      name: 'endpointUrl',
+      title: 'Google Sheets Endpoint URL',
+      type: 'url',
+      description: 'URL dari Google Apps Script Web App untuk menampung form order Cheki.',
+    }),
   ],
   // Prevent creating more than one chekiConfig document
 });

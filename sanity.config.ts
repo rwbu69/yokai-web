@@ -19,6 +19,8 @@ import merchConfig from './src/sanity/schemas/merchConfig';
 import videoItem from './src/sanity/schemas/videoItem';
 import landingPage from './src/sanity/schemas/landingPage';
 
+import tutorial from './src/sanity/schemas/tutorial';
+
 export default defineConfig({
   name: 'default',
   title: 'Yokai Web Studio',
@@ -31,6 +33,7 @@ export default defineConfig({
   schema: {
     types: [
       // === Singletons ===
+      tutorial,
       landingPage,
       aboutUs,
       chekiConfig,

@@ -10,7 +10,7 @@ import { sanityClient, urlFor } from '../../lib/sanity';
 import bgImg from '../../assets/photos/3.webp';
 
 const query = `{
-  "config": *[_type == "merchConfig"][0] { heroBgImage },
+  "config": *[_type == "merchConfig"][0] { heroBgImage, endpointUrl },
   "items": *[_type == "shopItem" && category == "merch"] | order(_createdAt asc) {
     "id": slug.current,
     title,
@@ -24,6 +24,7 @@ const data = await sanityClient.fetch(query) || {};
 const merchItems = data.items || [];
 const merchConfig = data.config || {};
 const bgImageUrl = merchConfig.heroBgImage ? urlFor(merchConfig.heroBgImage).width(1920).format('webp').url() : bgImg.src;
+const endpointUrl = merchConfig.endpointUrl || "https://script.google.com/macros/s/AKfycbwnpOzGpvaOfWIqN-Acy-uVKXLe3VaCS2n6zCs9SsaCJRXbVfdrtpVAqYqzCiJXtSHk/exec";
 
 const formattedItems = merchItems.map((item: any) => ({
   id: item.id,
@@ -46,7 +47,7 @@ const formattedItems = merchItems.map((item: any) => ({
     <MerchHero />
     
     <section class="w-full px-6 flex-grow flex items-start justify-center pb-32">
-      <MerchOrderForm items={formattedItems} />
+      <MerchOrderForm items={formattedItems} endpointUrl={endpointUrl} />
     </section>
   </main>
 </BaseLayout>
