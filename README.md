@@ -1,43 +1,40 @@
-# Astro Starter Kit: Minimal
+# YOKAI WEB STUDIO
 
-```sh
-npm create astro@latest -- --template minimal
+Proprietary web application and content management system for Yokai, an independent Wotagei performance team based in Yogyakarta.
+
+## ARCHITECTURE
+
+- Framework: Astro
+- Styling: Tailwind CSS
+- Animation: animeJS
+- CMS: Sanity
+- Runtime Environment: Bun
+- Deployment: Cloudflare Pages
+
+## DEVELOPMENT
+
+Ensure you have the required environment variables configured in your `.env` file before starting the development server. Refer to the internal documentation for environment setup details.
+
+```bash
+# Install dependencies
+bun install
+
+# Start local development server
+bun run dev
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## PRODUCTION BUILD
 
-## 🚀 Project Structure
+To build the application for production deployment:
 
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+```bash
+bun run build
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+The output will be generated in the `dist` directory, optimized for static hosting.
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+## LICENSE & COPYRIGHT
 
-Any static assets, like images, can be placed in the `public/` directory.
+Copyright (c) 2026 Yokai. All Rights Reserved.
 
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+This repository and its contents are proprietary and confidential. Unauthorized copying, modification, distribution, or use of this software, via any medium, is strictly prohibited without explicit written permission from the Yokai administration team. See the LICENSE file for details.
