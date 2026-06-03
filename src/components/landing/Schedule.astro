@@ -1,0 +1,213 @@
+---
+/**
+ * Schedule.astro
+ * Kalender untuk menampilkan jadwal event.
+ */
+interface Props {
+  schedules: any[];
+}
+const { schedules } = Astro.props;
+---
+
+<section class="schedule-section w-full py-16 px-6 lg:px-12 bg-yokai-white text-yokai-dark-blue overflow-hidden relative">
+  <!-- Subtle background decoration -->
+  <div class="absolute top-0 right-0 w-[40vw] h-[40vw] bg-yokai-purple/5 rounded-full blur-[100px] pointer-events-none -translate-y-1/2 translate-x-1/3"></div>
+
+  <div class="max-w-[90vw] mx-auto relative z-10">
+    
+    <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
+      <div class="schedule-title-wrap">
+        <h2
+          class="font-jakarta font-black uppercase text-yokai-dark-blue leading-none"
+          style="font-size: clamp(2rem, 5vw, 3.5rem); letter-spacing: -0.04em;"
+        >
+          Schedule
+        </h2>
+        <p class="font-inter text-yokai-dark-blue/60 text-sm mt-3 max-w-md">
+          Catch our upcoming performances and events. Join us and experience the energy live.
+        </p>
+      </div>
+      
+      <div class="schedule-meta-wrap flex items-center gap-6 bg-yokai-light-white/40 px-6 py-3 rounded-full border border-yokai-dark-blue/5 backdrop-blur-sm shadow-sm">
+        <button id="prev-month" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-yokai-white hover:shadow-sm text-yokai-dark-blue transition-all" aria-label="Previous Month">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <span id="current-month-year" class="font-jakarta font-bold text-sm uppercase tracking-widest min-w-[140px] text-center text-yokai-dark-blue"></span>
+        <button id="next-month" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-yokai-white hover:shadow-sm text-yokai-dark-blue transition-all" aria-label="Next Month">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Calendar Grid -->
+    <div class="schedule-grid-wrap w-full border border-yokai-dark-blue/10 rounded-2xl overflow-hidden bg-yokai-white shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+      <!-- Days of week -->
+      <div class="grid grid-cols-7 border-b border-yokai-dark-blue/10 bg-yokai-light-white/20">
+        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+          <div class="py-4 text-center font-inter text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase text-yokai-dark-blue/50 border-r border-yokai-dark-blue/5 last:border-r-0">
+            {day}
+          </div>
+        ))}
+      </div>
+      
+      <!-- Calendar Grid Body -->
+      <div id="calendar-body" class="grid grid-cols-7 bg-yokai-white">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+    
+  </div>
+</section>
+
+<!-- Pass data to JS -->
+<script define:vars={{ schedules }}>
+  window.scheduleEvents = schedules || [];
+</script>
+
+<script>
+  import anime from 'animejs/lib/anime.es.js';
+
+  // State
+  let currentDate = new Date();
+  const calendarBody = document.getElementById('calendar-body');
+  const monthYearLabel = document.getElementById('current-month-year');
+  const events = (window as any).scheduleEvents || [];
+
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+  function renderCalendar(date: Date) {
+    if (!calendarBody || !monthYearLabel) return;
+    
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    
+    monthYearLabel.textContent = `${monthNames[month]} ${year}`;
+    
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    let html = '';
+    
+    // Group events by YYYY-MM-DD
+    const eventsByDate: Record<string, any[]> = {};
+    events.forEach((ev: any) => {
+      if (ev.date) {
+        if (!eventsByDate[ev.date]) eventsByDate[ev.date] = [];
+        eventsByDate[ev.date].push(ev);
+      }
+    });
+
+    // Previous month padding
+    for (let i = 0; i < firstDay; i++) {
+      html += `<div class="min-h-[100px] md:min-h-[120px] p-2 md:p-3 border-r border-b border-yokai-dark-blue/5 bg-yokai-light-white/10 opacity-50 pointer-events-none"></div>`;
+    }
+    
+    // Current month days
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const dayEvents = eventsByDate[dateStr] || [];
+      
+      const today = new Date();
+      const isToday = today.getDate() === day && today.getMonth() === month && today.getFullYear() === year;
+      
+      const dayClass = isToday ? 'text-yokai-white' : 'text-yokai-dark-blue';
+      const wrapperClass = isToday ? 'bg-yokai-purple' : 'bg-transparent';
+      const numberCircle = `<div class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs md:text-sm mb-2 ${wrapperClass} ${dayClass} ${!isToday && 'opacity-60'} transition-transform group-hover:scale-110">${day}</div>`;
+
+      let eventsHtml = dayEvents.map(ev => `
+        <div class="mb-1.5 p-1.5 md:p-2 bg-yokai-purple text-yokai-white rounded-lg text-[9px] md:text-[10px] leading-tight overflow-hidden shadow-sm transition-transform hover:-translate-y-0.5 cursor-pointer border border-yokai-purple/20 relative group/event">
+          <div class="font-jakarta font-bold uppercase tracking-wide truncate pr-1">${ev.eventName}</div>
+          ${ev.time ? `<div class="font-inter opacity-70 mt-1 tracking-wider text-[8px] md:text-[9px] flex items-center gap-1"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${ev.time}</div>` : ''}
+        </div>
+      `).join('');
+
+      html += `
+        <div class="min-h-[100px] md:min-h-[120px] p-2 md:p-3 border-r border-b border-yokai-dark-blue/5 hover:bg-yokai-light-white/20 transition-colors group">
+          ${numberCircle}
+          <div class="flex flex-col gap-0.5 mt-1">
+            ${eventsHtml}
+          </div>
+        </div>
+      `;
+    }
+    
+    // Next month padding (make it a multiple of 7)
+    const totalCells = firstDay + daysInMonth;
+    const paddingEnd = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+    for (let i = 0; i < paddingEnd; i++) {
+      html += `<div class="min-h-[100px] md:min-h-[120px] p-2 md:p-3 border-r border-b border-yokai-dark-blue/5 bg-yokai-light-white/10 opacity-50 pointer-events-none"></div>`;
+    }
+    
+    calendarBody.innerHTML = html;
+
+    // Optional: animeJS animation on render
+    anime({
+      targets: '#calendar-body > div',
+      opacity: [0, 1],
+      scale: [0.98, 1],
+      duration: 400,
+      delay: anime.stagger(10, { start: 50 }),
+      easing: 'easeOutQuart'
+    });
+  }
+
+  document.getElementById('prev-month')?.addEventListener('click', () => {
+    currentDate.setMonth(currentDate.getMonth() - 1);
+    renderCalendar(currentDate);
+  });
+
+  document.getElementById('next-month')?.addEventListener('click', () => {
+    currentDate.setMonth(currentDate.getMonth() + 1);
+    renderCalendar(currentDate);
+  });
+
+  // Initial render
+  renderCalendar(currentDate);
+
+  // Animation on scroll
+  anime.set(['.schedule-title-wrap', '.schedule-meta-wrap', '.schedule-grid-wrap'], { opacity: 0 });
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      
+      anime({
+        targets: '.schedule-title-wrap',
+        opacity: [0, 1],
+        translateY: [20, 0],
+        duration: 600,
+        easing: 'easeOutQuart'
+      });
+
+      anime({
+        targets: '.schedule-meta-wrap',
+        opacity: [0, 1],
+        translateY: [20, 0],
+        duration: 600,
+        easing: 'easeOutQuart',
+        delay: 150
+      });
+
+      anime({
+        targets: '.schedule-grid-wrap',
+        opacity: [0, 1],
+        translateY: [30, 0],
+        duration: 800,
+        easing: 'easeOutQuart',
+        delay: 300
+      });
+
+      observer.disconnect();
+    });
+  }, { threshold: 0.15 });
+
+  const section = document.querySelector('.schedule-section');
+  if (section) observer.observe(section);
+</script>
+
+<style>
+  /* Removing borders from the right-most columns and bottom-most rows to look clean inside the rounded box */
+  #calendar-body > div:nth-child(7n) {
+    border-right: none;
+  }
+</style>

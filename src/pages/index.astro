@@ -10,6 +10,7 @@ import Motto            from '../components/landing/Motto.astro';
 import WhoAreWe         from '../components/landing/WhoAreWe.astro';
 import Projects         from '../components/landing/Projects.astro';
 import LivePerformances from '../components/landing/LivePerformances.astro';
+import Schedule         from '../components/landing/Schedule.astro';
 import { sanityClient } from '../lib/sanity';
 
 // Fetch all necessary data for the Landing Page centrally to optimize build time
@@ -17,7 +18,8 @@ const query = `{
   "landing": *[_type == "landingPage"][0],
   "projects": *[_type == "project"] | order(sortOrder asc, releaseDate desc)[0...3],
   "performances": *[_type == "livePerformance"] | order(sortOrder asc, date desc)[0...4],
-  "heroImgs": *[_type == "heroImages"][0]
+  "heroImgs": *[_type == "heroImages"][0],
+  "schedules": *[_type == "scheduleEvent"] | order(date asc)
 }`;
 
 const data = await sanityClient.fetch(query) || {};
@@ -53,6 +55,10 @@ const projectsProps = {
 const performancesProps = {
   performances: data.performances || [],
 };
+
+const scheduleProps = {
+  schedules: data.schedules || [],
+};
 ---
 
 <BaseLayout title="Yokai | Performance Art" activePage="home">
@@ -71,6 +77,9 @@ const performancesProps = {
 
   <!-- ── LIVE PERFORMANCES ── -->
   <LivePerformances {...performancesProps} />
+
+  <!-- ── SCHEDULE ── -->
+  <Schedule {...scheduleProps} />
 
   <!-- ── FOOTER ── -->
   <footer class="w-full bg-yokai-dark-blue border-t border-yokai-white/10">

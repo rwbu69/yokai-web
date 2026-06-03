@@ -11,6 +11,7 @@ import gallery from './src/sanity/schemas/gallery';
 import shopItem from './src/sanity/schemas/shopItem';
 import project from './src/sanity/schemas/project';
 import livePerformance from './src/sanity/schemas/livePerformance';
+import scheduleEvent from './src/sanity/schemas/scheduleEvent';
 
 // New schemas
 import article from './src/sanity/schemas/article';
@@ -44,6 +45,7 @@ export default defineConfig({
       heroImages,
       livePerformance,
       project,
+      scheduleEvent,
 
       // === Gallery ===
       gallery,      // Photo Events
