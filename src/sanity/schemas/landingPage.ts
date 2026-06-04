@@ -78,5 +78,17 @@ export default defineType({
       validation: (Rule) => Rule.length(12).error('Exactly 12 images are required for the marquee layout.'),
       description: 'Exactly 12 images used for the background marquee (3 rows of 4).',
     }),
+    // ── Schedule Section ────────────────────────────────────────────────────
+    defineField({
+      name: 'scheduleTitle',
+      title: 'Schedule Section Title',
+      type: 'string',
+    }),
+    defineField({
+      name: 'scheduleSubtitle',
+      title: 'Schedule Section Subtitle',
+      type: 'text',
+      rows: 2,
+    }),
   ],
 });

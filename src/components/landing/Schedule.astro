@@ -5,8 +5,10 @@
  */
 interface Props {
   schedules: any[];
+  title?: string;
+  subtitle?: string;
 }
-const { schedules } = Astro.props;
+const { schedules, title = 'Schedule', subtitle = 'Catch our upcoming performances and events. Join us and experience the energy live.' } = Astro.props;
 ---
 
 <section class="schedule-section w-full py-16 px-6 lg:px-12 bg-yokai-white text-yokai-dark-blue overflow-hidden relative">
@@ -21,10 +23,10 @@ const { schedules } = Astro.props;
           class="font-jakarta font-black uppercase text-yokai-dark-blue leading-none"
           style="font-size: clamp(2rem, 5vw, 3.5rem); letter-spacing: -0.04em;"
         >
-          Schedule
+          {title}
         </h2>
         <p class="font-inter text-yokai-dark-blue/60 text-sm mt-3 max-w-md">
-          Catch our upcoming performances and events. Join us and experience the energy live.
+          {subtitle}
         </p>
       </div>
       
