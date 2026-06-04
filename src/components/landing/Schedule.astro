@@ -69,14 +69,19 @@ const { schedules } = Astro.props;
 
   // State
   let currentDate = new Date();
+  // Set to 1st of the month to prevent month skipping bugs
+  currentDate.setDate(1);
+
   const calendarBody = document.getElementById('calendar-body');
   const monthYearLabel = document.getElementById('current-month-year');
-  const events = (window as any).scheduleEvents || [];
-
+  
   const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
   function renderCalendar(date: Date) {
     if (!calendarBody || !monthYearLabel) return;
+    
+    // Always fetch latest from window in case of HMR or SPA navigation
+    const events = (window as any).scheduleEvents || [];
     
     const year = date.getFullYear();
     const month = date.getMonth();
@@ -92,8 +97,10 @@ const { schedules } = Astro.props;
     const eventsByDate: Record<string, any[]> = {};
     events.forEach((ev: any) => {
       if (ev.date) {
-        if (!eventsByDate[ev.date]) eventsByDate[ev.date] = [];
-        eventsByDate[ev.date].push(ev);
+        // Ensure we only take YYYY-MM-DD even if date is ISO string
+        const d = ev.date.substring(0, 10);
+        if (!eventsByDate[d]) eventsByDate[d] = [];
+        eventsByDate[d].push(ev);
       }
     });
 
@@ -152,11 +159,13 @@ const { schedules } = Astro.props;
   }
 
   document.getElementById('prev-month')?.addEventListener('click', () => {
+    currentDate.setDate(1);
     currentDate.setMonth(currentDate.getMonth() - 1);
     renderCalendar(currentDate);
   });
 
   document.getElementById('next-month')?.addEventListener('click', () => {
+    currentDate.setDate(1);
     currentDate.setMonth(currentDate.getMonth() + 1);
     renderCalendar(currentDate);
   });
