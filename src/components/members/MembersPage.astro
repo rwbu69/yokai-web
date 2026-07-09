@@ -84,10 +84,10 @@ const members: Member[] = sanityMembers.map((m, i) => {
   // Gallery: harus tepat 4 foto. Jika kurang, isi dengan string kosong.
   const galleryRaw = (m.gallery ?? []).slice(0, 4);
   const gallery = [
-    galleryRaw[0]?.asset ? urlFor(galleryRaw[0]).width(IMG_W).height(600).format('webp').quality(85).url() : '',
-    galleryRaw[1]?.asset ? urlFor(galleryRaw[1]).width(IMG_W).height(600).format('webp').quality(85).url() : '',
-    galleryRaw[2]?.asset ? urlFor(galleryRaw[2]).width(IMG_W).height(600).format('webp').quality(85).url() : '',
-    galleryRaw[3]?.asset ? urlFor(galleryRaw[3]).width(IMG_W).height(600).format('webp').quality(85).url() : '',
+    galleryRaw[0]?.asset ? urlFor(galleryRaw[0]).width(800).height(450).format('webp').quality(85).url() : '',
+    galleryRaw[1]?.asset ? urlFor(galleryRaw[1]).width(800).height(450).format('webp').quality(85).url() : '',
+    galleryRaw[2]?.asset ? urlFor(galleryRaw[2]).width(800).height(450).format('webp').quality(85).url() : '',
+    galleryRaw[3]?.asset ? urlFor(galleryRaw[3]).width(800).height(450).format('webp').quality(85).url() : '',
   ] as [string, string, string, string];
 
   return {
