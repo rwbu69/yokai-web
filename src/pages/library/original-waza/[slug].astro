@@ -2,7 +2,7 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import PostHeader from '@components/blog/PostHeader.astro';
 import PostLayout from '@components/blog/PostLayout.astro';
-import { meta } from '@data/original-waza-meta';
+
 import { sanityClient, urlFor } from '../../../lib/sanity';
 import { PortableText } from 'astro-portabletext';
 
@@ -37,7 +37,7 @@ if (!post) {
 const coverImageUrl = post.coverImage ? urlFor(post.coverImage).width(1200).url() : '';
 ---
 
-<BaseLayout title={`${post.title} | ${meta.title}`} activePage="library">
+<BaseLayout title={`${post.title} | Original Waza`} activePage="library">
   <main class="min-h-screen bg-[#FAFAFA]">
     <PostHeader
       title={post.title}
@@ -47,7 +47,7 @@ const coverImageUrl = post.coverImage ? urlFor(post.coverImage).width(1200).url(
       tags={post.tags}
       honke={post.honke}
     />
-    <PostLayout backUrl="/library/original-waza" backText={`Kembali ke ${meta.title}`}>
+    <PostLayout backUrl="/library/original-waza" backText={`Kembali ke Original Waza`}>
       <PortableText value={post.body} />
     </PostLayout>
   </main>

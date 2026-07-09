@@ -2,7 +2,7 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import PostHero from '@components/blog/PostHero.astro';
 import PostGrid from '@components/blog/PostGrid.astro';
-import { meta } from '@data/wotagei-waza-meta';
+
 import { sanityClient, urlFor } from '../../../lib/sanity';
 
 const query = `*[_type == "waza" && wazaType == "wotagei"] | order(dateDesc) {
@@ -31,11 +31,11 @@ formattedPosts.sort(
 );
 ---
 
-<BaseLayout title={`${meta.title} | Yokai Library`} activePage="library">
+<BaseLayout title={`Wotagei Waza | Yokai Library`} activePage="library">
   <main class="min-h-screen bg-[#FAFAFA]">
     <!-- Dark Header Section -->
     <div class="bg-[#2A1E52] rounded-b-[3rem] shadow-[0_10px_40px_rgba(42,30,82,0.1)] relative z-10">
-      <PostHero title={meta.heroText} description={meta.description} />
+      <PostHero title={"Wotagei Waza"} description={"Daftar waza wotagei umum."} />
     </div>
     
     <!-- Light Grid Section -->
