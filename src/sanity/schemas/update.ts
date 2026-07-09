@@ -68,16 +68,8 @@ export default defineType({
     defineField({
       name: 'content',
       title: 'Konten Lengkap',
-      type: 'array',
-      of: [
-        { type: 'block' },
-        {
-          type: 'image',
-          options: { hotspot: true },
-          fields: [defineField({ name: 'alt', title: 'Alt Text', type: 'string' })],
-        },
-      ],
-      description: 'Konten artikel lengkap menggunakan Portable Text editor. Mendukung heading, bold, italic, link, dan gambar.',
+      type: 'markdown',
+      description: 'Konten artikel lengkap menggunakan Markdown editor.',
     }),
   ],
   orderings: [

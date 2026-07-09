@@ -14,6 +14,7 @@ import PostLayout from '@components/blog/PostLayout.astro';
 import { sanityClient, urlFor } from '../../lib/sanity';
 import type { SanityImage } from '../../lib/sanity';
 import { PortableText } from 'astro-portabletext';
+import { marked } from 'marked';
 
 // ── TypeScript Interfaces ─────────────────────────────────────────────────────
 
@@ -78,7 +79,11 @@ const coverImageUrl = post.image?.asset
       tags={post.tags}
     />
     <PostLayout backUrl="/updates" backText={`Kembali ke Updates`}>
-      <PortableText value={post.content ?? []} />
+      {typeof post.content === 'string' ? (
+        <div set:html={marked.parse(post.content)} />
+      ) : (
+        <PortableText value={post.content ?? []} />
+      )}
     </PostLayout>
   </main>
 </BaseLayout>

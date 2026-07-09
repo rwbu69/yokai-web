@@ -5,6 +5,7 @@ import PostLayout from '@components/blog/PostLayout.astro';
 
 import { sanityClient, urlFor } from '../../../lib/sanity';
 import { PortableText } from 'astro-portabletext';
+import { marked } from 'marked';
 
 export async function getStaticPaths() {
   const query = `*[_type == "waza" && wazaType == "originalMember"] {
@@ -48,7 +49,11 @@ const coverImageUrl = post.coverImage ? urlFor(post.coverImage).width(1200).url(
       honke={post.honke}
     />
     <PostLayout backUrl="/library/original-waza" backText={`Kembali ke Original Waza`}>
-      <PortableText value={post.body} />
+      {typeof post.body === 'string' ? (
+        <div set:html={marked.parse(post.body)} />
+      ) : (
+        <PortableText value={post.body ?? []} />
+      )}
     </PostLayout>
   </main>
 </BaseLayout>

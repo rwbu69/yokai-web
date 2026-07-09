@@ -26,10 +26,12 @@
     "animejs": "3.2.2",
     "astro": "^6.3.3",
     "astro-portabletext": "^0.13.0",
+    "marked": "^18.0.6",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-is": "^19.2.6",
     "sanity": "^5.25.1",
+    "sanity-plugin-markdown": "^9.0.2",
     "styled-components": "^6.4.1",
     "tailwindcss": "^4.3.0",
     "typescript": "^6.0.3"

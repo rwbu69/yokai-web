@@ -50,19 +50,8 @@ export default defineType({
     }),
     defineField({
       name: 'body',
-      title: 'Article Body (Portable Text)',
-      type: 'array',
-      of: [
-        { type: 'block' },
-        {
-          type: 'image',
-          options: { hotspot: true },
-          fields: [
-            defineField({ name: 'alt', title: 'Alt Text', type: 'string' }),
-            defineField({ name: 'caption', title: 'Caption', type: 'string' }),
-          ],
-        },
-      ],
+      title: 'Article Body (Markdown)',
+      type: 'markdown',
     }),
     defineField({
       name: 'draft',

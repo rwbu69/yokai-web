@@ -71,19 +71,8 @@ export default defineType({
     }),
     defineField({
       name: 'body',
-      title: 'Waza Tutorial Body (Portable Text)',
-      type: 'array',
-      of: [
-        { type: 'block' },
-        {
-          type: 'image',
-          options: { hotspot: true },
-          fields: [
-            defineField({ name: 'alt', title: 'Alt Text', type: 'string' }),
-            defineField({ name: 'caption', title: 'Caption', type: 'string' }),
-          ],
-        },
-      ],
+      title: 'Waza Tutorial Body (Markdown)',
+      type: 'markdown',
     }),
     defineField({
       name: 'videoUrl',

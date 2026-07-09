@@ -1,5 +1,6 @@
 import { defineConfig } from 'sanity';
 import { structureTool } from 'sanity/structure';
+import { markdownSchema } from 'sanity-plugin-markdown';
 
 // Existing schemas
 import heroImages from './src/sanity/schemas/heroImages';
@@ -29,7 +30,7 @@ export default defineConfig({
   projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID || 'your-project-id',
   dataset: import.meta.env.PUBLIC_SANITY_DATASET || 'production',
 
-  plugins: [structureTool()],
+  plugins: [structureTool(), markdownSchema()],
 
   schema: {
     types: [
