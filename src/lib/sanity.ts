@@ -14,7 +14,7 @@
  */
 
 import { createClient } from '@sanity/client';
-import imageUrlBuilder from '@sanity/image-url';
+import { createImageUrlBuilder } from '@sanity/image-url';
 import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
 
 // ---------------------------------------------------------------------------
@@ -35,7 +35,7 @@ export const sanityClient = createClient({
 // Image URL Builder
 // ---------------------------------------------------------------------------
 
-const builder = imageUrlBuilder(sanityClient);
+const builder = createImageUrlBuilder(sanityClient);
 
 /**
  * Build a Sanity image URL with optional transformations.
