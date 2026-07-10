@@ -4,14 +4,14 @@
  *
  * Landing page — sepenuhnya component-based, di-fetch terpusat dari Sanity CMS.
  */
-import BaseLayout       from '../layouts/BaseLayout.astro';
-import HeroLanding      from '../components/landing/HeroLanding.astro';
-import Motto            from '../components/landing/Motto.astro';
-import WhoAreWe         from '../components/landing/WhoAreWe.astro';
-import Projects         from '../components/landing/Projects.astro';
-import LivePerformances from '../components/landing/LivePerformances.astro';
-import Schedule         from '../components/landing/Schedule.astro';
-import { sanityClient } from '../lib/sanity';
+import BaseLayout from "../layouts/BaseLayout.astro";
+import HeroLanding from "../components/landing/HeroLanding.astro";
+import Motto from "../components/landing/Motto.astro";
+import WhoAreWe from "../components/landing/WhoAreWe.astro";
+import Projects from "../components/landing/Projects.astro";
+import LivePerformances from "../components/landing/LivePerformances.astro";
+import Schedule from "../components/landing/Schedule.astro";
+import { sanityClient } from "../lib/sanity";
 
 // Fetch all necessary data for the Landing Page centrally to optimize build time
 const query = `{
@@ -22,29 +22,34 @@ const query = `{
   "schedules": *[_type == "scheduleEvent"] | order(date asc)
 }`;
 
-const data = await sanityClient.fetch(query) || {};
+const data = (await sanityClient.fetch(query)) || {};
 const landing = data.landing || {};
 
 // Construct Props
 const heroProps = {
-  title: landing.heroOverlayTitle || 'YOKAI',
-  subtitle: landing.heroOverlaySubtitle || 'WOTAGEI',
+  title: landing.heroOverlayTitle || "YOKAI",
+  subtitle: landing.heroOverlaySubtitle || "WOTAGEI",
   imagesData: data.heroImgs || {},
 };
 
 const mottoProps = {
-  line1: landing.mottoLine1 || 'WE DO NOT JUST',
-  line2: landing.mottoLine2 || 'PERFORM.',
-  line3: landing.mottoLine3 || 'WE INOVATE.',
-  subtitle: landing.mottoSubtitle || 'Bridging the raw energy of Wotagei with premium contemporary artistry.',
-  badge: landing.mottoBadge || 'The Yokai Manifesto',
+  line1: landing.mottoLine1 || "WE DO NOT JUST",
+  line2: landing.mottoLine2 || "PERFORM.",
+  line3: landing.mottoLine3 || "WE INOVATE.",
+  subtitle:
+    landing.mottoSubtitle ||
+    "Bridging the raw energy of Wotagei with premium contemporary artistry.",
+  badge: landing.mottoBadge || "The Yokai Manifesto",
 };
 
 const whoAreWeProps = {
-  title: landing.whoAreWeTitle || 'WHO ARE WE',
-  highlight: landing.whoAreWeHighlight || 'BORN FROM THE CROWD, FORGED IN DISCIPLINE.',
-  body: landing.whoAreWeBody || 'We are YOKAI. An independent Wotagei performance team hailing from Yogyakarta. We don’t just swing lights—we dictate the rhythm of the crowd. With precision, emotion, and unrelenting energy, we blur the line between performer and audience.',
-  buttonText: landing.whoAreWeButtonText || 'READ OUR STORY',
+  title: landing.whoAreWeTitle || "WHO ARE WE",
+  highlight:
+    landing.whoAreWeHighlight || "BORN FROM THE CROWD, FORGED IN DISCIPLINE.",
+  body:
+    landing.whoAreWeBody ||
+    "We are YOKAI. An independent Wotagei performance team hailing from Yogyakarta. We don’t just swing lights—we dictate the rhythm of the crowd. With precision, emotion, and unrelenting energy, we blur the line between performer and audience.",
+  buttonText: landing.whoAreWeButtonText || "READ OUR STORY",
   images: landing.whoAreWeImages || [],
 };
 
@@ -57,14 +62,15 @@ const performancesProps = {
 };
 
 const scheduleProps = {
-  title: landing.scheduleTitle || 'Schedule',
-  subtitle: landing.scheduleSubtitle || 'Catch our upcoming performances and events. Join us and experience the energy live.',
+  title: landing.scheduleTitle || "Schedule",
+  subtitle:
+    landing.scheduleSubtitle ||
+    "Catch our upcoming performances and events. Join us and experience the energy live.",
   schedules: data.schedules || [],
 };
 ---
 
-<BaseLayout title="Yokai | Performance Art" activePage="home">
-
+<BaseLayout title="Yokai | Yogyakarta Keikai" activePage="home">
   <!-- ── HERO ── -->
   <HeroLanding {...heroProps} />
 
@@ -85,21 +91,52 @@ const scheduleProps = {
 
   <!-- ── FOOTER ── -->
   <footer class="w-full bg-yokai-dark-blue border-t border-yokai-white/10">
-    <div class="max-w-[90vw] mx-auto px-6 lg:px-12 py-8 flex flex-col md:flex-row justify-between items-center gap-6">
+    <div
+      class="max-w-[90vw] mx-auto px-6 lg:px-12 py-8 flex flex-col md:flex-row justify-between items-center gap-6"
+    >
       <div class="flex items-center gap-6">
-        <span class="font-jakarta text-lg font-black uppercase tracking-tighter text-yokai-white">YOKAI</span>
+        <span
+          class="font-jakarta text-lg font-black uppercase tracking-tighter text-yokai-white"
+          >YOKAI</span
+        >
         <span class="w-[1px] h-4 bg-yokai-white/20"></span>
-        <span class="font-inter text-[9px] tracking-[0.4em] uppercase text-yokai-light-white/40">Yogyakarta Wotagei Team</span>
+        <span
+          class="font-inter text-[9px] tracking-[0.4em] uppercase text-yokai-light-white/40"
+          >Yogyakarta Wotagei Team</span
+        >
       </div>
       <nav class="flex items-center gap-8">
-        <a href="/"       class="font-inter text-[9px] tracking-[0.3em] uppercase text-yokai-white"                                     style="transition: color 0.3s;">Home</a>
-        <a href="/about"  class="font-inter text-[9px] tracking-[0.3em] uppercase text-yokai-light-white/40 hover:text-yokai-white"     style="transition: color 0.3s;">About</a>
-        <a href="/library"class="font-inter text-[9px] tracking-[0.3em] uppercase text-yokai-light-white/40 hover:text-yokai-white"    style="transition: color 0.3s;">Library</a>
-        <a href="/gallery" class="font-inter text-[9px] tracking-[0.3em] uppercase text-yokai-light-white/40 hover:text-yokai-white"   style="transition: color 0.3s;">Gallery</a>
-        <a href="/shop"    class="font-inter text-[9px] tracking-[0.3em] uppercase text-yokai-light-white/40 hover:text-yokai-white"   style="transition: color 0.3s;">Shop</a>
+        <a
+          href="/"
+          class="font-inter text-[9px] tracking-[0.3em] uppercase text-yokai-white"
+          style="transition: color 0.3s;">Home</a
+        >
+        <a
+          href="/about"
+          class="font-inter text-[9px] tracking-[0.3em] uppercase text-yokai-light-white/40 hover:text-yokai-white"
+          style="transition: color 0.3s;">About</a
+        >
+        <a
+          href="/library"
+          class="font-inter text-[9px] tracking-[0.3em] uppercase text-yokai-light-white/40 hover:text-yokai-white"
+          style="transition: color 0.3s;">Library</a
+        >
+        <a
+          href="/gallery"
+          class="font-inter text-[9px] tracking-[0.3em] uppercase text-yokai-light-white/40 hover:text-yokai-white"
+          style="transition: color 0.3s;">Gallery</a
+        >
+        <a
+          href="/shop"
+          class="font-inter text-[9px] tracking-[0.3em] uppercase text-yokai-light-white/40 hover:text-yokai-white"
+          style="transition: color 0.3s;">Shop</a
+        >
       </nav>
-      <p class="font-inter text-[9px] tracking-[0.3em] uppercase text-yokai-light-white/30">&copy; 2026 Yokai</p>
+      <p
+        class="font-inter text-[9px] tracking-[0.3em] uppercase text-yokai-light-white/30"
+      >
+        &copy; 2026 Yokai
+      </p>
     </div>
   </footer>
-
 </BaseLayout>
