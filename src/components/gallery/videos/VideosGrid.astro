@@ -44,19 +44,19 @@ for (let i = 0; i < activeVideos.length; i += 4) {
 ---
 
 {activeVideos.length === 0 ? (
-  <section class="w-full h-[100svh] fixed inset-0 bg-yokai-dark-blue flex flex-col items-center justify-center gap-6 text-center px-6">
+  <section class="w-full h-[100svh] fixed inset-0 bg-[#FAFAFA] flex flex-col items-center justify-center gap-6 text-center px-6">
     <div class="w-12 h-[1px] bg-yokai-purple/30"></div>
-    <p class="font-inter text-[9px] tracking-[0.6em] uppercase text-white/25">
+    <p class="font-inter text-[9px] tracking-[0.6em] uppercase text-yokai-dark-blue/40">
       No Videos Yet
     </p>
-    <p class="font-outfit text-white/30 text-sm font-light max-w-xs">
+    <p class="font-outfit text-yokai-dark-blue/60 text-sm font-light max-w-xs">
       Video entries will appear here once added via Sanity Studio.
     </p>
     <div class="w-12 h-[1px] bg-yokai-purple/30"></div>
   </section>
 ) : (
 
-<section class="vg-fullscreen-wrapper w-full h-[100svh] relative z-0 overflow-hidden fixed inset-0 bg-yokai-dark-blue">
+<section class="vg-fullscreen-wrapper w-full h-[100svh] relative z-0 overflow-hidden fixed inset-0 bg-[#FAFAFA]">
   
   <div class="vg-track absolute top-0 left-0 h-full flex" style={`width: ${chunkedVideos.length * 100}vw;`}>
     {chunkedVideos.map((set, setIndex) => (
@@ -78,7 +78,7 @@ for (let i = 0; i < activeVideos.length; i += 4) {
               href={href}
               target={vid.link ? "_blank" : undefined}
               rel={vid.link ? "noopener noreferrer" : undefined}
-              class="vg-cell relative w-full h-full overflow-hidden block group bg-yokai-dark-blue cursor-pointer"
+              class="vg-cell relative w-full h-full overflow-hidden block group bg-gray-200 cursor-pointer"
               data-video-type={effectiveType}
               data-has-animation={hasAnimation ? 'true' : 'false'}
             >
@@ -160,7 +160,7 @@ for (let i = 0; i < activeVideos.length; i += 4) {
   {chunkedVideos.length > 1 && (
     <div class="absolute bottom-4 right-4 md:bottom-8 md:right-8 flex gap-2 z-40">
       {chunkedVideos.map((_, i) => (
-        <div class={`vg-dot w-2 h-2 rounded-full transition-colors duration-300 ${i === 0 ? 'bg-yokai-purple' : 'bg-yokai-dark-blue/20'}`} data-index={i}></div>
+        <div class={`vg-dot w-2 h-2 rounded-full transition-colors duration-300 ${i === 0 ? 'bg-yokai-purple' : 'bg-black/20'}`} data-index={i}></div>
       ))}
     </div>
   )}
@@ -334,11 +334,11 @@ for (let i = 0; i < activeVideos.length; i += 4) {
 
     dots.forEach((dot, idx) => {
       if (idx === currentPage) {
-        dot.classList.remove('bg-yokai-dark-blue/20');
+        dot.classList.remove('bg-black/20');
         dot.classList.add('bg-yokai-purple');
       } else {
         dot.classList.remove('bg-yokai-purple');
-        dot.classList.add('bg-yokai-dark-blue/20');
+        dot.classList.add('bg-black/20');
       }
     });
   };
@@ -366,4 +366,94 @@ for (let i = 0; i < activeVideos.length; i += 4) {
   nextBtn?.addEventListener('click', () => goToPage(currentPage + 1));
   prevBtn?.addEventListener('click', () => goToPage(currentPage - 1));
 
+</script>
+            video.currentTime = 0;
+          }
+        }
+      });
+    });
+  }
+
+  // Pagination Logic
+  const pages = document.querySelectorAll('.vg-page') as NodeListOf<HTMLElement>;
+  const prevBtn = document.getElementById('vg-prev') as HTMLButtonElement;
+  const nextBtn = document.getElementById('vg-next') as HTMLButtonElement;
+  const dots = document.querySelectorAll('.vg-dot') as NodeListOf<HTMLButtonElement>;
+  
+  let currentPage = 0;
+  const totalPages = pages.length;
+  let isAnimating = false;
+
+  const updatePaginationUI = () => {
+    if (!prevBtn || !nextBtn) return;
+    prevBtn.disabled = currentPage === 0;
+    nextBtn.disabled = currentPage === totalPages - 1;
+
+    dots.forEach((dot, idx) => {
+      if (idx === currentPage) {
+        dot.classList.add('text-yokai-purple', 'font-bold', 'border-yokai-purple');
+        dot.classList.remove('border-transparent');
+      } else {
+        dot.classList.remove('text-yokai-purple', 'font-bold', 'border-yokai-purple');
+        dot.classList.add('border-transparent');
+      }
+    });
+  };
+
+  const goToPage = (newIndex: number) => {
+    if (isAnimating || newIndex === currentPage || newIndex < 0 || newIndex >= totalPages) return;
+    isAnimating = true;
+
+    const currentEl = pages[currentPage];
+    const nextEl = pages[newIndex];
+
+    // Hide current
+    anime({
+      targets: currentEl,
+      opacity: 0,
+      duration: 300,
+      easing: 'easeInQuad',
+      complete: () => {
+        currentEl.classList.remove('relative', 'block');
+        currentEl.classList.add('hidden', 'absolute', 'top-0', 'left-0', 'w-full');
+        currentEl.style.zIndex = '0';
+        
+        // Show next
+        nextEl.classList.remove('hidden', 'absolute', 'top-0', 'left-0', 'w-full');
+        nextEl.classList.add('relative', 'block');
+        nextEl.style.zIndex = '10';
+
+        anime({
+          targets: nextEl,
+          opacity: [0, 1],
+          duration: 400,
+          easing: 'easeOutQuad',
+          complete: () => {
+            currentPage = newIndex;
+            updatePaginationUI();
+            isAnimating = false;
+            
+            // Re-trigger stagger animation for cells in new page
+            anime({
+              targets: nextEl.querySelectorAll('.vg-cell'),
+              opacity: [0, 1],
+              translateY: [20, 0],
+              duration: 600,
+              delay: anime.stagger(100),
+              easing: 'easeOutQuart'
+            });
+          }
+        });
+      }
+    });
+  };
+
+  prevBtn?.addEventListener('click', () => goToPage(currentPage - 1));
+  nextBtn?.addEventListener('click', () => goToPage(currentPage + 1));
+  dots.forEach(dot => {
+    dot.addEventListener('click', () => {
+      const target = parseInt(dot.getAttribute('data-target') || '0', 10);
+      goToPage(target);
+    });
+  });
 </script>
