@@ -230,12 +230,24 @@ const clientData = members.map(m => ({
     if (dpFavWaza) {
       var w = (m as any).favoriteWaza;
       if (!Array.isArray(w)) w = w ? [w] : [];
-      dpFavWaza.textContent = w.length > 0 ? w.join(', ') : '—';
+      if (w.length > 0) {
+        dpFavWaza.innerHTML = w.map(function(item) {
+          return '<span class="px-2 py-1 rounded-full border border-white/10 bg-white/5 text-[10px] text-white/80 font-inter tracking-wide whitespace-nowrap">' + item + '</span>';
+        }).join('');
+      } else {
+        dpFavWaza.innerHTML = '<span class="font-jakarta font-medium text-white leading-none" style="font-size:18px;">—</span>';
+      }
     }
     if (dpFavUchishi) {
       var u = (m as any).favoriteUchishi;
       if (!Array.isArray(u)) u = u ? [u] : [];
-      dpFavUchishi.textContent = u.length > 0 ? u.join(', ') : '—';
+      if (u.length > 0) {
+        dpFavUchishi.innerHTML = u.map(function(item) {
+          return '<span class="px-2 py-1 rounded-full border border-white/10 bg-white/5 text-[10px] text-white/80 font-inter tracking-wide whitespace-nowrap">' + item + '</span>';
+        }).join('');
+      } else {
+        dpFavUchishi.innerHTML = '<span class="font-jakarta font-medium text-white leading-none" style="font-size:18px;">—</span>';
+      }
     }
     if (dpQuote)      dpQuote.textContent      = m.quote;
     setSocial('instagram', m.socials.instagram, 'instagram.com');
