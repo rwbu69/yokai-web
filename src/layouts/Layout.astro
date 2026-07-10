@@ -12,22 +12,22 @@ const { title } = Astro.props;
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="description" content="Yokai Web - Astro & Sanity Project" />
+		<meta name="description" content="Turning Wotagei into Art" />
 		<meta name="viewport" content="width=device-width" />
 		
 		<!-- Open Graph / Facebook -->
 		<meta property="og:type" content="website" />
-		<meta property="og:url" content={Astro.url} />
+		<meta property="og:url" content={Astro.url.href} />
 		<meta property="og:title" content={title} />
-		<meta property="og:description" content="Yokai Web - Astro & Sanity Project" />
-		<meta property="og:image" content={new URL('/og-image.jpg', Astro.url)} />
+		<meta property="og:description" content="Turning Wotagei into Art" />
+		<meta property="og:image" content={new URL('/og-image.jpg', Astro.site || Astro.url).href} />
 
 		<!-- Twitter -->
 		<meta property="twitter:card" content="summary_large_image" />
-		<meta property="twitter:url" content={Astro.url} />
+		<meta property="twitter:url" content={Astro.url.href} />
 		<meta property="twitter:title" content={title} />
-		<meta property="twitter:description" content="Yokai Web - Astro & Sanity Project" />
-		<meta property="twitter:image" content={new URL('/og-image.jpg', Astro.url)} />
+		<meta property="twitter:description" content="Turning Wotagei into Art" />
+		<meta property="twitter:image" content={new URL('/og-image.jpg', Astro.site || Astro.url).href} />
 		<link rel="icon" type="image/svg+xml" href="/icon.svg" />
 		<link rel="shortcut icon" href="/icon.svg" />
 		<link rel="apple-touch-icon" href="/icon.svg" />
