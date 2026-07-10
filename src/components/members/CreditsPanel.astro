@@ -65,7 +65,7 @@ const twHref = m.twitter ? `https://x.com/${m.twitter}` : "#";
             {
               Array.isArray(m.favoriteWaza) && m.favoriteWaza.length > 0
                 ? m.favoriteWaza.map((item) => (
-                    <span class="px-2 py-1 rounded-full border border-white/10 bg-white/5 text-[10px] text-white/80 font-inter tracking-wide whitespace-nowrap">{item}</span>
+                    <span class="px-2.5 py-1 rounded-full border border-white/10 bg-white/5 text-xs text-white/80 font-inter tracking-wide whitespace-nowrap">{item}</span>
                   ))
                 : <span class="font-jakarta font-medium text-white leading-none" style="font-size:18px;">—</span>
             }
@@ -79,7 +79,7 @@ const twHref = m.twitter ? `https://x.com/${m.twitter}` : "#";
             {
               Array.isArray(m.favoriteUchishi) && m.favoriteUchishi.length > 0
                 ? m.favoriteUchishi.map((item) => (
-                    <span class="px-2 py-1 rounded-full border border-white/10 bg-white/5 text-[10px] text-white/80 font-inter tracking-wide whitespace-nowrap">{item}</span>
+                    <span class="px-2.5 py-1 rounded-full border border-white/10 bg-white/5 text-xs text-white/80 font-inter tracking-wide whitespace-nowrap">{item}</span>
                   ))
                 : <span class="font-jakarta font-medium text-white leading-none" style="font-size:18px;">—</span>
             }
