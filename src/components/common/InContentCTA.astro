@@ -1,0 +1,24 @@
+---
+interface Props {
+  text: string;
+  href: string;
+}
+
+const { text, href } = Astro.props;
+---
+<div class="w-full flex justify-center my-12">
+  <a
+    href={href}
+    class="group relative inline-flex items-center gap-4 px-8 py-4 bg-[#2A1E52] text-[#fdfffd] overflow-hidden rounded-sm"
+  >
+    <div class="absolute inset-0 bg-[#A045BB] translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out z-0"></div>
+    <span class="relative z-10 text-xs font-inter font-bold tracking-[0.3em] uppercase transition-colors duration-300 group-hover:text-white">
+      {text}
+    </span>
+    <span class="relative z-10 flex items-center justify-center w-6 h-6 rounded-full border border-white/20 group-hover:border-white/50 transition-colors duration-300">
+      <svg class="w-3 h-3 text-white transform group-hover:translate-x-0.5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+    </span>
+  </a>
+</div>

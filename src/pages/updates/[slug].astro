@@ -10,6 +10,8 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import PostHeader from '@components/blog/PostHeader.astro';
 import PostLayout from '@components/blog/PostLayout.astro';
+import RelatedPosts from '@components/blog/RelatedPosts.astro';
+import Breadcrumbs from '@components/common/Breadcrumbs.astro';
 
 import { sanityClient, urlFor } from '../../lib/sanity';
 import type { SanityImage } from '../../lib/sanity';
@@ -68,6 +70,33 @@ if (!post) {
 const coverImageUrl = post.image?.asset
   ? urlFor(post.image).width(1200).format('webp').url()
   : '';
+
+// ── Fetch Related Posts ───────────────────────────────────────────────────────
+
+const relatedPostsRaw = await sanityClient.fetch<any[]>(`
+  *[_type == "update" && slug.current != $slug] | order(date desc)[0...3] {
+    "id": slug.current,
+    title,
+    "description": excerpt,
+    date,
+    image {
+      asset,
+      hotspot
+    }
+  }
+`, { slug }) ?? [];
+
+const relatedPosts = relatedPostsRaw.map((p) => ({
+  id: p.id,
+  data: {
+    title:       p.title,
+    description: p.description ?? '',
+    date:        p.date,
+    coverImage:  p.image?.asset
+      ? urlFor(p.image).width(800).format('webp').url()
+      : '',
+  },
+}));
 ---
 
 <BaseLayout title={`${post.title} | Updates`} activePage="updates">
@@ -79,10 +108,16 @@ const coverImageUrl = post.image?.asset
       tags={post.tags}
     />
     <PostLayout backUrl="/updates" backText={`Kembali ke Updates`}>
+      <Breadcrumbs paths={[{ name: 'Updates', href: '/updates' }, { name: post.title }]} />
+      
       {typeof post.content === 'string' ? (
         <div set:html={marked.parse(post.content)} />
       ) : (
         <PortableText value={post.content ?? []} />
+      )}
+      
+      {relatedPosts.length > 0 && (
+        <RelatedPosts posts={relatedPosts} collection="updates" />
       )}
     </PostLayout>
   </main>

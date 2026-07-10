@@ -20,6 +20,8 @@ import chekiConfig from './src/sanity/schemas/chekiConfig';
 import merchConfig from './src/sanity/schemas/merchConfig';
 import videoItem from './src/sanity/schemas/videoItem';
 import landingPage from './src/sanity/schemas/landingPage';
+import updatesConfig from './src/sanity/schemas/updatesConfig';
+import snsUpdate from './src/sanity/schemas/snsUpdate';
 
 import tutorial from './src/sanity/schemas/tutorial';
 
@@ -40,9 +42,11 @@ export default defineConfig({
       aboutUs,
       chekiConfig,
       merchConfig,
+      updatesConfig,
 
       // === Content ===
       member,
+      snsUpdate,
       heroImages,
       livePerformance,
       project,

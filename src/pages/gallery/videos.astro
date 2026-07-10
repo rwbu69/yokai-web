@@ -11,6 +11,7 @@
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import VideosGrid from '../../components/gallery/videos/VideosGrid.astro';
+import Breadcrumbs from '../../components/common/Breadcrumbs.astro';
 import { sanityClient, urlFor } from '../../lib/sanity';
 import type { SanityImage } from '../../lib/sanity';
 
@@ -107,5 +108,8 @@ const formattedVideos: FormattedVideo[] = data.map((v) => {
 ---
 
 <BaseLayout title="Videos | Yokai Gallery" activePage="gallery">
+  <div class="pt-24 bg-[#FAFAFA]">
+    <Breadcrumbs paths={[{ name: 'Gallery' }, { name: 'Videos' }]} />
+  </div>
   <VideosGrid videos={formattedVideos} />
 </BaseLayout>

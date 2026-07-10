@@ -21,10 +21,11 @@ interface Props {
   date: string;
   slug: string;
   collection: string;
+  postUrl?: string;
 }
 
-const { title, titleJp, description, coverImage, date, slug, collection } = Astro.props;
-const postUrl = collection === 'updates' ? `/updates/${slug}` : `/library/${collection}/${slug}`;
+const { title, titleJp, description, coverImage, date, slug, collection, postUrl: overridePostUrl } = Astro.props;
+const postUrl = overridePostUrl || (collection === 'updates' ? `/updates/${slug}` : `/library/${collection}/${slug}`);
 ---
 
 <a href={postUrl} class="post-card group block w-full relative opacity-0 translate-y-4">

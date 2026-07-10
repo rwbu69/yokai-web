@@ -2,6 +2,7 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import PostHero from '@components/blog/PostHero.astro';
 import PostGrid from '@components/blog/PostGrid.astro';
+import Breadcrumbs from '@components/common/Breadcrumbs.astro';
 
 import { sanityClient, urlFor } from '../../../lib/sanity';
 
@@ -33,12 +34,15 @@ formattedPosts.sort(
   <main class="min-h-screen bg-[#FAFAFA]">
     <!-- Dark Header Section -->
     <div class="bg-[#2A1E52] rounded-b-[3rem] shadow-[0_10px_40px_rgba(42,30,82,0.1)] relative z-10">
-      <PostHero title={"Library - Articles"} description={"Kumpulan artikel dan bacaan dari Yokai."} />
+      <PostHero title={"Articles"} description={"Kumpulan artikel dari Yokai."} />
     </div>
     
     <!-- Light Grid Section -->
-    <div class="pt-16 pb-20 relative z-0">
-      <PostGrid posts={formattedPosts} collection="articles" />
+    <div class="pt-8 pb-20 relative z-0">
+      <Breadcrumbs paths={[{ name: 'Library' }, { name: 'Articles' }]} />
+      <div class="mt-8">
+        <PostGrid posts={formattedPosts} collection="articles" />
+      </div>
     </div>
   </main>
 </BaseLayout>

@@ -3,11 +3,22 @@
  * LivePerformances.astro
  */
 import { performances as localPerformances } from './performances';
+import InContentCTA from '../common/InContentCTA.astro';
 
 interface Props {
   performances: any[];
+  ctaText?: string;
+  ctaLink?: string;
+  bottomCtaText?: string;
+  bottomCtaLink?: string;
 }
-const { performances } = Astro.props;
+const { 
+  performances,
+  ctaText = 'View Gallery',
+  ctaLink = '/gallery',
+  bottomCtaText = 'Watch Our Live Performances',
+  bottomCtaLink = '/gallery/videos'
+} = Astro.props;
 
 const activePerformances = performances && performances.length > 0 ? performances : localPerformances;
 
@@ -52,13 +63,13 @@ const supporting  = formattedPerformances.slice(1);
           {formattedPerformances.length} events
         </span>
         <a
-          href="/gallery"
+          href={ctaLink}
           class="font-inter text-[9px] tracking-[0.4em] uppercase"
           style="color: rgba(255,255,255,0.35); text-decoration: none; transition: color 0.25s cubic-bezier(0.4,0,0.2,1);"
           onmouseover="this.style.color='rgba(255,255,255,0.9)'"
           onmouseout="this.style.color='rgba(255,255,255,0.35)'"
         >
-          View Gallery
+          {ctaText}
         </a>
       </div>
     </div>
@@ -202,7 +213,7 @@ const supporting  = formattedPerformances.slice(1);
     </div>
 
     <div style="height: 1px; background: rgba(255,255,255,0.06);"></div>
-
+    <InContentCTA text={bottomCtaText} href={bottomCtaLink} />
   </div>
 </section>
 

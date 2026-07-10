@@ -11,6 +11,7 @@
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PhotosGrid from '../../components/gallery/photos/PhotosGrid.astro';
+import Breadcrumbs from '../../components/common/Breadcrumbs.astro';
 import { sanityClient, urlFor } from '../../lib/sanity';
 import type { SanityImage } from '../../lib/sanity';
 
@@ -80,5 +81,8 @@ const formattedEvents: FormattedPhotoEvent[] = data.map((event) => {
 ---
 
 <BaseLayout title="Photos | Yokai Gallery" activePage="gallery">
+  <div class="pt-24 bg-[#FAFAFA]">
+    <Breadcrumbs paths={[{ name: 'Gallery' }, { name: 'Photos' }]} />
+  </div>
   <PhotosGrid events={formattedEvents} />
 </BaseLayout>

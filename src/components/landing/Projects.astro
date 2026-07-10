@@ -6,8 +6,10 @@ import { projects as localProjects } from './projects';
 
 interface Props {
   projects: any[];
+  ctaText?: string;
+  ctaLink?: string;
 }
-const { projects } = Astro.props;
+const { projects, ctaText = 'View Full Archive', ctaLink = '/library/original-waza' } = Astro.props;
 
 // Use sanity data if available, fallback to local
 const activeProjects = projects && projects.length > 0 ? projects : localProjects;
@@ -42,13 +44,13 @@ const formattedProjects = activeProjects.map(p => {
         Projects
       </h2>
       <a
-        href="/library/original"
+        href={ctaLink}
         class="font-inter text-[9px] tracking-[0.4em] uppercase text-yokai-purple"
         style="transition: color 0.25s cubic-bezier(0.4,0,0.2,1); padding-bottom: 2px;"
         onmouseover="this.style.color='var(--yokai-dark-blue)'"
         onmouseout="this.style.color='var(--yokai-purple)'"
       >
-        View Full Archive
+        {ctaText}
       </a>
     </div>
 

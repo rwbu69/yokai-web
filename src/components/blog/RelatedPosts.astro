@@ -1,0 +1,58 @@
+---
+import PostCard from './PostCard.astro';
+
+interface Props {
+  posts: any[];
+  collection: string;
+}
+
+const { posts, collection } = Astro.props;
+---
+<section class="w-full mt-20 pt-10 border-t border-[#2A1E52]/10">
+  <div class="flex items-center gap-4 mb-8">
+    <div class="w-8 h-[2px] bg-[#A045BB]"></div>
+    <h3 class="font-jakarta text-lg font-black uppercase tracking-widest text-[#2A1E52]">Baca Juga</h3>
+  </div>
+  
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    {posts.map((post) => (
+      <div class="post-card-wrapper" style="opacity: 0;">
+        <PostCard 
+          title={post.data.title}
+          titleJp={post.data.titleJp}
+          description={post.data.description}
+          coverImage={post.data.coverImage}
+          date={post.data.date}
+          slug={post.id}
+          collection={collection}
+        />
+      </div>
+    ))}
+  </div>
+</section>
+
+<script>
+  import anime from 'animejs/lib/anime.es.js';
+
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (!entry.isIntersecting) return;
+      
+      const elements = entry.target.querySelectorAll('.post-card-wrapper');
+      if (elements.length > 0) {
+        anime({
+          targets: elements,
+          translateY: [20, 0],
+          opacity: [0, 1],
+          duration: 600,
+          delay: anime.stagger(100),
+          easing: 'easeOutQuart'
+        });
+      }
+      observer.disconnect();
+    });
+  }, { threshold: 0.1 });
+
+  var section = document.querySelector('.post-card-wrapper')?.closest('section');
+  if (section) observer.observe(section);
+</script>

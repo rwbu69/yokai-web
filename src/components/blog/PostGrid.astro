@@ -55,6 +55,7 @@ const { posts, collection, showSearch = false } = Astro.props;
             date={post.data.date}
             slug={post.id}
             collection={collection}
+            postUrl={post.data.postUrl}
           />
         </div>
       ))}

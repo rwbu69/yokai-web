@@ -17,12 +17,7 @@ interface Props {
 const { backUrl, backText } = Astro.props;
 ---
 <div class="w-full bg-[#FAFAFA] relative rounded-t-[2.5rem] -mt-10 z-20 pb-20 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
-  <!-- Back Link -->
-  <div class="absolute top-8 left-6 md:left-12 z-20">
-    <a href={backUrl} class="font-inter text-[10px] tracking-[0.2em] uppercase text-yokai-dark-blue/40 hover:text-yokai-purple transition-colors flex items-center gap-2">
-      <span class="text-lg leading-none mt-[-2px]">&larr;</span> {backText}
-    </a>
-  </div>
+
 
   <!-- Editorial Prose Styling -->
   <article class="yokai-prose max-w-3xl mx-auto px-6 py-20">

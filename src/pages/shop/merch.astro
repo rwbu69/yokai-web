@@ -6,6 +6,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import ShopHero from '../../components/shop/ShopHero.astro';
 import ShopOrderForm from '../../components/shop/ShopOrderForm.astro';
 import ShopClosed from '../../components/shop/ShopClosed.astro';
+import Breadcrumbs from '../../components/common/Breadcrumbs.astro';
 import { sanityClient, urlFor } from '../../lib/sanity';
 
 import bgImg from '../../assets/photos/3.webp';
@@ -46,7 +47,11 @@ const isDev = import.meta.env.DEV;
     <div class="absolute inset-0 bg-yokai-dark-blue/70"></div>
   </div>
 
-  <main class="relative z-10 min-h-screen flex flex-col">
+  <main class="relative z-10 min-h-screen flex flex-col pt-16 md:pt-20 lg:pt-24 pb-20">
+    <div class="pt-4 pb-8">
+      <Breadcrumbs paths={[{ name: 'Shop' }, { name: 'Merch' }]} theme="dark" />
+    </div>
+
     <ShopHero 
       title="OFFICIAL MERCH"
       subtitle="Wear the spirit of Yokai. High-quality gear for wotagei practitioners."

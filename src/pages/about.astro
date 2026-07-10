@@ -13,6 +13,7 @@ import HeroAbout      from '../components/about/HeroAbout.astro';
 import OurStory       from '../components/about/OurStory.astro';
 import TrackRecord    from '../components/about/TrackRecord.astro';
 import ContactSocials from '../components/about/ContactSocials.astro';
+import InContentCTA   from '../components/common/InContentCTA.astro';
 import { sanityClient, urlFor } from '../lib/sanity';
 import type { SanityImage } from '../lib/sanity';
 
@@ -126,5 +127,6 @@ const contactProps = {
   <HeroAbout {...heroProps} />
   <OurStory {...storyProps} />
   <TrackRecord {...trackRecordProps} />
+  <InContentCTA text="Meet the Yokai Members" href="/members" />
   <ContactSocials {...contactProps} />
 </BaseLayout>

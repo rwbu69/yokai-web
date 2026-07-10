@@ -2,6 +2,7 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import PostHeader from '@components/blog/PostHeader.astro';
 import PostLayout from '@components/blog/PostLayout.astro';
+import Breadcrumbs from '@components/common/Breadcrumbs.astro';
 
 import { sanityClient, urlFor } from '../../../lib/sanity';
 import { PortableText } from 'astro-portabletext';
@@ -49,6 +50,7 @@ const coverImageUrl = post.coverImage ? urlFor(post.coverImage).width(1200).url(
       honke={post.honke}
     />
     <PostLayout backUrl="/library/wotagei-waza" backText={`Kembali ke Wotagei Waza`}>
+      <Breadcrumbs paths={[{ name: 'Library' }, { name: 'Wotagei Waza', href: '/library/wotagei-waza' }, { name: post.title }]} />
       {typeof post.body === 'string' ? (
         <div set:html={marked.parse(post.body)} />
       ) : (

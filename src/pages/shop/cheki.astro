@@ -6,6 +6,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import ShopHero from '../../components/shop/ShopHero.astro';
 import ShopOrderForm from '../../components/shop/ShopOrderForm.astro';
 import ShopClosed from '../../components/shop/ShopClosed.astro';
+import Breadcrumbs from '../../components/common/Breadcrumbs.astro';
 import { sanityClient, urlFor } from '../../lib/sanity';
 
 import bgImg from '../../assets/photos/3.webp';
@@ -41,6 +42,10 @@ const items = (data.items || []).map((item: any) => ({
       <div class="absolute inset-0 bg-yokai-dark-blue/80 backdrop-blur-sm"></div>
     </div>
     
+    <div class="pt-4 pb-8">
+      <Breadcrumbs paths={[{ name: 'Shop' }, { name: 'Cheki' }]} theme="dark" />
+    </div>
+
     <ShopHero 
       title="POLAROID CHEKI" 
       subtitle="Exclusive polaroid shots. Keep a piece of our moment with you." 
