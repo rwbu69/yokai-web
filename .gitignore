@@ -35,7 +35,7 @@ temp.html
 test-marked.mjs
 
 # ignore all markdown files in root except README
-/*.md
-!/README.md
-!/readme.md
+*.md
+!README.md
+!readme.md
 
