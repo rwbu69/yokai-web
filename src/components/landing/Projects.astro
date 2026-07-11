@@ -5,14 +5,22 @@
 import { projects as localProjects } from './projects';
 
 interface Props {
-  projects: any[];
+  projects: import('@lib/sanity').SanityProject[];
   ctaText?: string;
   ctaLink?: string;
 }
 const { projects, ctaText = 'View Full Archive', ctaLink = '/library/original-waza' } = Astro.props;
 
+interface AnyProject {
+  title: string;
+  youtubeUrl?: string;
+  videoId?: string;
+  releaseDate?: string;
+  date?: string;
+}
+
 // Use sanity data if available, fallback to local
-const activeProjects = projects && projects.length > 0 ? projects : localProjects;
+const activeProjects: AnyProject[] = projects && projects.length > 0 ? (projects as AnyProject[]) : (localProjects as AnyProject[]);
 
 // For Sanity, video ID has to be parsed from youtubeUrl
 const getYouTubeId = (urlOrId: string) => {
@@ -28,7 +36,7 @@ const formattedProjects = activeProjects.map(p => {
   return {
     title: p.title,
     date: p.releaseDate ? p.releaseDate.replace(/-/g, '.') : p.date,
-    videoId: getYouTubeId(p.youtubeUrl || p.videoId),
+    videoId: getYouTubeId(p.youtubeUrl || p.videoId || ''),
   };
 });
 ---

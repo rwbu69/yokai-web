@@ -28,7 +28,7 @@ const { title, coverImage, date, tags, honke, titleJp, author } = Astro.props;
 <header class="w-full h-[50vh] min-h-[400px] relative flex flex-col items-center justify-center pt-20 px-6 text-center">
   <!-- Background Image with Overlay -->
   <div class="absolute inset-0 z-0 overflow-hidden bg-yokai-white/5">
-    <img src={coverImage} alt={title} class="w-full h-full object-cover opacity-60" />
+    <img loading="lazy" decoding="async" src={coverImage} alt={title} class="w-full h-full object-cover opacity-60" />
     <div class="absolute inset-0 bg-gradient-to-t from-yokai-dark-blue via-yokai-dark-blue/80 to-transparent"></div>
   </div>
 

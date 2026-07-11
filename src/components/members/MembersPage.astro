@@ -123,14 +123,14 @@ const clientData = members.map(m => ({
 {members.length === 0 ? (
   <!-- Empty State -->
   <div class="w-full h-screen bg-[#0c0c0c] flex flex-col items-center justify-center gap-6 text-center px-6">
-    <div class="w-16 h-[1px] bg-yokai-purple/30"></div>
+    <div class="w-16 h-px bg-yokai-purple/30"></div>
     <p class="font-inter text-[9px] tracking-[0.6em] uppercase text-white/25">
       No Members Yet
     </p>
     <p class="font-outfit text-white/30 text-sm font-light max-w-xs">
       Anggota tim akan muncul di sini setelah ditambahkan melalui Sanity Studio.
     </p>
-    <div class="w-16 h-[1px] bg-yokai-purple/30"></div>
+    <div class="w-16 h-px bg-yokai-purple/30"></div>
   </div>
 ) : (
   <!--
@@ -151,8 +151,15 @@ const clientData = members.map(m => ({
 <!-- ② Orchestration script — vanilla JS -->
 <script>
   import anime from 'animejs/lib/anime.es.js';
+  import type { Member } from './MembersPage.astro';
 
-  var members      = (window as any).__YOKAI_M || [];
+  declare global {
+    interface Window {
+      __YOKAI_M?: Member[];
+    }
+  }
+
+  var members: Member[] = window.__YOKAI_M || [];
   var strips        = Array.from(document.querySelectorAll<HTMLElement>('[data-strip-id]'));
   var creditsInner  = document.getElementById('credits-inner');
   var accordion     = document.querySelector<HTMLElement>('.accordion-strip');
@@ -172,7 +179,7 @@ const clientData = members.map(m => ({
     var total  = accordion ? accordion.offsetWidth : window.innerWidth;
     var active = Math.round(total * 0.40);
     var rest   = Math.round((total - active) / (members.length - 1));
-    return members.map(function(_: unknown, i: number) { return i === activeIdx ? active : rest; });
+    return members.map(function(_, i: number) { return i === activeIdx ? active : rest; });
   }
 
   // ── Strip animation ──────────────────────────────────────────────────
@@ -183,7 +190,7 @@ const clientData = members.map(m => ({
     var widths = getTargetWidths(activeIdx);
     anime({
       targets: strips,
-      width: function(el: HTMLElement, i: number) { return widths[i]; },
+      width: function(_el: HTMLElement, i: number) { return widths[i]; },
       duration: 600,
       easing: 'easeInOutQuart',
       begin: function() {
@@ -224,26 +231,26 @@ const clientData = members.map(m => ({
   }
 
   // ── Detail panel text + gallery update ──────────────────────────────
-  function updateDetail(m: { firstName: string; role: string; quote: string; socials: { instagram?: string; twitter?: string }; gallery: string[] }) {
+  function updateDetail(m: Member) {
     if (dpName1)      dpName1.textContent      = m.firstName;
     if (dpRole)       dpRole.textContent       = m.role;
     if (dpFavWaza) {
-      var w = (m as any).favoriteWaza;
+      var w = m.favoriteWaza;
       if (!Array.isArray(w)) w = w ? [w] : [];
       if (w.length > 0) {
-        dpFavWaza.innerHTML = w.map(function(item) {
-          return '<span class="px-3 py-1 rounded-full border border-[#3d2c7a] bg-[#2a1e52] text-sm text-white/90 font-inter tracking-wide whitespace-nowrap">' + item + '</span>';
+        dpFavWaza.innerHTML = w.map(function(item: string) {
+          return '<span class="px-3 py-1 rounded-full border border-[#3d2c7a] bg-yokai-dark-blue text-sm text-white/90 font-inter tracking-wide whitespace-nowrap">' + item + '</span>';
         }).join('');
       } else {
         dpFavWaza.innerHTML = '<span class="font-jakarta font-medium text-white leading-none" style="font-size:18px;">—</span>';
       }
     }
     if (dpFavUchishi) {
-      var u = (m as any).favoriteUchishi;
+      var u = m.favoriteUchishi;
       if (!Array.isArray(u)) u = u ? [u] : [];
       if (u.length > 0) {
-        dpFavUchishi.innerHTML = u.map(function(item) {
-          return '<span class="px-3 py-1 rounded-full border border-[#3d2c7a] bg-[#2a1e52] text-sm text-white/90 font-inter tracking-wide whitespace-nowrap">' + item + '</span>';
+        dpFavUchishi.innerHTML = u.map(function(item: string) {
+          return '<span class="px-3 py-1 rounded-full border border-[#3d2c7a] bg-yokai-dark-blue text-sm text-white/90 font-inter tracking-wide whitespace-nowrap">' + item + '</span>';
         }).join('');
       } else {
         dpFavUchishi.innerHTML = '<span class="font-jakarta font-medium text-white leading-none" style="font-size:18px;">—</span>';

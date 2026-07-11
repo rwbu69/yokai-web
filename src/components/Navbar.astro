@@ -164,7 +164,7 @@ const navItems = [
   dropdownWrappers.forEach((wrapper) => {
     const menu = wrapper.querySelector('.nav-dropdown-menu') as HTMLElement;
     const icon = wrapper.querySelector('.nav-dropdown-icon') as HTMLElement;
-    let enterAnim: any, leaveAnim: any;
+    let enterAnim: anime.AnimeInstance | undefined, leaveAnim: anime.AnimeInstance | undefined;
 
     wrapper.addEventListener('mouseenter', () => {
       if (leaveAnim) leaveAnim.pause();

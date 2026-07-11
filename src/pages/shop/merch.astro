@@ -28,15 +28,15 @@ const merchItems = data.items || [];
 const merchConfig = data.config || { isOpen: false, closedMessage: 'OUR MERCH IS CLOSED AT THE MOMENT.', tallyFormUrl: '' };
 const tallyFormUrl = merchConfig.tallyFormUrl || "https://tally.so/r/mZgA9x";
 
-const formattedItems = merchItems.map((item: any) => ({
-  id: item.id,
+const formattedItems = merchItems.map((item: import('@lib/sanity').SanityMerchItem) => ({
+  id: item._id,
   name: item.title,
   price: item.price,
   available: item.available,
   description: item.description,
   variants: item.variants,
   imageUrl: item.image?.asset ? urlFor(item.image).width(800).format('webp').url() : '',
-  gallery: item.images ? item.images.map((img: any) => img.asset ? urlFor(img).width(800).format('webp').url() : '').filter(Boolean) : []
+  gallery: item.images ? item.images.map((img: import('@lib/sanity').SanityImage) => img.asset ? urlFor(img).width(800).format('webp').url() : '').filter(Boolean) : []
 }));
 
 const isDev = import.meta.env.DEV;

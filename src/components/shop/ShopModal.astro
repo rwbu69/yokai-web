@@ -35,7 +35,7 @@ const { type, tallyUrl } = Astro.props;
     <!-- Product Details Section -->
     <div class="w-full md:w-5/12 bg-yokai-dark-bg flex flex-col border-b md:border-b-0 md:border-r border-yokai-white/10 overflow-y-auto hidden-scrollbar">
       <div class="w-full aspect-video md:aspect-square bg-yokai-dark-bg/50 relative flex-shrink-0 group/carousel">
-        <img id="modal-product-img" src="" alt="Product" class="w-full h-full object-cover transition-opacity duration-300" />
+        <img loading="lazy" decoding="async" id="modal-product-img" src="" alt="Product" class="w-full h-full object-cover transition-opacity duration-300" />
         
         <!-- Carousel Controls -->
         <div id="modal-carousel-controls" class="absolute inset-0 flex items-center justify-between p-2 opacity-0 group-hover/carousel:opacity-100 transition-opacity duration-300 hidden">
@@ -105,7 +105,7 @@ const { type, tallyUrl } = Astro.props;
   // Carousel State
   let currentGallery: string[] = [];
   let currentImageIndex = 0;
-  let carouselInterval: any = null;
+  let carouselInterval: number | null = null;
   const carouselControls = document.getElementById('modal-carousel-controls');
   const carouselDots = document.getElementById('modal-carousel-dots');
   const prevBtn = document.getElementById('modal-prev-btn');
@@ -202,8 +202,9 @@ const { type, tallyUrl } = Astro.props;
   }
 
   // Listen to open event from ProductGrid
-  document.addEventListener('open-shop-modal', (e: any) => {
-    const item = e.detail;
+  document.addEventListener('open-shop-modal', ((e: Event) => {
+    const evt = e as CustomEvent;
+    const item = evt.detail;
     if (item && overlay && content && iframeEl) {
       
       // Setup Gallery
@@ -260,5 +261,5 @@ const { type, tallyUrl } = Astro.props;
       content.classList.remove('scale-95');
       content.classList.add('scale-100');
     }
-  });
+  }) as EventListener);
 </script>

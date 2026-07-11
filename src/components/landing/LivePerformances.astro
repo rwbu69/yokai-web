@@ -5,8 +5,10 @@
 import { performances as localPerformances } from './performances';
 import InContentCTA from '../common/InContentCTA.astro';
 
+import type { SanityLivePerformance } from '@lib/sanity';
+
 interface Props {
-  performances: any[];
+  performances: SanityLivePerformance[];
   ctaText?: string;
   ctaLink?: string;
   bottomCtaText?: string;
@@ -32,7 +34,7 @@ const getYouTubeId = (urlOrId: string) => {
   return urlOrId;
 };
 
-const formattedPerformances = activePerformances.map(p => ({
+const formattedPerformances = activePerformances.map((p: any) => ({
   title: p.title,
   meta: p.location || p.meta,
   date: p.date ? p.date.replace(/-/g, '.') : '',

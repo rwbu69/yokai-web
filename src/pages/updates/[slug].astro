@@ -16,7 +16,7 @@ import Breadcrumbs from '@components/common/Breadcrumbs.astro';
 import { sanityClient, urlFor } from '../../lib/sanity';
 import type { SanityImage } from '../../lib/sanity';
 import { PortableText } from 'astro-portabletext';
-import { marked } from 'marked';
+import { parseMarkdown } from '../../lib/markdown';
 
 // ── TypeScript Interfaces ─────────────────────────────────────────────────────
 
@@ -30,7 +30,7 @@ interface SanityUpdateDetail {
   image?: SanityImage;
   tags?: string[];
   excerpt?: string;
-  content?: any;
+  content?: import('@lib/sanity').SanityBlock[];
 }
 
 // ── getStaticPaths — generate semua slug dari Sanity ─────────────────────────
@@ -75,7 +75,7 @@ const coverImageUrl = post.image?.asset
 
 // ── Fetch Related Posts ───────────────────────────────────────────────────────
 
-const relatedPostsRaw = await sanityClient.fetch<any[]>(`
+const relatedPostsRaw = await sanityClient.fetch<import('@lib/sanity').SanityUpdate[]>(`
   *[_type == "update" && slug.current != $slug] | order(date desc)[0...3] {
     "id": slug.current,
     title,
@@ -89,10 +89,10 @@ const relatedPostsRaw = await sanityClient.fetch<any[]>(`
 `, { slug }) ?? [];
 
 const relatedPosts = relatedPostsRaw.map((p) => ({
-  id: p.id,
+  id: p._id,
   data: {
     title:       p.title,
-    description: p.description ?? '',
+    description: p.excerpt ?? '',
     date:        p.date,
     coverImage:  p.image?.asset
       ? urlFor(p.image).width(800).format('webp').url()
@@ -118,7 +118,7 @@ const relatedPosts = relatedPostsRaw.map((p) => ({
       <Breadcrumbs paths={[{ name: 'Updates', href: '/updates' }, { name: post.title }]} />
       
       {typeof post.content === 'string' ? (
-        <div set:html={marked.parse(post.content)} />
+        <div set:html={parseMarkdown(post.content)} />
       ) : (
         <PortableText value={post.content ?? []} />
       )}

@@ -83,7 +83,7 @@ const placeholderProduct = type === 'cheki' ? '-- Pilih Member --' : '-- Pilih P
     const loadingDots = submitBtn?.querySelector(".s-loading-dots") as HTMLElement;
     const errorMsg = document.getElementById("s-error") as HTMLElement;
 
-    let loadingAnim: any;
+    let loadingAnim: anime.AnimeInstance | undefined;
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();

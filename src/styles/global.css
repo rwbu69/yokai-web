@@ -24,47 +24,49 @@
   --yokai-dark-bg: #080508;
 }
 
-/* Base Body Configuration */
-html {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge */
-}
+@layer base {
+  /* Base Body Configuration */
+  html {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+  }
 
-html::-webkit-scrollbar {
-  display: none; /* Chrome/Safari/Opera */
-}
+  html::-webkit-scrollbar {
+    display: none; /* Chrome/Safari/Opera */
+  }
 
-body {
-  font-family: var(--font-outfit);
-  background-color: var(--yokai-dark-blue);
-  color: var(--yokai-light-white);
-  margin: 0;
-  overflow-x: hidden;
-  transition: background-color 0.3s cubic-bezier(0.25, 1, 0.5, 1), color 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-}
+  body {
+    font-family: var(--font-outfit);
+    background-color: var(--yokai-dark-blue);
+    color: var(--yokai-light-white);
+    margin: 0;
+    overflow-x: hidden;
+    transition: background-color 0.3s cubic-bezier(0.25, 1, 0.5, 1), color 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  }
 
-/* Headings utilize Plus Jakarta Sans */
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-jakarta);
-  color: var(--yokai-white);
-  transition: color 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-  font-weight: 900; /* BOLD */
-  letter-spacing: -0.02em; /* Tighter tracking for bold editorial look */
-}
+  /* Headings utilize Plus Jakarta Sans */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-jakarta);
+    color: var(--yokai-white);
+    transition: color 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    font-weight: 900; /* BOLD */
+    letter-spacing: -0.02em; /* Tighter tracking for bold editorial look */
+  }
 
-/* Smooth Light Theme Scroll Transition Classes */
-body.light-theme {
-  background-color: var(--yokai-white);
-  color: var(--yokai-dark-blue);
-}
+  /* Smooth Light Theme Scroll Transition Classes */
+  body.light-theme {
+    background-color: var(--yokai-white);
+    color: var(--yokai-dark-blue);
+  }
 
-body.light-theme h1, 
-body.light-theme h2, 
-body.light-theme h3, 
-body.light-theme h4, 
-body.light-theme h5, 
-body.light-theme h6 {
-  color: var(--yokai-dark-blue);
+  body.light-theme h1, 
+  body.light-theme h2, 
+  body.light-theme h3, 
+  body.light-theme h4, 
+  body.light-theme h5, 
+  body.light-theme h6 {
+    color: var(--yokai-dark-blue);
+  }
 }
 
 body.light-theme #main-header {

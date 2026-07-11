@@ -18,7 +18,7 @@ interface Props {
   highlight: string;
   body: string;
   buttonText: string;
-  images: any[];
+  images: import('@lib/sanity').SanityImage[];
 }
 
 const { title, highlight, body, buttonText, images = [] } = Astro.props;
@@ -30,7 +30,7 @@ let imagesC: string[] = [];
 if (images && images.length === 12) {
   const w = 400; // Width for marquee
   const h = 300; // Height for consistent 4:3 aspect ratio
-  const formattedImages = images.map((img: any) => urlFor(img).width(w).height(h).format('webp').url());
+  const formattedImages = images.map((img: import('@lib/sanity').SanityImage) => urlFor(img).width(w).height(h).format('webp').url());
   imagesA = formattedImages.slice(0, 4);
   imagesB = formattedImages.slice(4, 8);
   imagesC = formattedImages.slice(8, 12);
@@ -48,21 +48,21 @@ if (images && images.length === 12) {
     <div class="overflow-hidden flex-shrink-0">
       <div class="flex w-max animate-slide-left gap-1">
         {[...imagesA, ...imagesA, ...imagesA, ...imagesA, ...imagesA, ...imagesA].map((src) => (
-          <img src={src} alt="" class="h-[200px] md:h-[260px] lg:h-[320px] w-auto aspect-[4/3] flex-shrink-0 object-cover grayscale" />
+          <img loading="lazy" decoding="async" src={src} alt="" class="h-[200px] md:h-[260px] lg:h-[320px] w-auto aspect-[4/3] flex-shrink-0 object-cover grayscale" />
         ))}
       </div>
     </div>
     <div class="overflow-hidden flex-shrink-0">
       <div class="flex w-max animate-slide-right gap-1">
         {[...imagesB, ...imagesB, ...imagesB, ...imagesB, ...imagesB, ...imagesB].map((src) => (
-          <img src={src} alt="" class="h-[200px] md:h-[260px] lg:h-[320px] w-auto aspect-[4/3] flex-shrink-0 object-cover grayscale" />
+          <img loading="lazy" decoding="async" src={src} alt="" class="h-[200px] md:h-[260px] lg:h-[320px] w-auto aspect-[4/3] flex-shrink-0 object-cover grayscale" />
         ))}
       </div>
     </div>
     <div class="overflow-hidden flex-shrink-0">
       <div class="flex w-max animate-slide-left-fast gap-1">
         {[...imagesC, ...imagesC, ...imagesC, ...imagesC, ...imagesC, ...imagesC].map((src) => (
-          <img src={src} alt="" class="h-[200px] md:h-[260px] lg:h-[320px] w-auto aspect-[4/3] flex-shrink-0 object-cover grayscale" />
+          <img loading="lazy" decoding="async" src={src} alt="" class="h-[200px] md:h-[260px] lg:h-[320px] w-auto aspect-[4/3] flex-shrink-0 object-cover grayscale" />
         ))}
       </div>
     </div>

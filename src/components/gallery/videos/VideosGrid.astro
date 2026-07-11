@@ -95,7 +95,7 @@ for (let i = 0; i < activeVideos.length; i += 4) {
               {/* ── Canvas snapshot untuk GIF (static frame saat tidak hover) ── */}
               {isGif && vid.videoUrl && (
                 <>
-                  <img 
+                  <img loading="lazy" decoding="async" 
                     src={vid.videoUrl}
                     alt={vid.title}
                     class="vg-gif absolute inset-0 w-full h-full object-cover z-10 opacity-0"

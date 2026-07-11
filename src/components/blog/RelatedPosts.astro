@@ -1,17 +1,28 @@
 ---
 import PostCard from './PostCard.astro';
 
+export interface FormattedPost {
+  id: string;
+  data: {
+    title: string;
+    titleJp?: string;
+    description: string;
+    coverImage: string;
+    date: string;
+  };
+}
+
 interface Props {
-  posts: any[];
+  posts: FormattedPost[];
   collection: string;
 }
 
 const { posts, collection } = Astro.props;
 ---
-<section class="w-full mt-20 pt-10 border-t border-[#2A1E52]/10">
+<section class="w-full mt-20 pt-10 border-t border-yokai-dark-blue/10">
   <div class="flex items-center gap-4 mb-8">
-    <div class="w-8 h-[2px] bg-[#A045BB]"></div>
-    <h3 class="font-jakarta text-lg font-black uppercase tracking-widest text-[#2A1E52]">Baca Juga</h3>
+    <div class="w-8 h-0.5 bg-yokai-purple"></div>
+    <h3 class="font-jakarta text-lg font-black uppercase tracking-widest text-yokai-dark-blue">Baca Juga</h3>
   </div>
   
   <div class="grid grid-cols-1 md:grid-cols-3 gap-8">

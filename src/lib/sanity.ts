@@ -15,8 +15,6 @@
 
 import { createClient } from '@sanity/client';
 import { createImageUrlBuilder } from '@sanity/image-url';
-import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
-
 // ---------------------------------------------------------------------------
 // Client Configuration
 // ---------------------------------------------------------------------------
@@ -41,7 +39,7 @@ const builder = createImageUrlBuilder(sanityClient);
  * Build a Sanity image URL with optional transformations.
  * Example: urlFor(image).width(800).format('webp').url()
  */
-export function urlFor(source: SanityImageSource) {
+export function urlFor(source: any) {
   return builder.image(source);
 }
 
@@ -208,6 +206,29 @@ export interface SanityUpdate {
   image?: SanityImage;
   content?: SanityBlock[];
   tags?: string[];
+}
+
+/** SNS Update document */
+export interface SanitySNSUpdate {
+  _id: string;
+  _type: 'snsUpdate';
+  platform: string;
+  author: string;
+  contentSnippet: string;
+  image?: SanityImage;
+  postUrl: string;
+  date: string;
+}
+
+/** Schedule Event document */
+export interface SanityScheduleEvent {
+  _id: string;
+  _type: 'scheduleEvent';
+  eventName: string;
+  location?: string;
+  date: string;
+  time?: string;
+  link?: string;
 }
 
 /** About Us document */

@@ -16,7 +16,16 @@ const query = `*[_type == "article" && draft != true] | order(dateDesc) {
 }`;
 
 const posts = await sanityClient.fetch(query) || [];
-const formattedPosts = posts.map((post: any) => ({
+interface ProjectedLibraryItem {
+  id: string;
+  title: string;
+  description: string;
+  author?: string;
+  coverImage?: import('@lib/sanity').SanityImage;
+  date: string;
+}
+
+const formattedPosts = posts.map((post: ProjectedLibraryItem) => ({
   id: post.id,
   data: {
     title: post.title,
@@ -28,14 +37,14 @@ const formattedPosts = posts.map((post: any) => ({
 }));
 
 formattedPosts.sort(
-  (a: any, b: any) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf()
+  (a: { data: { date: string } }, b: { data: { date: string } }) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf()
 );
 ---
 
 <BaseLayout title={`Articles | Yokai Library`} activePage="library">
   <main class="min-h-screen bg-yokai-light-bg">
     <!-- Dark Header Section -->
-    <div class="bg-[#2A1E52] rounded-b-[3rem] shadow-[0_10px_40px_rgba(42,30,82,0.1)] relative z-10">
+    <div class="bg-yokai-dark-blue rounded-b-[3rem] shadow-[0_10px_40px_rgba(42,30,82,0.1)] relative z-10">
       <PostHero title={"Articles"} description={"Kumpulan artikel dari Yokai."} />
     </div>
     

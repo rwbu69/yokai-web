@@ -12,9 +12,9 @@ interface Props {
 const { paths, theme = 'light' } = Astro.props;
 
 const isDark = theme === 'dark';
-const linkClass = isDark ? "text-white/50 hover:text-[#A045BB] transition-colors font-bold" : "text-[#2A1E52]/40 hover:text-[#A045BB] transition-colors font-bold";
-const currentClass = isDark ? "text-white font-black" : "text-[#2A1E52] font-black";
-const slashClass = isDark ? "text-white/30" : "text-[#2A1E52]/30";
+const linkClass = isDark ? "text-white/50 hover:text-yokai-purple transition-colors font-bold" : "text-yokai-dark-blue/40 hover:text-yokai-purple transition-colors font-bold";
+const currentClass = isDark ? "text-white font-black" : "text-yokai-dark-blue font-black";
+const slashClass = isDark ? "text-white/30" : "text-yokai-dark-blue/30";
 ---
 <nav aria-label="Breadcrumb" class="w-full flex items-center justify-start py-4 px-6 md:px-12 relative z-20">
   <ol class="flex items-center gap-2 font-inter text-[10px] md:text-xs tracking-[0.2em] uppercase">

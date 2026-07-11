@@ -62,7 +62,7 @@ for (let i = 0; i < activeEvents.length; i += 4) {
                   data-images={JSON.stringify(allImages)}
                   data-eventname={event.eventName}
                 >
-                  <img
+                  <img loading="lazy" decoding="async"
                     src={event.coverImage}
                     alt={event.eventName}
                     class="absolute inset-0 w-full h-full object-cover"

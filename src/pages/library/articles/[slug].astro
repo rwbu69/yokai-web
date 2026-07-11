@@ -6,14 +6,14 @@ import Breadcrumbs from '@components/common/Breadcrumbs.astro';
 
 import { sanityClient, urlFor } from '../../../lib/sanity';
 import { PortableText } from 'astro-portabletext';
-import { marked } from 'marked';
+import { parseMarkdown } from '../../../lib/markdown';
 
 export async function getStaticPaths() {
   const query = `*[_type == "article" && draft != true] {
     "slug": slug.current
   }`;
   const posts = await sanityClient.fetch(query) || [];
-  return posts.map((post: any) => ({
+  return posts.map((post: import('@lib/sanity').SanityArticle | import('@lib/sanity').SanityWaza) => ({
     params: { slug: post.slug }
   }));
 }
@@ -50,7 +50,7 @@ const coverImageUrl = post.coverImage ? urlFor(post.coverImage).width(1200).url(
     <PostLayout backUrl="/library/articles" backText={`Kembali ke Articles`}>
       <Breadcrumbs paths={[{ name: 'Library' }, { name: 'Articles', href: '/library/articles' }, { name: post.title }]} />
       {typeof post.body === 'string' ? (
-        <div set:html={marked.parse(post.body)} />
+        <div set:html={parseMarkdown(post.body)} />
       ) : (
         <PortableText value={post.body ?? []} />
       )}
