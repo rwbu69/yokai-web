@@ -29,6 +29,7 @@ interface SanityUpdateDetail {
   date: string;
   image?: SanityImage;
   tags?: string[];
+  excerpt?: string;
   content?: any;
 }
 
@@ -59,6 +60,7 @@ const post = await sanityClient.fetch<SanityUpdateDetail | null>(`
       hotspot
     },
     tags,
+    excerpt,
     content
   }
 `, { slug });
@@ -99,8 +101,13 @@ const relatedPosts = relatedPostsRaw.map((p) => ({
 }));
 ---
 
-<BaseLayout title={`${post.title} | Updates`} activePage="updates">
-  <main class="min-h-screen bg-[#FAFAFA]">
+<BaseLayout 
+  title={`${post.title} | Updates`} 
+  activePage="updates" 
+  description={post.excerpt}
+  ogImage={coverImageUrl}
+>
+  <main class="min-h-screen bg-yokai-light-bg">
     <PostHeader
       title={post.title}
       coverImage={coverImageUrl}

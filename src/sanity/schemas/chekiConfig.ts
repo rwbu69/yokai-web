@@ -41,10 +41,10 @@ export default defineType({
       description: 'Background image for the Cheki page hero section',
     }),
     defineField({
-      name: 'endpointUrl',
-      title: 'Google Sheets Endpoint URL',
+      name: 'tallyFormUrl',
+      title: 'Tally Form URL',
       type: 'url',
-      description: 'URL dari Google Apps Script Web App untuk menampung form order Cheki.',
+      description: 'URL form Tally untuk pemesanan Cheki (misal: https://tally.so/r/mZgA9x).',
     }),
   ],
   // Prevent creating more than one chekiConfig document

@@ -5,12 +5,14 @@ import Navbar from '../components/Navbar.astro';
 interface Props {
   title: string;
   activePage: string;
+  description?: string;
+  ogImage?: string;
 }
 
-const { title, activePage } = Astro.props;
+const { title, activePage, description, ogImage } = Astro.props;
 ---
 
-<Layout title={title}>
+<Layout title={title} description={description} ogImage={ogImage}>
   <div class="relative min-h-screen flex flex-col selection:bg-yokai-purple selection:text-white">
     <!-- Navbar Component -->
     <Navbar activePage={activePage} />

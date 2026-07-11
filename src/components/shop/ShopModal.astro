@@ -1,0 +1,153 @@
+---
+/**
+ * ShopModal.astro
+ */
+interface ShopItem {
+  id: string;
+  name: string;
+  price?: number;
+  available: boolean;
+  description?: string;
+  variants?: string[];
+  imageUrl?: string;
+}
+
+interface Props {
+  type: 'cheki' | 'merch';
+  tallyUrl: string;
+}
+
+const { type, tallyUrl } = Astro.props;
+---
+
+<!-- Tally Embed Script -->
+<script async src="https://tally.so/widgets/embed.js"></script>
+
+<div id="shop-modal-overlay" class="fixed inset-0 z-[100] bg-yokai-dark-bg/80 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300 flex items-center justify-center p-4">
+  <div id="shop-modal-content" class="bg-yokai-dark-blue w-full max-w-5xl max-h-[90vh] min-h-[60vh] overflow-hidden border border-yokai-white/10 shadow-2xl flex flex-col md:flex-row relative transform scale-95 transition-transform duration-300">
+    
+    <!-- Close Button -->
+    <button id="close-modal-btn" class="absolute top-4 right-4 z-50 text-yokai-white/50 hover:text-yokai-white transition-colors bg-yokai-dark-bg/50 backdrop-blur-sm p-2 rounded-full cursor-pointer">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+    </button>
+
+    <!-- Product Details Section -->
+    <div class="w-full md:w-5/12 bg-yokai-dark-bg flex flex-col border-b md:border-b-0 md:border-r border-yokai-white/10 overflow-y-auto">
+      <div class="w-full aspect-[4/5] bg-yokai-dark-bg/50 relative flex-shrink-0">
+        <img id="modal-product-img" src="" alt="Product" class="w-full h-full object-cover" />
+      </div>
+      <div class="p-6 md:p-8 flex flex-col flex-grow">
+        <h2 id="modal-product-name" class="font-jakarta font-black text-2xl text-yokai-white mb-2 uppercase"></h2>
+        <p id="modal-product-price" class="font-inter text-yokai-purple font-medium text-lg mb-4"></p>
+        <p id="modal-product-desc" class="font-outfit text-yokai-white/70 text-sm leading-relaxed mb-6"></p>
+      </div>
+    </div>
+
+    <!-- Tally Form Section -->
+    <div class="w-full md:w-7/12 bg-yokai-dark-blue flex flex-col relative h-[50vh] md:h-auto">
+      
+      <!-- Loading skeleton / placeholder -->
+      <div id="tally-loading" class="absolute inset-0 flex items-center justify-center bg-yokai-dark-blue z-0">
+        <span class="flex gap-2">
+          <span class="w-2 h-2 bg-yokai-purple rounded-full animate-bounce"></span>
+          <span class="w-2 h-2 bg-yokai-purple rounded-full animate-bounce" style="animation-delay: 0.1s"></span>
+          <span class="w-2 h-2 bg-yokai-purple rounded-full animate-bounce" style="animation-delay: 0.2s"></span>
+        </span>
+      </div>
+
+      <!-- Iframe -->
+      <iframe 
+        id="tally-iframe" 
+        data-base-url={tallyUrl} 
+        data-type={type}
+        src="" 
+        width="100%" 
+        height="100%" 
+        frameborder="0" 
+        marginheight="0" 
+        marginwidth="0" 
+        title="Order Form" 
+        class="w-full h-full relative z-10 opacity-0 transition-opacity duration-500"
+      ></iframe>
+    </div>
+  </div>
+</div>
+
+<script>
+  const overlay = document.getElementById('shop-modal-overlay');
+  const content = document.getElementById('shop-modal-content');
+  const closeBtn = document.getElementById('close-modal-btn');
+  
+  // Elements to populate
+  const imgEl = document.getElementById('modal-product-img') as HTMLImageElement;
+  const nameEl = document.getElementById('modal-product-name');
+  const priceEl = document.getElementById('modal-product-price');
+  const descEl = document.getElementById('modal-product-desc');
+  
+  const iframeEl = document.getElementById('tally-iframe') as HTMLIFrameElement;
+  const tallyLoading = document.getElementById('tally-loading');
+
+  function closeModal() {
+    if (overlay && content) {
+      overlay.classList.add('opacity-0', 'pointer-events-none');
+      content.classList.remove('scale-100');
+      content.classList.add('scale-95');
+      // Clean up iframe to stop any media/scripts and reset for next click
+      setTimeout(() => {
+        if(iframeEl) {
+          iframeEl.src = '';
+          iframeEl.classList.add('opacity-0');
+        }
+        if(tallyLoading) tallyLoading.classList.remove('hidden');
+      }, 300);
+    }
+  }
+
+  if (closeBtn && overlay) {
+    closeBtn.addEventListener('click', closeModal);
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closeModal();
+    });
+  }
+
+  // Handle iframe load event to hide the loader
+  if (iframeEl) {
+    iframeEl.addEventListener('load', () => {
+      // Small delay to ensure Tally finishes its internal rendering
+      setTimeout(() => {
+        iframeEl.classList.remove('opacity-0');
+        if (tallyLoading) tallyLoading.classList.add('hidden');
+      }, 300);
+    });
+  }
+
+  // Listen to open event from ProductGrid
+  document.addEventListener('open-shop-modal', (e: any) => {
+    const item = e.detail;
+    if (item && overlay && content && iframeEl) {
+      // Populate Details
+      if(imgEl) imgEl.src = item.imageUrl || '';
+      if(nameEl) nameEl.textContent = item.name;
+      if(priceEl) priceEl.textContent = item.price ? `Rp ${item.price.toLocaleString('id-ID')}` : '';
+      if(descEl) descEl.textContent = item.description || '';
+
+      // Construct Tally URL
+      const baseUrl = iframeEl.getAttribute('data-base-url') || '';
+      const type = iframeEl.getAttribute('data-type') || '';
+      
+      // We append transparentBackground=1 to ensure it blends with Yokai design
+      let tallyUrl = new URL(baseUrl);
+      tallyUrl.searchParams.append('transparentBackground', '1');
+      tallyUrl.searchParams.append('product', item.name);
+      tallyUrl.searchParams.append('price', item.price ? item.price.toString() : '0');
+      tallyUrl.searchParams.append('type', type);
+
+      iframeEl.src = tallyUrl.toString();
+
+      // Show modal
+      overlay.classList.remove('opacity-0', 'pointer-events-none');
+      content.classList.remove('scale-95');
+      content.classList.add('scale-100');
+    }
+  });
+</script>

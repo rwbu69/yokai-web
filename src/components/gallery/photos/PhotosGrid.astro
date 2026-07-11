@@ -33,7 +33,7 @@ for (let i = 0; i < activeEvents.length; i += 4) {
 
 {
   activeEvents.length === 0 ? (
-    <section class="w-full h-[100svh] fixed inset-0 bg-[#FAFAFA] flex flex-col items-center justify-center gap-6 text-center px-6">
+    <section class="w-full h-[80svh] bg-yokai-light-bg flex flex-col items-center justify-center gap-6 text-center px-6">
       <div class="w-12 h-[1px] bg-yokai-purple/30" />
       <p class="font-inter text-[9px] tracking-[0.6em] uppercase text-yokai-dark-blue/40">
         No Photos Yet
@@ -44,7 +44,7 @@ for (let i = 0; i < activeEvents.length; i += 4) {
       <div class="w-12 h-[1px] bg-yokai-purple/30" />
     </section>
   ) : (
-    <section class="pg-fullscreen-wrapper w-full h-[100svh] relative z-0 overflow-hidden fixed inset-0 bg-[#FAFAFA]">
+    <section class="pg-fullscreen-wrapper w-full h-[80svh] relative z-0 overflow-hidden bg-yokai-light-bg">
       <div
         class="pg-track absolute top-0 left-0 h-full flex"
         style={`width: ${chunkedEvents.length * 100}vw;`}

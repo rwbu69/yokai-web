@@ -4,42 +4,45 @@
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ShopHero from '../../components/shop/ShopHero.astro';
-import ShopOrderForm from '../../components/shop/ShopOrderForm.astro';
+import ProductGrid from '../../components/shop/ProductGrid.astro';
+import ShopModal from '../../components/shop/ShopModal.astro';
 import ShopClosed from '../../components/shop/ShopClosed.astro';
 import Breadcrumbs from '../../components/common/Breadcrumbs.astro';
 import { sanityClient, urlFor } from '../../lib/sanity';
-
-import bgImg from '../../assets/photos/3.webp';
 
 const isDev = import.meta.env.DEV;
 
 const query = `{
   "config": *[_type == "chekiConfig"][0] {
-    isOpen, closedMessage, heroBgImage, endpointUrl
+    isOpen, closedMessage, heroBgImage, tallyFormUrl
   },
   "items": *[_type == "shopItem" && category == "cheki"] | order(_createdAt asc) {
+    "id": slug.current,
     title,
-    available
+    price,
+    available,
+    image { asset }
   }
 }`;
 
 const data = await sanityClient.fetch(query) || {};
-const chekiConfig = data.config || { isOpen: false, closedMessage: 'OUR CHEKI IS CLOSED AT THE MOMENT.', endpointUrl: '' };
-const bgImageUrl = chekiConfig.heroBgImage ? urlFor(chekiConfig.heroBgImage).width(1920).format('webp').url() : bgImg.src;
-const endpointUrl = chekiConfig.endpointUrl || "https://script.google.com/macros/s/AKfycbwnpOzGpvaOfWIqN-Acy-uVKXLe3VaCS2n6zCs9SsaCJRXbVfdrtpVAqYqzCiJXtSHk/exec";
+const chekiConfig = data.config || { isOpen: false, closedMessage: 'OUR CHEKI IS CLOSED AT THE MOMENT.', tallyFormUrl: '' };
+const tallyFormUrl = chekiConfig.tallyFormUrl || "https://tally.so/r/mZgA9x";
 
 const items = (data.items || []).map((item: any) => ({
+  id: item.id,
   name: item.title,
-  available: item.available
+  price: item.price,
+  available: item.available,
+  imageUrl: item.image?.asset ? urlFor(item.image).width(800).format('webp').url() : ''
 }));
 ---
 
 <BaseLayout title="Polaroid Cheki | Yokai" activePage="shop">
-  <main class="w-full min-h-screen bg-yokai-dark-blue flex flex-col pt-16 md:pt-20 lg:pt-24 pb-20 overflow-x-hidden relative">
+  <main class="w-full min-h-[100svh] bg-yokai-dark-blue flex flex-col pt-16 md:pt-24 pb-8 overflow-x-hidden relative">
 
-    <div class="fixed top-0 left-0 w-full h-full pointer-events-none z-0">
-      <img src={bgImageUrl} alt="Cheki Background" class="w-full h-full object-cover opacity-20 grayscale mix-blend-overlay" />
-      <div class="absolute inset-0 bg-yokai-dark-blue/80 backdrop-blur-sm"></div>
+    <div class="fixed top-0 left-0 w-full h-full pointer-events-none z-0 bg-gradient-to-br from-yokai-dark-blue to-yokai-dark-purple">
+      <div class="absolute inset-0 bg-yokai-purple/10 mix-blend-overlay"></div>
     </div>
     
     <div class="pt-4 pb-8">
@@ -51,8 +54,9 @@ const items = (data.items || []).map((item: any) => ({
       subtitle="Exclusive polaroid shots. Keep a piece of our moment with you." 
     />
 
-    <div id="cheki-open-view" class="w-full px-6 flex-grow flex flex-col items-center justify-start" style={`display: ${chekiConfig.isOpen ? 'flex' : 'none'};`}>
-      <ShopOrderForm type="cheki" items={items} endpointUrl={endpointUrl} />
+    <div id="cheki-open-view" class="w-full flex-grow flex items-center justify-center pb-8" style={`display: ${chekiConfig.isOpen ? 'flex' : 'none'};`}>
+      <ProductGrid items={items} type="cheki" />
+      <ShopModal type="cheki" tallyUrl={tallyFormUrl} />
     </div>
 
     <div id="cheki-closed-view" class="w-full px-6 flex-grow flex items-start justify-center" style={`display: ${chekiConfig.isOpen ? 'none' : 'flex'};`}>

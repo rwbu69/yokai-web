@@ -4,29 +4,28 @@
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ShopHero from '../../components/shop/ShopHero.astro';
-import ShopOrderForm from '../../components/shop/ShopOrderForm.astro';
+import ProductGrid from '../../components/shop/ProductGrid.astro';
+import ShopModal from '../../components/shop/ShopModal.astro';
 import ShopClosed from '../../components/shop/ShopClosed.astro';
 import Breadcrumbs from '../../components/common/Breadcrumbs.astro';
 import { sanityClient, urlFor } from '../../lib/sanity';
 
-import bgImg from '../../assets/photos/3.webp';
-
 const query = `{
-  "config": *[_type == "merchConfig"][0] { isOpen, closedMessage, heroBgImage, endpointUrl },
+  "config": *[_type == "merchConfig"][0] { isOpen, closedMessage, heroBgImage, tallyFormUrl },
   "items": *[_type == "shopItem" && category == "merch"] | order(_createdAt asc) {
     "id": slug.current,
     title,
     price,
     available,
     description,
-    variants
+    variants,
+    image { asset }
   }
 }`;
 const data = await sanityClient.fetch(query) || {};
 const merchItems = data.items || [];
-const merchConfig = data.config || { isOpen: false, closedMessage: 'OUR MERCH IS CLOSED AT THE MOMENT.', endpointUrl: '' };
-const bgImageUrl = merchConfig.heroBgImage ? urlFor(merchConfig.heroBgImage).width(1920).format('webp').url() : bgImg.src;
-const endpointUrl = merchConfig.endpointUrl || "https://script.google.com/macros/s/AKfycbwnpOzGpvaOfWIqN-Acy-uVKXLe3VaCS2n6zCs9SsaCJRXbVfdrtpVAqYqzCiJXtSHk/exec";
+const merchConfig = data.config || { isOpen: false, closedMessage: 'OUR MERCH IS CLOSED AT THE MOMENT.', tallyFormUrl: '' };
+const tallyFormUrl = merchConfig.tallyFormUrl || "https://tally.so/r/mZgA9x";
 
 const formattedItems = merchItems.map((item: any) => ({
   id: item.id,
@@ -34,20 +33,20 @@ const formattedItems = merchItems.map((item: any) => ({
   price: item.price,
   available: item.available,
   description: item.description,
-  variants: item.variants
+  variants: item.variants,
+  imageUrl: item.image?.asset ? urlFor(item.image).width(800).format('webp').url() : ''
 }));
 
 const isDev = import.meta.env.DEV;
 ---
 
 <BaseLayout title="Official Merch | Yokai" activePage="shop">
-  <!-- Fullscreen Blurred Background -->
-  <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-    <img src={bgImageUrl} alt="Background" class="w-full h-full object-cover scale-110 blur-xl opacity-80" />
-    <div class="absolute inset-0 bg-yokai-dark-blue/70"></div>
+  <!-- Fullscreen Background -->
+  <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none bg-gradient-to-br from-yokai-dark-blue to-yokai-dark-purple">
+    <div class="absolute inset-0 bg-yokai-purple/10 mix-blend-overlay"></div>
   </div>
 
-  <main class="relative z-10 min-h-screen flex flex-col pt-16 md:pt-20 lg:pt-24 pb-20">
+  <main class="relative z-10 min-h-[100svh] flex flex-col pt-16 md:pt-24 pb-8">
     <div class="pt-4 pb-8">
       <Breadcrumbs paths={[{ name: 'Shop' }, { name: 'Merch' }]} theme="dark" />
     </div>
@@ -57,8 +56,9 @@ const isDev = import.meta.env.DEV;
       subtitle="Wear the spirit of Yokai. High-quality gear for wotagei practitioners."
     />
     
-    <div id="merch-open-view" class="w-full px-6 flex-grow flex items-start justify-center pb-32" style={`display: ${merchConfig.isOpen ? 'flex' : 'none'};`}>
-      <ShopOrderForm type="merch" items={formattedItems} endpointUrl={endpointUrl} />
+    <div id="merch-open-view" class="w-full flex-grow flex items-center justify-center pb-8" style={`display: ${merchConfig.isOpen ? 'flex' : 'none'};`}>
+      <ProductGrid items={formattedItems} type="merch" />
+      <ShopModal type="merch" tallyUrl={tallyFormUrl} />
     </div>
 
     <div id="merch-closed-view" class="w-full px-6 flex-grow flex items-start justify-center" style={`display: ${merchConfig.isOpen ? 'none' : 'flex'};`}>

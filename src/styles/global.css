@@ -6,6 +6,8 @@
   --color-yokai-dark-blue: #2A1E52;
   --color-yokai-light-white: #EBE0E8;
   --color-yokai-white: #FDFFFD;
+  --color-yokai-light-bg: #FAFAFA;
+  --color-yokai-dark-bg: #080508;
   
   --font-inter: "Inter", sans-serif;
   --font-jakarta: "Plus Jakarta Sans", sans-serif;
@@ -18,6 +20,8 @@
   --yokai-dark-blue: #2A1E52;
   --yokai-light-white: #EBE0E8;
   --yokai-white: #FDFFFD;
+  --yokai-light-bg: #FAFAFA;
+  --yokai-dark-bg: #080508;
 }
 
 /* Base Body Configuration */

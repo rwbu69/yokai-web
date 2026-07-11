@@ -1,5 +1,6 @@
 ---
 // src/components/about/OurStory.astro
+import InContentCTA from '../common/InContentCTA.astro';
 
 interface Props {
   title: string;
@@ -50,13 +51,67 @@ const { title, mainStatement, subStatement } = Astro.props;
           {subStatement}
         </p>
 
-        <a
-          href="/members"
-          class="group inline-flex items-center gap-4 mt-12 font-inter text-[9px] tracking-[0.45em] uppercase text-white/45 hover:text-white transition-colors duration-300"
-        >
-          Meet the Twelve
-          <span class="w-8 h-[1px] bg-current group-hover:w-14 transition-all duration-400"></span>
-        </a>
+        <div class="mt-16 space-y-12 story-extended opacity-0">
+          <div>
+            <p
+              class="font-outfit text-yokai-light-white/60 leading-relaxed font-light"
+              style="font-size: clamp(0.875rem, 1.15vw, 1rem); max-width: 60ch;"
+            >
+              Yokai berawal dari sekelompok kecil orang yang hanya ingin mengisi waktu luang dengan melakukan sesuatu yang mereka sukai. Belajar wotagei bukanlah hal yang mudah — referensi masih sangat terbatas sehingga kami mempelajari semuanya secara otodidak melalui video-video singkat di Instagram maupun YouTube. Semangat itu terus bertumbuh, hingga kami mendapatkan kesempatan tampil pertama kali di sebuah event Jejepangan — menyusun koreografi, merakit lightstick handmade sendiri, dan menghafalkan berbagai waza. Dari panggung sederhana itu kami menyadari bahwa kami bukan lagi sekadar sekumpulan teman dengan hobi yang sama, melainkan sebuah tim yang ingin terus berkembang.
+            </p>
+          </div>
+
+          <div class="pt-2">
+            <h3 class="font-inter text-[10px] tracking-[0.4em] uppercase text-yokai-purple/80 mb-4">Nama & Filosofi</h3>
+            <p
+              class="font-outfit text-yokai-light-white/60 leading-relaxed font-light"
+              style="font-size: clamp(0.875rem, 1.15vw, 1rem); max-width: 60ch;"
+            >
+              Nama pertama yang kami pilih adalah Rizumu no Keikai, yang bermakna "Kewaspadaan terhadap Ritme" — lahir dari keyakinan bahwa ritme adalah pondasi utama dalam wotagei. Beberapa anggota kemudian mengusulkan nama Yogyakarta sebagai bagian dari identitas kami, karena kota inilah tempat semuanya dimulai. Dari situlah lahir nama Yogyakarta Keikai, yang oleh leader kami, Vins, disingkat menjadi Yokai.
+            </p>
+          </div>
+
+          <div class="py-8 border-l-2 border-yokai-purple/40 pl-6 my-10">
+            <h2 class="font-jakarta font-black uppercase text-yokai-purple leading-tight" style="font-size: clamp(2rem, 3.5vw, 2.5rem); letter-spacing: -0.02em;">
+              "Illuminate Darkness<br/>with the Rhythm"
+            </h2>
+            <p
+              class="font-outfit text-yokai-white/80 leading-relaxed font-light mt-4"
+              style="font-size: clamp(0.875rem, 1.15vw, 1rem); max-width: 50ch;"
+            >
+              Filosofi ini menggambarkan keyakinan kami bahwa melalui cahaya, ritme, dan semangat yang kami bawa di setiap penampilan, kami dapat memberikan energi positif kepada siapa pun yang menyaksikannya.
+            </p>
+          </div>
+
+          <div>
+            <h3 class="font-inter text-[10px] tracking-[0.4em] uppercase text-yokai-purple/80 mb-4">Apa yang Kami Kerjakan</h3>
+            <p
+              class="font-outfit text-yokai-light-white/60 leading-relaxed font-light"
+              style="font-size: clamp(0.875rem, 1.15vw, 1rem); max-width: 60ch;"
+            >
+              Sejak berdiri, Yokai telah tampil di berbagai event jejepangan, berkolaborasi dengan idol lokal, mengisi anniversary fanbase, dan menghadirkan berbagai pertunjukan yang terus berkembang. Kami rutin berlatih setiap hari Jumat di sekitar UGM (TIKUM), tempat kami saling mengevaluasi detail gerakan, sinkronisasi, ritme, siluet, dan ekspresi. Kami juga menyelenggarakan Hyakki Yagyou, event battle yang mempertemukan para uchishi untuk menunjukkan kemampuan terbaik mereka — salah satu pencapaian terbesar kami. Selain itu, kami mengeksplorasi dunia konten sinematik, dengan penggunaan stabilizer, pergerakan kamera dinamis, dan konsep visual yang matang, serta berkolaborasi dengan berbagai kreator dan VTuber lokal.
+            </p>
+          </div>
+
+          <div class="pt-6 pb-2">
+            <p
+              class="font-outfit text-yokai-white leading-relaxed mb-4"
+              style="font-size: clamp(1rem, 1.4vw, 1.15rem); max-width: 60ch; font-weight: 300;"
+            >
+              Kami percaya bahwa wotagei adalah perpaduan antara seni, ritme, kreativitas, disiplin, dan kerja sama. Melalui Yokai, kami ingin menginspirasi siapa pun yang baru memulai maupun yang sedang berkembang untuk terus belajar, bereksperimen, dan menemukan Style mereka sendiri.
+            </p>
+            <p
+              class="font-outfit text-yokai-purple leading-relaxed"
+              style="font-size: clamp(1rem, 1.4vw, 1.15rem); font-weight: 400;"
+            >
+              Selama masih ada orang yang ingin berkembang dan berbagi semangat yang sama, kami percaya cahaya itu akan terus bersinar!
+            </p>
+          </div>
+        </div>
+
+        <div class="mt-8 flex justify-start opacity-0 story-cta">
+          <InContentCTA text="Meet the Yokai Members" href="/members" />
+        </div>
       </div>
     </div>
   </div>
@@ -87,7 +142,19 @@ const { title, mainStatement, subStatement } = Astro.props;
           opacity: [0, 1],
           translateY: [18, 0],
           duration: 700,
-        }, '-=500');
+        }, '-=500')
+        .add({
+          targets: '.story-extended',
+          opacity: [0, 1],
+          translateY: [18, 0],
+          duration: 700,
+        }, '-=300')
+        .add({
+          targets: '.story-cta',
+          opacity: [0, 1],
+          translateY: [10, 0],
+          duration: 500,
+        }, '-=200');
 
       observer.disconnect();
     });

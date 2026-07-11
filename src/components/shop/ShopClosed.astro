@@ -7,13 +7,17 @@ interface Props {
 }
 const { message } = Astro.props;
 ---
-<div class="w-full min-h-[60vh] flex flex-col items-center justify-center px-6 text-center">
-  <h2 class="font-jakarta font-black uppercase text-yokai-white text-2xl md:text-4xl tracking-tighter mb-4">
-    {message}
-  </h2>
-  <p class="font-inter text-yokai-white/60 text-xs tracking-widest uppercase">
-    Follow our social media for updates.
-    <br/>
-    <a href="#" class="text-yokai-purple hover:text-yokai-white transition-colors mt-2 inline-block">@yokai_wotagei</a>
-  </p>
+<div class="w-full flex-grow flex flex-col items-center justify-center px-6 text-center">
+  <div class="border border-yokai-white/10 bg-yokai-dark-bg/30 backdrop-blur-md px-8 py-10 flex flex-col items-center justify-center max-w-md w-full rounded-sm">
+    <svg class="w-6 h-6 text-yokai-white/30 mb-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+    <h2 class="font-jakarta font-bold uppercase tracking-[0.2em] text-yokai-white/60 text-xs mb-4">
+      {message}
+    </h2>
+    <div class="w-12 h-[1px] bg-yokai-white/10 mb-4"></div>
+    <p class="font-inter text-yokai-white/40 text-[10px] tracking-widest uppercase">
+      Follow our social media for updates.
+      <br/>
+      <a href="https://instagram.com/yokai_ind" target="_blank" rel="noopener noreferrer" class="text-yokai-purple/80 hover:text-yokai-purple transition-colors mt-2 inline-block font-medium">@yokai_ind</a>
+    </p>
+  </div>
 </div>

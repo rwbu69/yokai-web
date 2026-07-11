@@ -37,8 +37,8 @@ if (!post) {
 const coverImageUrl = post.coverImage ? urlFor(post.coverImage).width(1200).url() : '';
 ---
 
-<BaseLayout title={`${post.title} | Articles`} activePage="library">
-  <main class="min-h-screen bg-[#FAFAFA]">
+<BaseLayout title={`${post.title} | Articles`} activePage="library" ogImage={coverImageUrl}>
+  <main class="min-h-screen bg-yokai-light-bg">
     <PostHeader
       title={post.title}
       coverImage={coverImageUrl}

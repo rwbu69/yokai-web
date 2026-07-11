@@ -27,10 +27,10 @@ export default defineType({
       description: 'Background image for the Merch page hero section',
     }),
     defineField({
-      name: 'endpointUrl',
-      title: 'Google Sheets Endpoint URL',
+      name: 'tallyFormUrl',
+      title: 'Tally Form URL',
       type: 'url',
-      description: 'URL dari Google Apps Script Web App untuk menampung form order Merch.',
+      description: 'URL form Tally untuk pemesanan Merch (misal: https://tally.so/r/mZgA9x).',
     }),
   ],
 });
