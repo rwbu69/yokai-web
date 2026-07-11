@@ -19,7 +19,8 @@ const query = `{
     available,
     description,
     variants,
-    image { asset }
+    image { asset },
+    images[] { asset }
   }
 }`;
 const data = await sanityClient.fetch(query) || {};
@@ -34,7 +35,8 @@ const formattedItems = merchItems.map((item: any) => ({
   available: item.available,
   description: item.description,
   variants: item.variants,
-  imageUrl: item.image?.asset ? urlFor(item.image).width(800).format('webp').url() : ''
+  imageUrl: item.image?.asset ? urlFor(item.image).width(800).format('webp').url() : '',
+  gallery: item.images ? item.images.map((img: any) => img.asset ? urlFor(img).width(800).format('webp').url() : '').filter(Boolean) : []
 }));
 
 const isDev = import.meta.env.DEV;

@@ -10,6 +10,7 @@ interface ShopItem {
   description?: string;
   variants?: string[];
   imageUrl?: string;
+  gallery?: string[];
 }
 
 interface Props {
@@ -24,7 +25,7 @@ const { type, tallyUrl } = Astro.props;
 <script async src="https://tally.so/widgets/embed.js"></script>
 
 <div id="shop-modal-overlay" class="fixed inset-0 z-[100] bg-yokai-dark-bg/80 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300 flex items-center justify-center p-4">
-  <div id="shop-modal-content" class="bg-yokai-dark-blue w-full max-w-5xl max-h-[90vh] min-h-[60vh] overflow-hidden border border-yokai-white/10 shadow-2xl flex flex-col md:flex-row relative transform scale-95 transition-transform duration-300">
+  <div id="shop-modal-content" class="bg-yokai-dark-blue w-full max-w-4xl max-h-[85vh] overflow-hidden border border-yokai-white/10 shadow-2xl flex flex-col md:flex-row relative transform scale-95 transition-transform duration-300">
     
     <!-- Close Button -->
     <button id="close-modal-btn" class="absolute top-4 right-4 z-50 text-yokai-white/50 hover:text-yokai-white transition-colors bg-yokai-dark-bg/50 backdrop-blur-sm p-2 rounded-full cursor-pointer">
@@ -32,9 +33,23 @@ const { type, tallyUrl } = Astro.props;
     </button>
 
     <!-- Product Details Section -->
-    <div class="w-full md:w-5/12 bg-yokai-dark-bg flex flex-col border-b md:border-b-0 md:border-r border-yokai-white/10 overflow-y-auto">
-      <div class="w-full aspect-[4/5] bg-yokai-dark-bg/50 relative flex-shrink-0">
-        <img id="modal-product-img" src="" alt="Product" class="w-full h-full object-cover" />
+    <div class="w-full md:w-5/12 bg-yokai-dark-bg flex flex-col border-b md:border-b-0 md:border-r border-yokai-white/10 overflow-y-auto hidden-scrollbar">
+      <div class="w-full aspect-video md:aspect-square bg-yokai-dark-bg/50 relative flex-shrink-0 group/carousel">
+        <img id="modal-product-img" src="" alt="Product" class="w-full h-full object-cover transition-opacity duration-300" />
+        
+        <!-- Carousel Controls -->
+        <div id="modal-carousel-controls" class="absolute inset-0 flex items-center justify-between p-2 opacity-0 group-hover/carousel:opacity-100 transition-opacity duration-300 hidden">
+          <button id="modal-prev-btn" class="bg-yokai-dark-bg/70 hover:bg-yokai-purple text-yokai-white p-2 rounded-full backdrop-blur-sm transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+          </button>
+          <button id="modal-next-btn" class="bg-yokai-dark-bg/70 hover:bg-yokai-purple text-yokai-white p-2 rounded-full backdrop-blur-sm transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+          </button>
+        </div>
+        
+        <!-- Dots Indicator -->
+        <div id="modal-carousel-dots" class="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 hidden">
+        </div>
       </div>
       <div class="p-6 md:p-8 flex flex-col flex-grow">
         <h2 id="modal-product-name" class="font-jakarta font-black text-2xl text-yokai-white mb-2 uppercase"></h2>
@@ -44,7 +59,7 @@ const { type, tallyUrl } = Astro.props;
     </div>
 
     <!-- Tally Form Section -->
-    <div class="w-full md:w-7/12 bg-yokai-dark-blue flex flex-col relative h-[50vh] md:h-auto">
+    <div class="w-full md:w-7/12 bg-yokai-dark-blue flex flex-col relative h-[50vh] md:h-[550px] overflow-hidden">
       
       <!-- Loading skeleton / placeholder -->
       <div id="tally-loading" class="absolute inset-0 flex items-center justify-center bg-yokai-dark-blue z-0">
@@ -87,6 +102,71 @@ const { type, tallyUrl } = Astro.props;
   const iframeEl = document.getElementById('tally-iframe') as HTMLIFrameElement;
   const tallyLoading = document.getElementById('tally-loading');
 
+  // Carousel State
+  let currentGallery: string[] = [];
+  let currentImageIndex = 0;
+  let carouselInterval: any = null;
+  const carouselControls = document.getElementById('modal-carousel-controls');
+  const carouselDots = document.getElementById('modal-carousel-dots');
+  const prevBtn = document.getElementById('modal-prev-btn');
+  const nextBtn = document.getElementById('modal-next-btn');
+
+  function updateImage() {
+    if (!currentGallery.length || !imgEl) return;
+    imgEl.style.opacity = '0';
+    setTimeout(() => {
+      imgEl.src = currentGallery[currentImageIndex];
+      imgEl.style.opacity = '1';
+      updateDots();
+    }, 150);
+  }
+
+  function updateDots() {
+    if (!carouselDots) return;
+    const dots = carouselDots.children;
+    for (let i = 0; i < dots.length; i++) {
+      if (i === currentImageIndex) {
+        dots[i].classList.replace('bg-yokai-white/50', 'bg-yokai-purple');
+        dots[i].classList.replace('w-1.5', 'w-3');
+      } else {
+        dots[i].classList.replace('bg-yokai-purple', 'bg-yokai-white/50');
+        dots[i].classList.replace('w-3', 'w-1.5');
+      }
+    }
+  }
+
+  function nextImage() {
+    if (currentGallery.length <= 1) return;
+    currentImageIndex = (currentImageIndex + 1) % currentGallery.length;
+    updateImage();
+  }
+
+  function prevImage() {
+    if (currentGallery.length <= 1) return;
+    currentImageIndex = (currentImageIndex - 1 + currentGallery.length) % currentGallery.length;
+    updateImage();
+  }
+
+  function startCarousel() {
+    stopCarousel();
+    if (currentGallery.length > 1) {
+      carouselInterval = setInterval(nextImage, 3500);
+    }
+  }
+
+  function stopCarousel() {
+    if (carouselInterval) clearInterval(carouselInterval);
+  }
+
+  if (prevBtn) prevBtn.addEventListener('click', () => { stopCarousel(); prevImage(); });
+  if (nextBtn) nextBtn.addEventListener('click', () => { stopCarousel(); nextImage(); });
+  
+  const imgContainer = imgEl?.parentElement;
+  if (imgContainer) {
+    imgContainer.addEventListener('mouseenter', stopCarousel);
+    imgContainer.addEventListener('mouseleave', startCarousel);
+  }
+
   function closeModal() {
     if (overlay && content) {
       overlay.classList.add('opacity-0', 'pointer-events-none');
@@ -125,11 +205,42 @@ const { type, tallyUrl } = Astro.props;
   document.addEventListener('open-shop-modal', (e: any) => {
     const item = e.detail;
     if (item && overlay && content && iframeEl) {
+      
+      // Setup Gallery
+      currentGallery = [];
+      if (item.imageUrl) currentGallery.push(item.imageUrl);
+      if (item.gallery && item.gallery.length > 0) {
+        currentGallery = [...currentGallery, ...item.gallery];
+      }
+      
+      // Remove duplicates
+      currentGallery = [...new Set(currentGallery)];
+      currentImageIndex = 0;
+
       // Populate Details
-      if(imgEl) imgEl.src = item.imageUrl || '';
+      if(imgEl) {
+        imgEl.src = currentGallery.length > 0 ? currentGallery[0] : '';
+        imgEl.style.opacity = '1';
+      }
       if(nameEl) nameEl.textContent = item.name;
       if(priceEl) priceEl.textContent = item.price ? `Rp ${item.price.toLocaleString('id-ID')}` : '';
       if(descEl) descEl.textContent = item.description || '';
+
+      // Setup Carousel UI
+      if (currentGallery.length > 1) {
+        carouselControls?.classList.remove('hidden');
+        carouselDots?.classList.remove('hidden');
+        if (carouselDots) {
+          carouselDots.innerHTML = currentGallery.map((_, i) => 
+            `<div class="h-1.5 rounded-full transition-all duration-300 ${i === 0 ? 'w-3 bg-yokai-purple' : 'w-1.5 bg-yokai-white/50'}"></div>`
+          ).join('');
+        }
+        startCarousel();
+      } else {
+        carouselControls?.classList.add('hidden');
+        carouselDots?.classList.add('hidden');
+        stopCarousel();
+      }
 
       // Construct Tally URL
       const baseUrl = iframeEl.getAttribute('data-base-url') || '';

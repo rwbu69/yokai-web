@@ -42,6 +42,12 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'author',
+      title: 'Author',
+      type: 'string',
+      description: 'Penulis artikel ini (opsional)',
+    }),
+    defineField({
       name: 'tags',
       title: 'Tags',
       type: 'array',

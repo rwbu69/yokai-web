@@ -12,6 +12,7 @@
  * - date: string
  * - slug: string
  * - collection: string
+ * - author: string (optional)
  */
 interface Props {
   title: string;
@@ -22,9 +23,10 @@ interface Props {
   slug: string;
   collection: string;
   postUrl?: string;
+  author?: string;
 }
 
-const { title, titleJp, description, coverImage, date, slug, collection, postUrl: overridePostUrl } = Astro.props;
+const { title, titleJp, description, coverImage, date, slug, collection, postUrl: overridePostUrl, author } = Astro.props;
 const postUrl = overridePostUrl || (collection === 'updates' ? `/updates/${slug}` : `/library/${collection}/${slug}`);
 ---
 
@@ -43,9 +45,16 @@ const postUrl = overridePostUrl || (collection === 'updates' ? `/updates/${slug}
 
     <!-- Content Box -->
     <div class="flex flex-col px-2 py-1">
-      <time datetime={date} class="font-inter text-[10px] tracking-[0.2em] uppercase text-[#2A1E52]/50 mb-2 font-bold">
-        {new Date(date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
-      </time>
+      <div class="flex items-center justify-between mb-2">
+        <time datetime={date} class="font-inter text-[10px] tracking-[0.2em] uppercase text-[#2A1E52]/50 font-bold">
+          {new Date(date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
+        </time>
+        {author && (
+          <span class="font-inter text-[10px] tracking-[0.1em] uppercase text-[#A045BB] font-bold">
+            By {author}
+          </span>
+        )}
+      </div>
       
       {titleJp && (
         <h2 class="font-jakarta font-black text-2xl !text-[#2A1E52] leading-tight mb-1 transition-colors duration-300 group-hover:!text-[#A045BB]">

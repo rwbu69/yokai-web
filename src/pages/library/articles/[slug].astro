@@ -23,6 +23,7 @@ const { slug } = Astro.params;
 const query = `*[_type == "article" && slug.current == $slug][0] {
   title,
   date,
+  author,
   coverImage,
   tags,
   body
@@ -43,6 +44,7 @@ const coverImageUrl = post.coverImage ? urlFor(post.coverImage).width(1200).url(
       title={post.title}
       coverImage={coverImageUrl}
       date={post.date}
+      author={post.author}
       tags={post.tags}
     />
     <PostLayout backUrl="/library/articles" backText={`Kembali ke Articles`}>

@@ -11,6 +11,7 @@
  * - tags?: string[]
  * - honke?: string
  * - titleJp?: string
+ * - author?: string
  */
 interface Props {
   title: string;
@@ -19,9 +20,10 @@ interface Props {
   tags?: string[];
   honke?: string;
   titleJp?: string;
+  author?: string;
 }
 
-const { title, coverImage, date, tags, honke, titleJp } = Astro.props;
+const { title, coverImage, date, tags, honke, titleJp, author } = Astro.props;
 ---
 <header class="w-full h-[50vh] min-h-[400px] relative flex flex-col items-center justify-center pt-20 px-6 text-center">
   <!-- Background Image with Overlay -->
@@ -53,6 +55,12 @@ const { title, coverImage, date, tags, honke, titleJp } = Astro.props;
       <time datetime={date} class="font-inter text-xs tracking-[0.3em] uppercase text-yokai-white/70">
         {new Date(date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
       </time>
+      
+      {author && (
+        <span class="font-inter text-xs tracking-[0.2em] uppercase text-yokai-purple font-bold">
+          By {author}
+        </span>
+      )}
       
       {tags && tags.length > 0 && (
         <div class="flex gap-4">
