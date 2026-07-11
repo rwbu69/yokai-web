@@ -2,11 +2,18 @@
 interface Props {
   text: string;
   href: string;
+  align?: 'left' | 'center' | 'right';
 }
 
-const { text, href } = Astro.props;
+const { text, href, align = 'center' } = Astro.props;
+
+const alignClasses = {
+  left: 'justify-start',
+  center: 'justify-center',
+  right: 'justify-end',
+};
 ---
-<div class="w-full flex justify-center my-12">
+<div class={`w-full flex ${alignClasses[align]} my-12`}>
   <a
     href={href}
     class="group relative inline-flex items-center gap-4 px-8 py-4 bg-yokai-dark-blue text-[#fdfffd] overflow-hidden rounded-sm"

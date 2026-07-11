@@ -29,6 +29,7 @@
   html {
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE/Edge */
+    scroll-behavior: smooth;
   }
 
   html::-webkit-scrollbar {
