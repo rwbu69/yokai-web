@@ -6,8 +6,6 @@ import { loadEnv } from 'vite';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import cloudflare from '@astrojs/cloudflare';
-
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const { PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET } = loadEnv(
@@ -50,5 +48,4 @@ export default defineConfig({
     },
   },
 
-  adapter: cloudflare(),
 });
