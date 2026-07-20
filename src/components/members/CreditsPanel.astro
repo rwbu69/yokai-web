@@ -18,12 +18,15 @@ const twHref = m.twitter ? `https://x.com/${m.twitter}` : "#";
   for the directional slide transition.
 -->
 <footer
-  class="credits-panel w-full border-t border-white/[0.08] bg-[#090909] overflow-hidden"
-  style="height: 40dvh;"
+  class="credits-panel w-full border-t border-white/[0.08] bg-[#090909] overflow-x-auto md:overflow-hidden"
+  style="height: 40dvh; scrollbar-width: none; -ms-overflow-style: none; -webkit-overflow-scrolling: touch;"
   aria-label="Active member detail"
 >
+  <style>
+    .credits-panel::-webkit-scrollbar { display: none; }
+  </style>
   <!-- Single wrapper — anime.js translates this for the directional slide -->
-  <div id="credits-inner" class="flex w-full h-full">
+  <div id="credits-inner" class="flex h-full w-max md:w-full">
     <!-- ── COL 1: Identitas (175px) ─────────────────────────────── -->
     <div
       class="flex flex-col justify-center px-6 border-r border-white/[0.10]"

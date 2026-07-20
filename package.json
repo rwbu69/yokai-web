@@ -26,6 +26,7 @@
     "animejs": "3.2.2",
     "astro": "^6.3.3",
     "astro-portabletext": "^0.13.0",
+    "isomorphic-dompurify": "^3.18.0",
     "marked": "^18.0.6",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",

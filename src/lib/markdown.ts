@@ -1,4 +1,5 @@
 import { marked, type Tokens } from 'marked';
+import DOMPurify from 'isomorphic-dompurify';
 
 /**
  * Custom Markdown Parser for Yokai Web
@@ -28,5 +29,11 @@ marked.use({ renderer });
 
 export function parseMarkdown(content: string | undefined | null): string {
   if (!content) return '';
-  return marked.parse(content) as string;
+  const rawHtml = marked.parse(content) as string;
+  
+  // Sanitize the HTML, allowing safe iframe embeds (e.g. YouTube/Vimeo)
+  return DOMPurify.sanitize(rawHtml, {
+    ADD_TAGS: ['iframe'],
+    ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling', 'src', 'width', 'height'],
+  });
 }

@@ -196,7 +196,7 @@ const sortedRecords: ProcessedRecord[] = records
           
           <div class="flex justify-between items-center relative z-10 w-full">
             {sortedRecords.map((r, i) => (
-               <button class="tr-node relative w-8 h-8 flex items-center justify-center group outline-none" data-index={i} aria-label={`Go to event: ${r.event}`}>
+               <button class="tr-node relative w-12 h-12 flex items-center justify-center group outline-none" data-index={i} aria-label={`Go to event: ${r.event}`}>
                   <span class="tr-node-dot w-[6px] h-[6px] rounded-full bg-white/20 transition-all duration-300 pointer-events-none shadow-none"></span>
                   <span class="tr-node-tooltip absolute bottom-full mb-2 left-1/2 -translate-x-1/2 font-inter text-[7px] tracking-[0.4em] uppercase text-white/70 whitespace-nowrap opacity-0 pointer-events-none">
                      {r.shortEvent} <span class="text-yokai-purple/70">·</span> {r.idnMonthYear}

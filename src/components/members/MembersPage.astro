@@ -133,14 +133,125 @@ const clientData = members.map(m => ({
     <div class="w-16 h-px bg-yokai-purple/30"></div>
   </div>
 ) : (
-  <!--
-    members-page class overrides pt-24 that BaseLayout adds for non-home pages.
-    Navbar is fixed/sticky and overlays on top — accordion starts flush at top.
-  -->
-  <div class="members-page flex flex-col bg-[#0c0c0c] overflow-hidden" style="height: 100dvh;">
-    <AccordionStrip members={members} />
-    <CreditsPanel initial={members[0]} />
-  </div>
+  <>
+    <!-- Desktop Layout -->
+    <div class="members-page hidden md:flex flex-col bg-[#0c0c0c] overflow-hidden" style="height: 100dvh;">
+      <AccordionStrip members={members} />
+      <CreditsPanel initial={members[0]} />
+    </div>
+
+    <!-- Mobile Snap-Scroll Layout -->
+    <div class="members-mobile custom-scrollbar flex md:hidden flex-col bg-[#090909] overflow-y-auto w-full h-[100dvh]" style="scroll-snap-type: y mandatory; -webkit-overflow-scrolling: touch;">
+      <style>
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(255,255,255,0.02);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.2);
+          border-radius: 4px;
+        }
+      </style>
+      
+      {members.map((m, idx) => {
+        const igHref = m.socials.instagram ? `https://instagram.com/${m.socials.instagram}` : "#";
+        const twHref = m.socials.twitter ? `https://x.com/${m.socials.twitter}` : "#";
+        
+        return (
+          <div class="relative w-full h-[100dvh] flex-shrink-0 flex flex-col" style="scroll-snap-align: start;">
+            
+            <!-- Top Half: Portrait with Gradient -->
+            <div class="relative w-full h-[55%] flex-shrink-0">
+              <img src={m.photo} class="w-full h-full object-cover object-center" loading={idx === 0 ? "eager" : "lazy"} alt={m.firstName} />
+              
+              <!-- Sharp linear gradient fading to solid #090909 -->
+              <div class="absolute inset-0 bg-gradient-to-t from-[#090909] via-[#090909]/60 to-transparent"></div>
+              
+              <div class="absolute bottom-5 left-6 right-6">
+                <p class="font-inter text-[8px] tracking-[0.5em] uppercase text-white/50 mb-2">Member {String(m.id).padStart(2, '0')}</p>
+                <h2 class="font-jakarta font-medium uppercase text-white leading-none mb-1.5 text-4xl">{m.firstName}</h2>
+                <p class="font-inter text-[10px] tracking-[0.38em] uppercase text-yokai-purple">{m.role}</p>
+              </div>
+            </div>
+
+            <!-- Bottom Half: Data Panel -->
+            <div class="custom-scrollbar flex-1 w-full bg-[#090909] px-6 pt-2 pb-6 overflow-y-auto border-t border-white/[0.05]">
+              
+              <!-- Quote -->
+              {m.quote && (
+                <div class="mb-4 relative mt-3">
+                  <span class="absolute -top-4 -left-2 font-serif text-[40px] leading-none text-white/[0.05] select-none pointer-events-none">"</span>
+                  <p class="font-outfit italic text-white/70 text-[12px] leading-snug relative z-10 pl-1">
+                    {m.quote}
+                  </p>
+                </div>
+              )}
+
+              <!-- Waza, Uchishi & Socials -->
+              <div class="flex flex-col gap-3 mb-4">
+                
+                <div class="flex flex-row justify-between gap-4">
+                  <!-- Waza -->
+                  <div class="flex-1">
+                    <p class="font-inter text-[8px] tracking-[0.5em] uppercase text-white/40 mb-1.5">Favorite Waza</p>
+                    <div class="flex flex-wrap gap-1">
+                      {m.favoriteWaza && m.favoriteWaza.length > 0 ? m.favoriteWaza.map(item => (
+                        <span class="px-2.5 py-0.5 rounded-full border border-[#3d2c7a] bg-yokai-dark-blue text-[10px] text-white/90 font-inter tracking-wide whitespace-nowrap">{item}</span>
+                      )) : <span class="font-jakarta font-medium text-white/30 leading-none">—</span>}
+                    </div>
+                  </div>
+                  
+                  <!-- Socials -->
+                  <div class="shrink-0 text-right">
+                    <p class="font-inter text-[8px] tracking-[0.5em] uppercase text-white/40 mb-1.5">Follow</p>
+                    <div class="flex flex-col gap-2.5 items-end mt-1">
+                      {m.socials.instagram && (
+                        <div class="flex items-center gap-1.5">
+                          <a href={igHref} target="_blank" rel="noopener" class="font-inter text-[9px] tracking-[0.12em] text-white/60 hover:text-white truncate max-w-[80px]">@{m.socials.instagram}</a>
+                          <svg class="w-3.5 h-3.5 shrink-0" style="color:rgba(255,255,255,0.45)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="2" width="20" height="20" rx="5"></rect><circle cx="12" cy="12" r="4.5"></circle><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"></circle></svg>
+                        </div>
+                      )}
+                      {m.socials.twitter && (
+                        <div class="flex items-center gap-1.5">
+                          <a href={twHref} target="_blank" rel="noopener" class="font-inter text-[9px] tracking-[0.12em] text-white/60 hover:text-white truncate max-w-[80px]">@{m.socials.twitter}</a>
+                          <svg class="w-3.5 h-3.5 shrink-0" style="color:rgba(255,255,255,0.45)" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Uchishi -->
+                <div>
+                  <p class="font-inter text-[8px] tracking-[0.5em] uppercase text-white/40 mb-1.5">Favorite Uchishi</p>
+                  <div class="flex flex-wrap gap-1">
+                    {m.favoriteUchishi && m.favoriteUchishi.length > 0 ? m.favoriteUchishi.map(item => (
+                      <span class="px-2.5 py-0.5 rounded-full border border-[#3d2c7a] bg-yokai-dark-blue text-[10px] text-white/90 font-inter tracking-wide whitespace-nowrap">{item}</span>
+                    )) : <span class="font-jakarta font-medium text-white/30 leading-none">—</span>}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Gallery -->
+              {m.gallery && m.gallery.some(g => g) && (
+                <div class="mb-2">
+                  <p class="font-inter text-[8px] tracking-[0.5em] uppercase text-white/40 mb-2">Gallery</p>
+                  <div class="grid grid-cols-2 gap-1.5">
+                    {m.gallery.filter(g => g).map(g => (
+                      <img src={g} class="w-full aspect-video object-cover rounded-[2px] opacity-60 border border-white/5" loading="lazy" />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </>
 )}
 
 <!-- ① Data bridge -->
@@ -176,6 +287,12 @@ const clientData = members.map(m => ({
 
   // ── Pixel-integer widths ─────────────────────────────────────────────
   function getTargetWidths(activeIdx: number) {
+    var isMobile = window.innerWidth < 768;
+    if (isMobile) {
+      var activeWidth = Math.min(260, window.innerWidth * 0.7);
+      var restWidth = 60;
+      return members.map(function(_, i: number) { return i === activeIdx ? activeWidth : restWidth; });
+    }
     var total  = accordion ? accordion.offsetWidth : window.innerWidth;
     var active = Math.round(total * 0.40);
     var rest   = Math.round((total - active) / (members.length - 1));
@@ -188,6 +305,8 @@ const clientData = members.map(m => ({
     isAnimating = true;
     if (accordion) accordion.style.pointerEvents = 'none';
     var widths = getTargetWidths(activeIdx);
+    var isMobile = window.innerWidth < 768;
+
     anime({
       targets: strips,
       width: function(_el: HTMLElement, i: number) { return widths[i]; },
@@ -195,6 +314,12 @@ const clientData = members.map(m => ({
       easing: 'easeInOutQuart',
       begin: function() {
         strips.forEach(function(s: HTMLElement) { s.style.willChange = 'width'; });
+        if (isMobile && accordion) {
+          var offsetLeft = 0;
+          for (var i = 0; i < activeIdx; i++) offsetLeft += widths[i];
+          var centerPos = offsetLeft - (window.innerWidth / 2) + (widths[activeIdx] / 2);
+          accordion.scrollTo({ left: centerPos, behavior: 'smooth' });
+        }
       },
       complete: function() {
         requestAnimationFrame(function() {

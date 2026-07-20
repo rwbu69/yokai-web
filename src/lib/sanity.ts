@@ -26,7 +26,6 @@ export const sanityClient = createClient({
   // IMPORTANT: useCdn MUST be false for build-time fetches to always get fresh data.
   // CDN may serve stale content up to ~60 seconds behind Sanity's Content Lake.
   useCdn: false,
-  token: import.meta.env.SANITY_API_TOKEN, // only needed for mutations / drafts
 });
 
 // ---------------------------------------------------------------------------

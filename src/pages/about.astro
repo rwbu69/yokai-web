@@ -1,12 +1,6 @@
 ---
 // src/pages/about.astro
 // Halaman About Us — Fully connected to Sanity CMS.
-//
-// DIAGNOSIS NOTES (audit Mei 2026):
-// - Query dilakukan di BUILD TIME (Astro frontmatter) — sudah benar untuk output: 'static'
-// - useCdn: false sudah di-set di src/lib/sanity.ts — data selalu fresh
-// - Field di query disesuaikan dengan schema aboutUs.ts (event/achievement, bukan eventName/position)
-// - Semua fallback menggunakan hardcoded string, BUKAN import dari file lokal
 
 import BaseLayout     from '../layouts/BaseLayout.astro';
 import HeroAbout      from '../components/about/HeroAbout.astro';

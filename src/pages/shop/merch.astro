@@ -39,7 +39,6 @@ const formattedItems = merchItems.map((item: import('@lib/sanity').SanityMerchIt
   gallery: item.images ? item.images.map((img: import('@lib/sanity').SanityImage) => img.asset ? urlFor(img).width(800).format('webp').url() : '').filter(Boolean) : []
 }));
 
-const isDev = import.meta.env.DEV;
 ---
 
 <BaseLayout title="Official Merch | Yokai" activePage="shop">
@@ -66,40 +65,7 @@ const isDev = import.meta.env.DEV;
     <div id="merch-closed-view" class="w-full px-6 flex-grow flex items-start justify-center" style={`display: ${merchConfig.isOpen ? 'none' : 'flex'};`}>
       <ShopClosed message={merchConfig.closedMessage} />
     </div>
-
-    {isDev && (
-      <button 
-        id="dev-merch-toggle"
-        class="fixed bottom-4 right-4 z-[999] bg-yokai-purple/20 text-yokai-white font-mono text-[10px] uppercase px-4 py-2 border border-yokai-white/20 backdrop-blur-sm cursor-pointer hover:bg-yokai-purple/40 transition-colors"
-        data-open={merchConfig.isOpen.toString()}
-      >
-        DEV: Merch [{merchConfig.isOpen ? 'OPEN' : 'CLOSED'}]
-      </button>
-    )}
   </main>
 </BaseLayout>
 
-<script>
-  const devToggle = document.getElementById('dev-merch-toggle');
-  const openView = document.getElementById('merch-open-view');
-  const closedView = document.getElementById('merch-closed-view');
 
-  if (devToggle) {
-    devToggle.addEventListener('click', () => {
-      const isCurrentlyOpen = devToggle.getAttribute('data-open') === 'true';
-      const newState = !isCurrentlyOpen;
-      
-      if (newState) {
-        openView!.style.display = 'flex';
-        closedView!.style.display = 'none';
-        devToggle.innerText = 'DEV: Merch [OPEN]';
-      } else {
-        openView!.style.display = 'none';
-        closedView!.style.display = 'flex';
-        devToggle.innerText = 'DEV: Merch [CLOSED]';
-      }
-
-      devToggle.setAttribute('data-open', newState.toString());
-    });
-  }
-</script>

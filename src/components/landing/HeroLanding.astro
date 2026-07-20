@@ -56,46 +56,46 @@ if (imagesData?.setA?.panel1) {
 }
 ---
 
-<section class="hero-landing relative w-full h-screen overflow-hidden bg-yokai-dark-blue flex">
+<section class="hero-landing relative w-full h-screen overflow-hidden bg-yokai-dark-blue grid grid-cols-2 grid-rows-2 md:flex md:flex-row">
 
-  <div class="relative w-1/4 h-full overflow-hidden border-r border-yokai-white/10 group">
-    <div class="panel-track-1 absolute w-full h-[300%] top-0 left-0 flex flex-col">
-      <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0" style={`background-image:url('${imagesA[0]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
-      <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0" style={`background-image:url('${imagesB[0]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
-      <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0" style={`background-image:url('${imagesC[0]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
+  <div class="relative w-full h-full md:w-1/4 md:h-full overflow-hidden border-b border-r md:border-b-0 border-yokai-white/10 group">
+    <div class="panel-track-1 absolute w-[300%] h-full md:w-full md:h-[300%] top-0 left-0 flex flex-row md:flex-col">
+      <div class="w-1/3 h-full md:w-full md:h-1/3 bg-cover bg-[position:center_25%] md:bg-center grayscale lg:group-hover:grayscale-0" style={`background-image:url('${imagesA[0]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
+      <div class="w-1/3 h-full md:w-full md:h-1/3 bg-cover bg-[position:center_25%] md:bg-center grayscale lg:group-hover:grayscale-0" style={`background-image:url('${imagesB[0]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
+      <div class="w-1/3 h-full md:w-full md:h-1/3 bg-cover bg-[position:center_25%] md:bg-center grayscale lg:group-hover:grayscale-0" style={`background-image:url('${imagesC[0]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
     </div>
   </div>
 
-  <div class="relative w-1/4 h-full overflow-hidden border-r border-yokai-white/10 group">
-    <div class="panel-track-2 absolute w-full h-[300%] bottom-0 left-0 flex flex-col-reverse">
-      <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0" style={`background-image:url('${imagesA[1]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
-      <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0" style={`background-image:url('${imagesB[1]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
-      <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0" style={`background-image:url('${imagesC[1]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
+  <div class="relative w-full h-full md:w-1/4 md:h-full overflow-hidden border-b md:border-b-0 md:border-r border-yokai-white/10 group">
+    <div class="panel-track-2 absolute w-[300%] h-full md:w-full md:h-[300%] bottom-0 left-0 md:top-auto md:left-0 flex flex-row-reverse md:flex-col-reverse" style="left: auto; right: 0;">
+      <div class="w-1/3 h-full md:w-full md:h-1/3 bg-cover bg-[position:center_25%] md:bg-center grayscale lg:group-hover:grayscale-0" style={`background-image:url('${imagesA[1]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
+      <div class="w-1/3 h-full md:w-full md:h-1/3 bg-cover bg-[position:center_25%] md:bg-center grayscale lg:group-hover:grayscale-0" style={`background-image:url('${imagesB[1]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
+      <div class="w-1/3 h-full md:w-full md:h-1/3 bg-cover bg-[position:center_25%] md:bg-center grayscale lg:group-hover:grayscale-0" style={`background-image:url('${imagesC[1]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
     </div>
   </div>
 
-  <div class="relative w-1/4 h-full overflow-hidden border-r border-yokai-white/10 group">
-    <div class="panel-track-3 absolute w-full h-[300%] top-0 left-0 flex flex-col">
-      <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0" style={`background-image:url('${imagesA[2]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
-      <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0" style={`background-image:url('${imagesB[2]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
-      <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0" style={`background-image:url('${imagesC[2]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
+  <div class="relative w-full h-full md:w-1/4 md:h-full overflow-hidden border-r border-yokai-white/10 group">
+    <div class="panel-track-3 absolute w-[300%] h-full md:w-full md:h-[300%] top-0 left-0 flex flex-row md:flex-col">
+      <div class="w-1/3 h-full md:w-full md:h-1/3 bg-cover bg-[position:center_25%] md:bg-center grayscale lg:group-hover:grayscale-0" style={`background-image:url('${imagesA[2]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
+      <div class="w-1/3 h-full md:w-full md:h-1/3 bg-cover bg-[position:center_25%] md:bg-center grayscale lg:group-hover:grayscale-0" style={`background-image:url('${imagesB[2]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
+      <div class="w-1/3 h-full md:w-full md:h-1/3 bg-cover bg-[position:center_25%] md:bg-center grayscale lg:group-hover:grayscale-0" style={`background-image:url('${imagesC[2]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
     </div>
   </div>
 
-  <div class="relative w-1/4 h-full overflow-hidden group">
-    <div class="panel-track-4 absolute w-full h-[300%] bottom-0 left-0 flex flex-col-reverse">
-      <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0" style={`background-image:url('${imagesA[3]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
-      <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0" style={`background-image:url('${imagesB[3]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
-      <div class="w-full h-1/3 bg-cover bg-center grayscale group-hover:grayscale-0" style={`background-image:url('${imagesC[3]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
+  <div class="relative w-full h-full md:w-1/4 md:h-full overflow-hidden group">
+    <div class="panel-track-4 absolute w-[300%] h-full md:w-full md:h-[300%] bottom-0 left-0 md:top-auto md:left-0 flex flex-row-reverse md:flex-col-reverse" style="left: auto; right: 0;">
+      <div class="w-1/3 h-full md:w-full md:h-1/3 bg-cover bg-[position:center_25%] md:bg-center grayscale lg:group-hover:grayscale-0" style={`background-image:url('${imagesA[3]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
+      <div class="w-1/3 h-full md:w-full md:h-1/3 bg-cover bg-[position:center_25%] md:bg-center grayscale lg:group-hover:grayscale-0" style={`background-image:url('${imagesB[3]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
+      <div class="w-1/3 h-full md:w-full md:h-1/3 bg-cover bg-[position:center_25%] md:bg-center grayscale lg:group-hover:grayscale-0" style={`background-image:url('${imagesC[3]}'); transition: filter 0.7s cubic-bezier(0.4,0,0.2,1);`}></div>
     </div>
   </div>
 
-  <div class="absolute inset-0 pointer-events-none z-[5]"
+  <div class="absolute inset-0 pointer-events-none z-5"
        style="background: linear-gradient(135deg, rgba(60,15,54,0.35) 0%, rgba(42,30,82,0.35) 100%); mix-blend-mode: multiply;">
   </div>
 
   <div class="absolute inset-0 pointer-events-none flex flex-col justify-center items-center z-10 px-8">
-    <h1 class="text-[12vw] leading-[0.8] font-black font-jakarta text-yokai-white tracking-tighter uppercase text-center mix-blend-overlay opacity-90"
+    <h1 class="text-[clamp(4rem,12vw,12rem)] leading-[0.8] font-black font-jakarta text-yokai-white tracking-tighter uppercase text-center mix-blend-overlay opacity-90"
         style="text-shadow: 0 4px 24px rgba(42,30,82,0.8);">
       {title}<br/>
       <span class="text-yokai-purple italic font-outfit tracking-[0.2em]">{subtitle}</span>
@@ -109,15 +109,25 @@ if (imagesData?.setA?.panel1) {
 
   let state = 0;
 
-  const translateUp   = (s: number) => s === 0 ? '0%'       : s === 1 ? '-33.333%' : '-66.666%';
-  const translateDown = (s: number) => s === 0 ? '0%'       : s === 1 ? '33.333%'  : '66.666%';
+  const translateUp   = () => state === 0 ? '0%'       : state === 1 ? '-33.333%' : '-66.666%';
+  const translateDown = () => state === 0 ? '0%'       : state === 1 ? '33.333%'  : '66.666%';
 
   setInterval(() => {
     state = (state + 1) % 3;
+    const isMobile = window.innerWidth < 768;
 
-    anime({ targets: '.panel-track-1', translateY: translateUp(state),   duration: 1800, easing: 'easeInOutExpo', delay: 0   });
-    anime({ targets: '.panel-track-2', translateY: translateDown(state), duration: 1800, easing: 'easeInOutExpo', delay: 150 });
-    anime({ targets: '.panel-track-3', translateY: translateUp(state),   duration: 1800, easing: 'easeInOutExpo', delay: 300 });
-    anime({ targets: '.panel-track-4', translateY: translateDown(state), duration: 1800, easing: 'easeInOutExpo', delay: 450 });
+    if (isMobile) {
+      // Simple and elegant staggered horizontal sliding animation for mobile
+      anime({ targets: '.panel-track-1', translateX: translateUp(), translateY: 0, duration: 1800, easing: 'easeInOutQuart', delay: 0 });
+      anime({ targets: '.panel-track-2', translateX: translateDown(), translateY: 0, duration: 1800, easing: 'easeInOutQuart', delay: 100 });
+      anime({ targets: '.panel-track-3', translateX: translateUp(), translateY: 0, duration: 1800, easing: 'easeInOutQuart', delay: 200 });
+      anime({ targets: '.panel-track-4', translateX: translateDown(), translateY: 0, duration: 1800, easing: 'easeInOutQuart', delay: 300 });
+    } else {
+      // Smooth vertical sliding for desktop
+      anime({ targets: '.panel-track-1', translateX: 0, translateY: translateUp(), duration: 1800, easing: 'easeInOutExpo', delay: 0   });
+      anime({ targets: '.panel-track-2', translateX: 0, translateY: translateDown(), duration: 1800, easing: 'easeInOutExpo', delay: 150 });
+      anime({ targets: '.panel-track-3', translateX: 0, translateY: translateUp(), duration: 1800, easing: 'easeInOutExpo', delay: 300 });
+      anime({ targets: '.panel-track-4', translateX: 0, translateY: translateDown(), duration: 1800, easing: 'easeInOutExpo', delay: 450 });
+    }
   }, 5000);
 </script>

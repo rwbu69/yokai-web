@@ -25,12 +25,24 @@ const { members } = Astro.props;
     flex-direction: row;   /* ← HORIZONTAL */
     width: 100%;
     height: 60dvh;
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
     flex-shrink: 0;
-    /* FIX 2: no spacing between navbar and accordion */
     margin-top: 0;
     padding-top: 0;
     position: relative;
     z-index: 0;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    /* smooth scrolling on iOS */
+    -webkit-overflow-scrolling: touch;
+  }
+  .accordion-strip::-webkit-scrollbar {
+    display: none;
+  }
+  @media (min-width: 768px) {
+    .accordion-strip {
+      overflow-x: hidden;
+    }
   }
 </style>

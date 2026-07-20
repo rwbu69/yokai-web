@@ -118,42 +118,54 @@ const navItems = [
     </nav>
 
     <!-- Mobile Hamburger -->
-    <button id="nav-trigger" class="lg:hidden flex flex-col gap-2 z-50 p-2 cursor-pointer drop-shadow-md">
-      <span class="w-8 h-[1px] bg-yokai-white transition-transform duration-500 origin-right line-1"></span>
-      <span class="w-8 h-[1px] bg-yokai-white transition-transform duration-500 origin-right line-2"></span>
+    <button id="nav-trigger" class="lg:hidden relative w-12 h-12 flex flex-col justify-center items-end gap-[6px] z-50 p-2 cursor-pointer group drop-shadow-md">
+      <span class="w-8 h-[2px] bg-yokai-white transition-all duration-300 origin-center line-1"></span>
+      <span class="w-5 h-[2px] bg-yokai-white transition-all duration-300 origin-center line-2 group-hover:w-8"></span>
     </button>
   </div>
+</header>
 
-  <!-- Mobile Overlay -->
-  <div id="mobile-overlay" class="fixed inset-0 bg-yokai-dark-blue/95 backdrop-blur-lg z-40 flex flex-col justify-center items-center opacity-0 pointer-events-none transition-opacity duration-700">
-    <nav class="flex flex-col items-center gap-8 text-center w-full max-w-sm px-6">
-      {navItems.map((item) => {
-        const isActive = activePage === item.key;
-        if (item.dropdown) {
-          return (
-            <div class="w-full flex flex-col items-center gap-4">
-              <span class={`text-sm font-bold tracking-[0.3em] uppercase ${isActive ? 'text-yokai-purple' : 'text-yokai-light-white/50'}`}>
+<!-- Mobile Overlay -->
+<div id="mobile-overlay" class="fixed inset-0 bg-[#120c24]/98 backdrop-blur-2xl z-40 flex flex-col justify-center opacity-0 pointer-events-none transition-opacity duration-500">
+  <!-- Sharp Accents -->
+  <div class="absolute top-0 left-0 w-1.5 h-full bg-yokai-purple/80"></div>
+  <div class="absolute bottom-12 right-8 w-24 h-24 border-r-2 border-b-2 border-yokai-purple/20 pointer-events-none"></div>
+
+  <nav class="flex flex-col gap-8 w-full px-10">
+    {navItems.map((item, idx) => {
+      const isActive = activePage === item.key;
+      if (item.dropdown) {
+        return (
+          <div class="w-full flex flex-col">
+            <div class="mobile-nav-item flex items-end justify-between border-b border-white/10 pb-2" style="opacity: 0; transform: translateY(20px);">
+              <span class={`text-2xl font-black font-jakarta tracking-wider uppercase ${isActive ? 'text-yokai-purple' : 'text-yokai-white'}`}>
                 {item.name}
               </span>
-              <div class="flex flex-col gap-3">
-                {item.dropdown.map((subItem) => (
-                  <a href={subItem.path} class="text-[11px] font-medium tracking-[0.2em] uppercase text-yokai-white hover:text-yokai-purple transition-colors duration-300">
-                    {subItem.name}
-                  </a>
-                ))}
-              </div>
+              <span class="font-inter text-[9px] tracking-[0.4em] text-yokai-white/30 mb-1">0{idx + 1}</span>
             </div>
-          );
-        }
-        return (
-          <a href={item.path} class={`text-sm font-bold tracking-[0.3em] uppercase transition-colors duration-300 ${isActive ? 'text-yokai-purple' : 'text-yokai-white'}`}>
-            {item.name}
-          </a>
+            <div class="flex flex-col gap-4 mt-5 pl-4 border-l-2 border-yokai-purple/30 mobile-nav-sub" style="opacity: 0; transform: translateY(10px);">
+              {item.dropdown.map((subItem) => (
+                <a href={subItem.path} class="text-[10px] font-bold tracking-[0.3em] uppercase text-yokai-white/60 hover:text-yokai-white transition-colors duration-300">
+                  {subItem.name}
+                </a>
+              ))}
+            </div>
+          </div>
         );
-      })}
-    </nav>
-  </div>
-</header>
+      }
+      return (
+        <div class="w-full flex flex-col">
+          <a href={item.path} class="mobile-nav-item flex items-end justify-between border-b border-white/10 pb-2" style="opacity: 0; transform: translateY(20px);">
+            <span class={`text-2xl font-black font-jakarta tracking-wider uppercase transition-colors duration-300 ${isActive ? 'text-yokai-purple' : 'text-yokai-white'}`}>
+              {item.name}
+            </span>
+            <span class="font-inter text-[9px] tracking-[0.4em] text-yokai-white/30 mb-1">0{idx + 1}</span>
+          </a>
+        </div>
+      );
+    })}
+  </nav>
+</div>
 
 <script>
   import anime from 'animejs/lib/anime.es.js';
@@ -255,15 +267,39 @@ const navItems = [
       document.body.style.overflow = 'hidden';
       
       // Animate to simple X (thin lines crossing)
-      line1?.classList.add('-rotate-45', '-translate-x-1');
-      line2?.classList.add('rotate-45', '-translate-x-1');
+      line1?.classList.add('translate-y-[4px]', '-rotate-45');
+      line2?.classList.add('w-8', '-translate-y-[4px]', 'rotate-45');
+      line2?.classList.remove('w-5');
+
+      // Animate Menu Items
+      anime({
+        targets: '.mobile-nav-item',
+        translateY: [20, 0],
+        opacity: [0, 1],
+        duration: 600,
+        delay: anime.stagger(100, {start: 100}),
+        easing: 'easeOutExpo'
+      });
+      anime({
+        targets: '.mobile-nav-sub',
+        translateY: [10, 0],
+        opacity: [0, 1],
+        duration: 500,
+        delay: anime.stagger(100, {start: 300}),
+        easing: 'easeOutQuart'
+      });
     } else {
       overlay?.classList.add('opacity-0', 'pointer-events-none');
       overlay?.classList.remove('opacity-100', 'pointer-events-auto');
       document.body.style.overflow = '';
       
-      line1?.classList.remove('-rotate-45', '-translate-x-1');
-      line2?.classList.remove('rotate-45', '-translate-x-1');
+      line1?.classList.remove('translate-y-[4px]', '-rotate-45');
+      line2?.classList.remove('w-8', '-translate-y-[4px]', 'rotate-45');
+      line2?.classList.add('w-5');
+
+      // Reset Items
+      anime.set('.mobile-nav-item', { translateY: 20, opacity: 0 });
+      anime.set('.mobile-nav-sub', { translateY: 10, opacity: 0 });
     }
   });
 </script>

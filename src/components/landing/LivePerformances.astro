@@ -88,11 +88,10 @@ const supporting  = formattedPerformances.slice(1);
 
       {featured && (
         <a
-          class="perf-featured group"
+          class="perf-featured group block py-6 pr-0 lg:pr-8 border-r-0 lg:border-r border-white/5 no-underline"
           href={`https://www.youtube.com/watch?v=${featured.videoId}`}
           target="_blank"
           rel="noopener noreferrer"
-          style="display: block; padding: 1.5rem 2rem 1.5rem 0; border-right: 1px solid rgba(255,255,255,0.06); text-decoration: none;"
         >
           <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
             <span
@@ -159,11 +158,10 @@ const supporting  = formattedPerformances.slice(1);
       <div class="perfs-supporting flex flex-col lg:pl-0">
         {supporting.map((p, idx) => (
           <a
-            class="perf-support group"
+            class="perf-support group flex flex-row items-center justify-between gap-6 flex-1 py-6 pl-0 lg:pl-8 border-t border-white/5 no-underline"
             href={`https://www.youtube.com/watch?v=${p.videoId}`}
             target="_blank"
             rel="noopener noreferrer"
-            style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 1.5rem; flex: 1; padding: 1.5rem 0 1.5rem 2rem; border-top: 1px solid rgba(255,255,255,0.05); text-decoration: none;"
           >
             <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center;">
               <span
@@ -244,14 +242,6 @@ const supporting  = formattedPerformances.slice(1);
   .perf-support:hover .perf-sup-media {
     opacity: 1 !important;
   }
-
-  @media (max-width: 1023px) {
-    .perf-support {
-      padding-left: 0 !important;
-      border-left: none !important;
-      border-top: 1px solid rgba(255,255,255,0.05) !important;
-    }
-  }
 </style>
 
 <script>
@@ -298,7 +288,7 @@ const supporting  = formattedPerformances.slice(1);
         delay:      380,
       });
 
-      var supportItems = Array.from(document.querySelectorAll<HTMLElement>('.perf-support'));
+      var supportItems = Array.from(document.querySelectorAll('.perf-support'));
       supportItems.forEach(function(item, i) {
         var reverseI = supportItems.length - 1 - i;
         anime({
