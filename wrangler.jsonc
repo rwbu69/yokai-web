@@ -3,8 +3,7 @@
 	"compatibility_flags": ["global_fetch_strictly_public"],
 	"name": "yokai-website",
 	"assets": {
-		"directory": "./dist",
-		"binding": "ASSETS"
+		"directory": "./dist"
 	},
 	"observability": {
 		"enabled": true
