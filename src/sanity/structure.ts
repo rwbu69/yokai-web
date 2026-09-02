@@ -47,7 +47,7 @@ export const deskStructure = (S: StructureBuilder) =>
           S.list()
             .title('Gallery & Shop')
             .items([
-              S.documentTypeListItem('gallery').title('Photo Events'),
+              S.documentTypeListItem('photoEvent').title('Photo Events'),
               S.documentTypeListItem('videoItem').title('Videos'),
               S.documentTypeListItem('shopItem').title('Shop Items'),
             ])
