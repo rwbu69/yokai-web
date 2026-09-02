@@ -1,14 +1,14 @@
 import type { StructureBuilder } from 'sanity/structure';
 
 // Helper to render a Singleton document list item
-const singletonListItem = (S: StructureBuilder, title: string, id: string) =>
+const singletonListItem = (S: StructureBuilder, title: string, schemaType: string, documentId: string = schemaType) =>
   S.listItem()
     .title(title)
-    .id(id)
+    .id(documentId)
     .child(
       S.document()
-        .schemaType(id)
-        .documentId(id)
+        .schemaType(schemaType)
+        .documentId(documentId)
     );
 
 export const deskStructure = (S: StructureBuilder) =>
@@ -21,7 +21,7 @@ export const deskStructure = (S: StructureBuilder) =>
           S.list()
             .title('Settings & Pages')
             .items([
-              singletonListItem(S, 'Landing Page', 'landing-page-singleton'),
+              singletonListItem(S, 'Landing Page', 'landingPage', 'landing-page-singleton'),
               singletonListItem(S, 'About Us', 'aboutUs'),
               singletonListItem(S, 'Merch Config', 'merchConfig'),
               singletonListItem(S, 'Cheki Config', 'chekiConfig'),
