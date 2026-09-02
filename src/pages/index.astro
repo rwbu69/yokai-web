@@ -18,7 +18,6 @@ const query = `{
   "landing": *[_type == "landingPage"][0],
   "projects": *[_type == "project"] | order(sortOrder asc, releaseDate desc)[0...3],
   "performances": *[_type == "livePerformance"] | order(sortOrder asc, date desc)[0...4],
-  "heroImgs": *[_type == "heroImages"][0],
   "schedules": *[_type == "scheduleEvent"] | order(date asc)
 }`;
 
@@ -29,7 +28,7 @@ const landing = data.landing || {};
 const heroProps = {
   title: landing.heroOverlayTitle || "YOKAI",
   subtitle: landing.heroOverlaySubtitle || "WOTAGEI",
-  imagesData: data.heroImgs || {},
+  imagesData: { images: landing.heroImages || [] }, // Wrap in object to match what HeroLanding expects or just pass array if component was updated
 };
 
 const mottoProps = {

@@ -3,7 +3,6 @@ import { structureTool } from 'sanity/structure';
 import { markdownSchema } from 'sanity-plugin-markdown';
 
 // Existing schemas
-import heroImages from './src/sanity/schemas/heroImages';
 import member from './src/sanity/schemas/member';
 import aboutUs from './src/sanity/schemas/aboutUs';
 import update from './src/sanity/schemas/update';
@@ -24,6 +23,7 @@ import updatesConfig from './src/sanity/schemas/updatesConfig';
 import snsUpdate from './src/sanity/schemas/snsUpdate';
 
 import tutorial from './src/sanity/schemas/tutorial';
+import { deskStructure } from './src/sanity/structure';
 
 export default defineConfig({
   name: 'default',
@@ -32,7 +32,7 @@ export default defineConfig({
   projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID || 'your-project-id',
   dataset: import.meta.env.PUBLIC_SANITY_DATASET || 'production',
 
-  plugins: [structureTool(), markdownSchema()],
+  plugins: [structureTool({ structure: deskStructure }), markdownSchema()],
 
   schema: {
     types: [
@@ -47,7 +47,6 @@ export default defineConfig({
       // === Content ===
       member,
       snsUpdate,
-      heroImages,
       livePerformance,
       project,
       scheduleEvent,
