@@ -15,7 +15,7 @@ import { sanityClient } from "../lib/sanity";
 
 // Fetch all necessary data for the Landing Page centrally to optimize build time
 const query = `{
-  "landing": *[_type == "landingPage"][0],
+  "landing": *[_type == "landingPage" && _id == "landing-page-singleton"][0],
   "projects": *[_type == "project"] | order(sortOrder asc, releaseDate desc)[0...3],
   "performances": *[_type == "livePerformance"] | order(sortOrder asc, date desc)[0...4],
   "schedules": *[_type == "scheduleEvent"] | order(date asc)

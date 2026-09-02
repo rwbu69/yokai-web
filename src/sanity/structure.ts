@@ -21,7 +21,7 @@ export const deskStructure = (S: StructureBuilder) =>
           S.list()
             .title('Settings & Pages')
             .items([
-              singletonListItem(S, 'Landing Page', 'landingPage'),
+              singletonListItem(S, 'Landing Page', 'landing-page-singleton'),
               singletonListItem(S, 'About Us', 'aboutUs'),
               singletonListItem(S, 'Merch Config', 'merchConfig'),
               singletonListItem(S, 'Cheki Config', 'chekiConfig'),
