@@ -43,9 +43,9 @@ export default defineConfig({
         '@content': path.resolve(__dirname, './src/content'),
       },
     },
-    ssr: {
-      noExternal: ['react', 'react-dom'],
-    },
+    // ssr: {
+    //   noExternal: ['react', 'react-dom'],
+    // },
   },
 
 });
