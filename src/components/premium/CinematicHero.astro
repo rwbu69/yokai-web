@@ -1,0 +1,54 @@
+---
+export interface Props {
+  title: string;
+  date?: string;
+  videoUrl?: string | null;
+  imageUrl?: string | null;
+  fallbackImageSeed?: string;
+}
+
+const { title, date, videoUrl, imageUrl, fallbackImageSeed = 'hero' } = Astro.props;
+---
+
+<section class="relative w-full min-h-screen flex items-end justify-center overflow-hidden bg-yokai-dark-bg">
+  <!-- Visual/Video Background -->
+  <div class="absolute inset-0 z-0">
+    {videoUrl ? (
+      <video 
+        src={videoUrl}
+        autoplay 
+        muted 
+        loop 
+        playsinline
+        class="w-full h-full object-cover"
+      ></video>
+    ) : imageUrl ? (
+      <img 
+        src={imageUrl} 
+        alt={title}
+        class="w-full h-full object-cover"
+      />
+    ) : (
+      <img 
+        src={`https://picsum.photos/seed/${fallbackImageSeed}/1920/1080`}
+        class="w-full h-full object-cover"
+      />
+    )}
+    <!-- Cinematic Gradient Overlay -->
+    <div class="absolute inset-0 bg-gradient-to-t from-yokai-dark-bg via-yokai-dark-bg/50 to-yokai-dark-bg/20"></div>
+  </div>
+  
+  <!-- Title Content (Responsive & Safe) -->
+  <div class="relative z-10 w-full max-w-[90%] mx-auto pb-16 md:pb-24">
+    {date && (
+      <p class="text-xs md:text-sm font-inter text-yokai-purple font-bold tracking-[0.4em] uppercase mb-4 drop-shadow-md">
+        {date}
+      </p>
+    )}
+    <!-- Fluid Typography using Tailwind arbitrary values, break-words to prevent overflow -->
+    <h1 class="text-[clamp(3rem,8vw,10rem)] font-black font-jakarta text-yokai-white uppercase tracking-tighter leading-[0.85] break-words drop-shadow-2xl">
+      {title}
+    </h1>
+    <div class="w-24 h-1.5 bg-yokai-purple mt-8 md:mt-12"></div>
+  </div>
+</section>

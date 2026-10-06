@@ -1,0 +1,329 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { sanityClient, urlFor } from '../../lib/sanity';
+import type { SanityImage } from '../../lib/sanity';
+import { PortableText } from 'astro-portabletext';
+
+export async function getStaticPaths() {
+  let eventsWithBattles = await sanityClient.fetch(`
+    *[_type == "event"] {
+      "slug": slug.current,
+      _id,
+      name,
+      date,
+      coverImage,
+      "heroVideoUrl": heroVideo.asset->url,
+      highlightPhotos,
+      impressions,
+      "battles": *[_type == "battleMatch" && event._ref == ^._id] | order(category asc) {
+        _id,
+        category,
+        battler1,
+        battler2,
+        downloadUrl
+      }
+    }
+  `) ?? [];
+
+  if (eventsWithBattles.length === 0) {
+    eventsWithBattles = [
+      { 
+        slug: 'yokai-fest-2026', 
+        _id: '1', 
+        name: 'Yokai Fest 2026', 
+        date: '2026-11-15T00:00:00.000Z', 
+        heroVideoUrl: 'https://cdn.pixabay.com/video/2019/11/10/28848-372957790_tiny.mp4',
+        highlightPhotos: [{ asset: {} }, { asset: {} }, { asset: {} }],
+        impressions: [{ _type: 'block', children: [{ _type: 'span', text: 'This was an amazing event! The crowd went absolutely wild during the final battles. The energy in the room was palpable from start to finish.' }] }, { _type: 'block', children: [{ _type: 'span', text: 'We witnessed new techniques and a level of passion that redefines wotagei. Every battler brought their absolute best to the floor.' }] }],
+        battles: [] 
+      },
+      { slug: 'neon-battle-vol-3', _id: '2', name: 'Neon Battle Vol. 3', date: '2026-08-20T00:00:00.000Z', impressions: [], battles: [] },
+      { slug: 'underground-cyalume', _id: '3', name: 'Underground Cyalume', date: '2025-12-10T00:00:00.000Z', impressions: [], battles: [] }
+    ];
+  }
+
+  return eventsWithBattles.map((event: any) => {
+    let battles = event.battles || [];
+    if (battles.length === 0) {
+      battles = [
+        { _id: 'b1', category: 'Rookie', battler1: 'Ryu', battler2: 'Ken', downloadUrl: '#' },
+        { _id: 'b2', category: 'Rookie', battler1: 'Kira', battler2: 'L', downloadUrl: '#' },
+        { _id: 'b3', category: 'Open', battler1: 'Dante', battler2: 'Vergil', downloadUrl: '#' },
+        { _id: 'b4', category: 'Cyalume Dance', battler1: 'Miku', battler2: 'Luka', downloadUrl: '#' },
+        { _id: 'b5', category: '1v1', battler1: 'Naruto', battler2: 'Sasuke', downloadUrl: '#' },
+      ];
+    }
+    return {
+      params: { slug: event.slug },
+      props: { eventData: event, battles }
+    };
+  });
+}
+
+const { slug } = Astro.params;
+const { eventData, battles } = Astro.props;
+
+if (!eventData) {
+  return Astro.redirect('/events');
+}
+
+// Sort/group battles by category
+const categorizedBattles: Record<string, any[]> = {};
+battles.forEach((b: any) => {
+  if (!categorizedBattles[b.category]) categorizedBattles[b.category] = [];
+  categorizedBattles[b.category].push(b);
+});
+const categories = Object.keys(categorizedBattles);
+---
+
+<BaseLayout title={`${eventData.name} | Yokai Events`} activePage="events">
+  
+  <!-- Hero Section (Cinematic Full-Bleed) -->
+  <section class="relative w-full min-h-screen flex items-end justify-center overflow-hidden bg-yokai-dark-bg">
+    <!-- Visual/Video Background -->
+    <div class="absolute inset-0 z-0">
+      {eventData.heroVideoUrl ? (
+        <video 
+          src={eventData.heroVideoUrl}
+          autoplay 
+          muted 
+          loop 
+          playsinline
+          class="w-full h-full object-cover"
+        ></video>
+      ) : eventData.coverImage?.asset ? (
+        <img 
+          src={urlFor(eventData.coverImage).width(1920).url()} 
+          alt={eventData.name}
+          class="w-full h-full object-cover"
+        />
+      ) : (
+        <img 
+          src={`https://picsum.photos/seed/${slug}-hero/1920/1080`}
+          class="w-full h-full object-cover"
+        />
+      )}
+      <!-- Cinematic Gradient Overlay -->
+      <div class="absolute inset-0 bg-gradient-to-t from-yokai-dark-bg via-yokai-dark-bg/50 to-yokai-dark-bg/20"></div>
+    </div>
+    
+    <!-- Title Content (Responsive & Safe) -->
+    <div class="relative z-10 w-full max-w-[90%] mx-auto pb-16 md:pb-24">
+      <p class="text-xs md:text-sm font-inter text-yokai-purple font-bold tracking-[0.4em] uppercase mb-4 drop-shadow-md">
+        {new Date(eventData.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+      </p>
+      <!-- Fluid Typography using Tailwind arbitrary values, break-words to prevent overflow -->
+      <h1 class="text-[clamp(3rem,8vw,10rem)] font-black font-jakarta text-yokai-white uppercase tracking-tighter leading-[0.85] break-words drop-shadow-2xl">
+        {eventData.name}
+      </h1>
+      <div class="w-24 h-1.5 bg-yokai-purple mt-8 md:mt-12"></div>
+    </div>
+  </section>
+
+  <!-- The Chronicle (Storytelling) -->
+  {((eventData.impressions && eventData.impressions.length > 0) || (eventData.highlightPhotos && eventData.highlightPhotos.length > 0)) && (
+    <section class="w-full bg-yokai-white text-yokai-dark-bg py-32 px-6 md:px-24">
+      <div class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-20">
+        <!-- Highlights overlap -->
+        {eventData.highlightPhotos && eventData.highlightPhotos.length > 0 && (
+          <div class="w-full lg:w-1/2 relative min-h-[400px]">
+            {eventData.highlightPhotos.map((photo: any, i: number) => {
+              const isPlaceholder = !photo.asset?._ref;
+              const imgUrl = isPlaceholder ? `https://picsum.photos/seed/${i + eventData._id}/600/800` : urlFor(photo).width(600).url();
+              
+              // Editorial overlapping positioning
+              const positions = [
+                'z-10 top-0 left-0 w-2/3 h-[300px]',
+                'z-20 top-24 right-0 w-1/2 h-[250px] shadow-2xl',
+                'z-30 bottom-0 left-12 w-3/5 h-[200px] shadow-xl'
+              ];
+              const posClass = positions[i % positions.length];
+
+              return (
+                <div class={`absolute border-2 border-yokai-white overflow-hidden ${posClass}`}>
+                  <img src={imgUrl} alt={`Highlight ${i+1}`} class="w-full h-full object-cover" loading="lazy" />
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        <!-- Multi-column Text -->
+        <div class="w-full lg:w-1/2 relative">
+          <h2 class="text-[10px] font-inter text-yokai-purple font-bold tracking-[0.4em] uppercase mb-12 border-b border-yokai-dark-bg/10 pb-4">
+            The Chronicle
+          </h2>
+          {eventData.impressions && eventData.impressions.length > 0 ? (
+            <div class="prose prose-lg prose-headings:font-jakarta prose-headings:font-black prose-p:font-inter prose-a:text-yokai-purple max-w-none text-yokai-dark-blue/80 columns-1 md:columns-2 gap-12">
+              <PortableText value={eventData.impressions} />
+            </div>
+          ) : (
+            <p class="text-yokai-dark-blue/50 italic text-xl font-inter">No stories recorded for this event yet.</p>
+          )}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- The Roster Board (Battle Archive) -->
+  <section class="w-full bg-yokai-dark-bg min-h-screen border-t border-yokai-white/10 relative" id="battle-archive">
+    <!-- Subtle Grid Background -->
+    <div class="absolute inset-0 pointer-events-none bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.03]"></div>
+    
+    <div class="flex flex-col md:flex-row relative z-10 max-w-[95%] mx-auto py-12 md:py-24">
+      <!-- Sticky Sidebar -->
+      <div class="w-full md:w-1/4 lg:w-1/5 pr-0 md:pr-12 border-b md:border-b-0 md:border-r border-yokai-white/10 mb-12 md:mb-0">
+        <div class="md:sticky md:top-32">
+          <h2 class="text-[10px] font-inter text-yokai-purple font-bold tracking-[0.4em] uppercase mb-12">
+            The Roster Board
+          </h2>
+          <div class="flex flex-col gap-6" id="category-filters">
+            <button class="filter-btn text-left text-2xl font-jakarta font-black uppercase text-yokai-white tracking-widest transition-colors hover:text-yokai-purple" data-category="all">
+              All Matches
+            </button>
+            {categories.map(cat => (
+              <button class="filter-btn text-left text-xl font-jakarta font-bold uppercase text-yokai-white/30 tracking-widest transition-colors hover:text-yokai-white" data-category={cat}>
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <!-- Match List Area -->
+      <div class="w-full md:w-3/4 lg:w-4/5 pl-0 md:pl-12 flex flex-col">
+        
+        <!-- Enhanced Prominent Search Box -->
+        <div class="mb-12 relative group">
+          <svg class="w-6 h-6 absolute left-6 top-1/2 -translate-y-1/2 text-yokai-purple transition-transform group-focus-within:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          <input 
+            type="text" 
+            id="search-battler" 
+            placeholder="SEARCH FIGHTER NICKNAME..." 
+            class="w-full bg-yokai-white/5 border-2 border-yokai-white/10 text-yokai-white pl-16 pr-8 py-5 font-jakarta font-bold text-xl uppercase tracking-widest focus:outline-none focus:border-yokai-purple focus:bg-yokai-purple/10 transition-all placeholder-yokai-white/20"
+          />
+        </div>
+
+        <!-- Table Headers -->
+        <div class="hidden lg:flex items-center justify-between pb-4 border-b-2 border-yokai-white/20 text-yokai-white/40 font-inter text-[10px] font-bold tracking-[0.3em] uppercase">
+          <div class="flex items-center gap-16">
+            <span class="w-16 text-center">NO.</span>
+            <span class="w-32">CATEGORY</span>
+            <span>FIGHTERS</span>
+          </div>
+          <span class="pr-8">ACTION</span>
+        </div>
+
+        <!-- Matches -->
+        <div class="flex flex-col" id="match-list">
+          {battles.map((b: any, index: number) => (
+            <a href={b.downloadUrl} target="_blank" rel="noopener noreferrer" class="match-item group flex flex-col lg:flex-row lg:items-center justify-between p-6 lg:p-8 border-b border-yokai-white/10 bg-transparent hover:bg-yokai-white transition-colors duration-0" data-category={b.category} data-search={`${b.battler1} ${b.battler2 || ''}`.toLowerCase()}>
+              
+              <div class="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-16">
+                <!-- Number -->
+                <span class="text-yokai-white/20 group-hover:text-yokai-dark-bg/20 font-black font-jakarta text-3xl lg:text-4xl w-16 text-left lg:text-center transition-colors duration-0">
+                  {(index + 1).toString().padStart(2, '0')}
+                </span>
+                
+                <!-- Category (Mobile: Above names, Desktop: fixed width column) -->
+                <span class="text-[10px] font-bold tracking-widest uppercase text-yokai-purple group-hover:text-yokai-purple lg:w-32 transition-colors duration-0">
+                  {b.category}
+                </span>
+
+                <!-- Names -->
+                <h3 class="text-3xl md:text-4xl lg:text-5xl font-black font-jakarta text-yokai-white group-hover:text-yokai-dark-bg uppercase tracking-tight leading-none transition-colors duration-0">
+                  {b.battler1} {b.battler2 ? <span class="text-yokai-white/30 group-hover:text-yokai-dark-bg/30 mx-2">VS</span> : ''} {b.battler2}
+                </h3>
+              </div>
+
+              <!-- Action Indicator -->
+              <div class="mt-6 lg:mt-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150 flex items-center gap-3 text-yokai-dark-bg pr-0 lg:pr-8">
+                <span class="text-[10px] font-bold tracking-widest uppercase">Download</span>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                </svg>
+              </div>
+            </a>
+          ))}
+          
+          {battles.length === 0 && (
+            <div class="p-24 text-center text-yokai-white/30 font-bold tracking-widest text-sm uppercase">
+              No matches found for this event.
+            </div>
+          )}
+          
+          <!-- Empty Search State -->
+          <div id="no-results" class="hidden p-24 text-center text-yokai-white/30 font-bold tracking-widest text-sm uppercase">
+            No records match your criteria.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  // Client-side filtering and search logic
+  document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('search-battler') as HTMLInputElement;
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const matchItems = document.querySelectorAll('.match-item');
+    const noResults = document.getElementById('no-results');
+    
+    let currentCategory = 'all';
+    let currentSearch = '';
+
+    function filterMatches() {
+      let visibleCount = 0;
+
+      matchItems.forEach((item: Element) => {
+        const el = item as HTMLElement;
+        const category = el.getAttribute('data-category');
+        const searchData = el.getAttribute('data-search') || '';
+        
+        const matchesCategory = currentCategory === 'all' || category === currentCategory;
+        const matchesSearch = currentSearch === '' || searchData.includes(currentSearch);
+
+        if (matchesCategory && matchesSearch) {
+          el.style.display = 'flex';
+          visibleCount++;
+        } else {
+          el.style.display = 'none';
+        }
+      });
+
+      if (noResults) {
+        noResults.style.display = visibleCount === 0 && matchItems.length > 0 ? 'block' : 'none';
+      }
+    }
+
+    // Search event
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        currentSearch = (e.target as HTMLInputElement).value.toLowerCase();
+        filterMatches();
+      });
+    }
+
+    // Category filter event
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const target = e.currentTarget as HTMLElement;
+        
+        // Update active classes
+        filterBtns.forEach(b => {
+          b.classList.remove('text-yokai-white', 'text-2xl', 'font-black');
+          b.classList.add('text-yokai-white/30', 'text-xl', 'font-bold');
+        });
+        
+        target.classList.remove('text-yokai-white/30', 'text-xl', 'font-bold');
+        target.classList.add('text-yokai-white', 'text-2xl', 'font-black');
+
+        currentCategory = target.getAttribute('data-category') || 'all';
+        filterMatches();
+      });
+    });
+  });
+</script>

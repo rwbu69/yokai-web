@@ -1,12 +1,11 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
-import PostHero from '@components/blog/PostHero.astro';
-import PostGrid from '@components/blog/PostGrid.astro';
+import EditorialGrid from '@components/premium/EditorialGrid.astro';
 import Breadcrumbs from '@components/common/Breadcrumbs.astro';
 
 import { sanityClient, urlFor } from '../../../lib/sanity';
 
-const query = `*[_type == "article" && draft != true] | order(dateDesc) {
+const query = `*[_type == "article" && draft != true] | order(date desc) {
   "id": slug.current,
   title,
   description,
@@ -25,35 +24,31 @@ interface ProjectedLibraryItem {
   date: string;
 }
 
-const formattedPosts = posts.map((post: ProjectedLibraryItem) => ({
-  id: post.id,
-  data: {
-    title: post.title,
-    description: post.description,
-    date: post.date,
-    author: post.author,
-    coverImage: post.coverImage ? urlFor(post.coverImage).width(800).url() : '',
-  }
+const editorialLibrary = posts.map((item: ProjectedLibraryItem) => ({
+  id: item.id,
+  title: item.title,
+  description: item.description,
+  date: item.date,
+  author: item.author,
+  href: '/library/articles/' + item.id,
+  imageUrl: item.coverImage ? urlFor(item.coverImage).width(800).format('webp').url() : ''
 }));
-
-formattedPosts.sort(
-  (a: { data: { date: string } }, b: { data: { date: string } }) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf()
-);
 ---
 
 <BaseLayout title={`Articles | Yokai Library`} activePage="library">
-  <main class="min-h-screen bg-yokai-light-bg">
-    <!-- Dark Header Section -->
-    <div class="bg-yokai-dark-blue rounded-b-[3rem] shadow-[0_10px_40px_rgba(42,30,82,0.1)] relative z-10">
-      <PostHero title={"Articles"} description={"Kumpulan artikel dari Yokai."} />
+  <main class="min-h-screen bg-yokai-dark-bg flex flex-col pt-24">
+    
+    <div class="max-w-7xl mx-auto px-6 md:px-12 w-full mb-12">
+      <Breadcrumbs paths={[{ name: 'Library' }, { name: 'Articles' }]} theme="dark" />
+      <h1 class="font-jakarta font-black text-4xl md:text-6xl uppercase tracking-tighter text-yokai-white mt-8">
+        Articles
+      </h1>
+      <p class="font-inter text-yokai-white/50 tracking-widest uppercase mt-4 text-sm max-w-lg">
+        In-depth essays, guides, and thoughts on the wotagei culture.
+      </p>
     </div>
     
-    <!-- Light Grid Section -->
-    <div class="pt-8 pb-20 relative z-0">
-      <Breadcrumbs paths={[{ name: 'Library' }, { name: 'Articles' }]} />
-      <div class="mt-8">
-        <PostGrid posts={formattedPosts} collection="articles" />
-      </div>
-    </div>
+    <!-- Editorial Grid -->
+    <EditorialGrid items={editorialLibrary} />
   </main>
 </BaseLayout>

@@ -1,0 +1,66 @@
+---
+import Breadcrumbs from '@components/common/Breadcrumbs.astro';
+
+export interface Props {
+  title: string;
+  date?: string;
+  author?: string;
+  category?: string;
+  imageUrl?: string;
+  breadcrumbs: { name: string; href?: string }[];
+}
+
+const { title, date, author, category, imageUrl, breadcrumbs } = Astro.props;
+---
+
+<header class="w-full relative min-h-[60vh] flex flex-col justify-end pt-40 pb-16 px-6 md:px-12 text-yokai-white border-b-4 border-yokai-purple">
+  <!-- Background Image & Overlay -->
+  <div class="absolute inset-0 z-0 bg-yokai-dark-bg">
+    {imageUrl && (
+      <img 
+        src={imageUrl} 
+        alt={title} 
+        loading="eager"
+        class="w-full h-full object-cover opacity-40 mix-blend-luminosity"
+      />
+    )}
+    <div class="absolute inset-0 bg-gradient-to-t from-yokai-dark-bg via-yokai-dark-bg/60 to-transparent"></div>
+  </div>
+
+  <div class="max-w-4xl mx-auto w-full relative z-10">
+    
+    <!-- Breadcrumbs -->
+    <div class="w-full relative z-20 mb-8 -ml-6 md:-ml-12">
+      <Breadcrumbs paths={breadcrumbs} theme="dark" />
+    </div>
+
+    <!-- Category Tag -->
+    {category && (
+      <div class="flex items-center gap-3 mb-4">
+        <span class="w-4 h-[2px] bg-yokai-purple"></span>
+        <span class="font-inter text-[10px] font-bold tracking-[0.3em] uppercase text-yokai-purple">
+          {category}
+        </span>
+      </div>
+    )}
+
+    <!-- Title -->
+    <h1 class="font-jakarta font-black text-4xl md:text-5xl lg:text-7xl uppercase tracking-tighter leading-[0.95] mb-8 max-w-4xl text-white drop-shadow-lg">
+      {title}
+    </h1>
+
+    <!-- Meta -->
+    <div class="flex items-center gap-4 text-yokai-white/80">
+      {author && (
+        <span class="font-inter text-xs tracking-widest uppercase">By <strong class="text-white">{author}</strong></span>
+      )}
+      
+      {author && date && <span class="w-1 h-1 rounded-full bg-yokai-purple"></span>}
+      
+      {date && (
+        <span class="font-inter text-xs tracking-widest uppercase">{date}</span>
+      )}
+    </div>
+
+  </div>
+</header>

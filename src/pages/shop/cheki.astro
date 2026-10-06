@@ -4,7 +4,7 @@
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ShopHero from '../../components/shop/ShopHero.astro';
-import ProductGrid from '../../components/shop/ProductGrid.astro';
+import TypographicShopList from '../../components/premium/TypographicShopList.astro';
 import ShopModal from '../../components/shop/ShopModal.astro';
 import ShopClosed from '../../components/shop/ShopClosed.astro';
 import Breadcrumbs from '../../components/common/Breadcrumbs.astro';
@@ -28,38 +28,31 @@ const data = await sanityClient.fetch(query) || {};
 const chekiConfig = data.config || { isOpen: false, closedMessage: 'OUR CHEKI IS CLOSED AT THE MOMENT.', tallyFormUrl: '' };
 const tallyFormUrl = chekiConfig.tallyFormUrl || "https://tally.so/r/mZgA9x";
 
-const items = (data.items || []).map((item: import('@lib/sanity').SanityChekiItem) => ({
+const formattedItems = (data.items || []).map((item: import('@lib/sanity').SanityChekiItem) => ({
   id: item._id,
-  title: item.title,
+  name: item.title,
   price: item.price,
   available: item.available,
-  imageUrl: item.image?.asset ? urlFor(item.image).width(800).format('webp').url() : ''
+  imageUrl: item.image?.asset ? urlFor(item.image).width(1920).format('webp').url() : ''
 }));
 ---
 
 <BaseLayout title="Polaroid Cheki | Yokai" activePage="shop">
-  <main class="w-full min-h-[100svh] bg-yokai-dark-blue flex flex-col pt-16 md:pt-24 pb-8 relative">
+  <main class="w-full min-h-screen bg-yokai-dark-bg flex flex-col pt-24 pb-8 relative">
 
-    <div class="fixed top-0 left-0 w-full h-full pointer-events-none z-0 bg-gradient-to-br from-yokai-dark-blue to-yokai-dark-purple">
-      <div class="absolute inset-0 bg-yokai-purple/10 mix-blend-overlay"></div>
-    </div>
-    
-    <div class="pt-4 pb-8">
+    <div class="max-w-7xl mx-auto px-6 md:px-12 w-full pt-4 pb-8 relative z-10">
       <Breadcrumbs paths={[{ name: 'Shop' }, { name: 'Cheki' }]} theme="dark" />
     </div>
 
-    <ShopHero 
-      title="POLAROID CHEKI" 
-      subtitle="Exclusive polaroid shots. Keep a piece of our moment with you." 
-    />
+    <ShopHero title="POLAROID CHEKI" />
 
-    <div id="cheki-open-view" class="w-full flex-grow flex items-center justify-center pb-8" style={`display: ${chekiConfig.isOpen ? 'flex' : 'none'};`}>
-      <ProductGrid items={items} type="cheki" />
+    <div id="cheki-open-view" class="w-full flex-grow flex flex-col items-center justify-center" style={`display: ${chekiConfig.isOpen ? 'flex' : 'none'};`}>
+      <TypographicShopList items={formattedItems} title="Polaroid Cheki Collection" />
       <ShopModal type="cheki" tallyUrl={tallyFormUrl} />
     </div>
 
     <div id="cheki-closed-view" class="w-full px-6 flex-grow flex items-start justify-center" style={`display: ${chekiConfig.isOpen ? 'none' : 'flex'};`}>
-      <ShopClosed message={chekiConfig.closedMessage} />
+      <ShopClosed message={chekiConfig.closedMessage} type="cheki" />
     </div>
   </main>
 </BaseLayout>

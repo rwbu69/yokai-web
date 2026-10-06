@@ -1,0 +1,125 @@
+---
+export interface ArchiveItem {
+  id: string;
+  title: string;
+  titleJp?: string;
+  href: string;
+  imageUrl?: string;
+}
+
+export interface Props {
+  items: ArchiveItem[];
+  searchPlaceholder?: string;
+}
+
+const { items = [], searchPlaceholder = "Search..." } = Astro.props;
+---
+
+<div class="w-full max-w-7xl mx-auto px-6 md:px-12 pb-24 archive-grid-container">
+  
+  <!-- Search Bar -->
+  <div class="mb-12 border-b border-yokai-white/20 pb-4 flex items-center">
+    <svg class="w-5 h-5 text-yokai-white/40 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+    </svg>
+    <input 
+      type="text" 
+      id="archive-search" 
+      placeholder={searchPlaceholder}
+      class="w-full bg-transparent text-yokai-white font-inter text-lg md:text-xl uppercase tracking-widest focus:outline-none placeholder-yokai-white/20"
+    />
+  </div>
+
+  <!-- Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12" id="archive-list">
+    {items.map((item) => (
+      <a 
+        href={item.href} 
+        class="archive-card group flex flex-col no-underline text-yokai-white"
+        data-search={item.title.toLowerCase()}
+      >
+        <!-- Image Cover -->
+        <div class="w-full aspect-[16/9] mb-6 overflow-hidden bg-yokai-white/5 border border-yokai-white/10 relative">
+          {item.imageUrl ? (
+            <img 
+              src={item.imageUrl} 
+              alt={item.title} 
+              loading="lazy"
+              decoding="async"
+              class="w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-105"
+            />
+          ) : (
+            <div class="w-full h-full flex items-center justify-center font-inter text-xs text-yokai-white/20 uppercase tracking-widest bg-yokai-dark-blue/20">
+              Yokai Waza
+            </div>
+          )}
+        </div>
+
+        <div class="flex items-center gap-3 mb-3 border-b border-yokai-white/10 pb-3">
+          {item.titleJp && (
+            <span class="font-inter text-[10px] font-bold tracking-[0.3em] uppercase text-yokai-purple">
+              {item.titleJp}
+            </span>
+          )}
+          {!item.titleJp && (
+            <span class="font-inter text-[10px] font-bold tracking-[0.3em] uppercase text-yokai-purple">
+              WAZA DICTIONARY
+            </span>
+          )}
+        </div>
+        
+        <h3 class="font-jakarta font-black text-2xl uppercase tracking-tight text-yokai-white group-hover:text-yokai-purple transition-colors duration-300 line-clamp-2 leading-tight">
+          {item.title}
+        </h3>
+        
+        <div class="inline-flex items-center gap-2 mt-6">
+          <span class="font-inter text-[10px] font-bold tracking-[0.2em] uppercase text-yokai-white group-hover:text-yokai-purple transition-colors duration-300">View Details</span>
+          <svg class="w-4 h-4 text-yokai-white group-hover:text-yokai-purple transition-colors duration-300 transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+          </svg>
+        </div>
+      </a>
+    ))}
+
+    {items.length === 0 && (
+      <div class="col-span-full py-12 text-center">
+        <p class="font-inter text-sm text-yokai-white/30 uppercase tracking-widest">No entries found.</p>
+      </div>
+    )}
+    
+    <div id="archive-no-results" class="hidden col-span-full py-12 text-center">
+      <p class="font-inter text-sm text-yokai-white/30 uppercase tracking-widest">No matching entries found.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('archive-search') as HTMLInputElement;
+    const archiveCards = document.querySelectorAll('.archive-card');
+    const noResults = document.getElementById('archive-no-results');
+    
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        const query = (e.target as HTMLInputElement).value.toLowerCase();
+        let visibleCount = 0;
+
+        archiveCards.forEach((card: Element) => {
+          const el = card as HTMLElement;
+          const searchData = el.getAttribute('data-search') || '';
+          
+          if (searchData.includes(query)) {
+            el.style.display = 'flex';
+            visibleCount++;
+          } else {
+            el.style.display = 'none';
+          }
+        });
+
+        if (noResults) {
+          noResults.style.display = visibleCount === 0 && archiveCards.length > 0 ? 'block' : 'none';
+        }
+      });
+    }
+  });
+</script>

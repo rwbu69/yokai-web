@@ -23,6 +23,8 @@ import updatesConfig from './src/sanity/schemas/updatesConfig';
 import snsUpdate from './src/sanity/schemas/snsUpdate';
 
 import tutorial from './src/sanity/schemas/tutorial';
+import event from './src/sanity/schemas/event';
+import battleMatch from './src/sanity/schemas/battleMatch';
 import { deskStructure } from './src/sanity/structure';
 
 export default defineConfig({
@@ -54,6 +56,10 @@ export default defineConfig({
       // === Gallery ===
       gallery,      // Photo Events
       videoItem,
+
+      // === Events & Battles ===
+      event,
+      battleMatch,
 
       // === Shop ===
       shopItem,

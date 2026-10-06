@@ -42,6 +42,16 @@ export const deskStructure = (S: StructureBuilder) =>
             ])
         ),
       S.listItem()
+        .title('🎉 Events & Battles')
+        .child(
+          S.list()
+            .title('Events & Battles')
+            .items([
+              S.documentTypeListItem('event').title('Events'),
+              S.documentTypeListItem('battleMatch').title('Battle Matches'),
+            ])
+        ),
+      S.listItem()
         .title('📸 Gallery & Shop')
         .child(
           S.list()

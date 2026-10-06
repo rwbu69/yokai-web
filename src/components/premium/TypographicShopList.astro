@@ -1,0 +1,116 @@
+---
+interface ShopItem {
+  id: string;
+  name: string;
+  price?: number;
+  available: boolean;
+  description?: string;
+  variants?: string[];
+  imageUrl?: string;
+  gallery?: string[];
+}
+
+export interface Props {
+  title?: string;
+  items: ShopItem[];
+  emptyMessage?: string;
+}
+
+const { title = "Collection", items = [], emptyMessage = "No items available." } = Astro.props;
+---
+
+<section class="w-full bg-yokai-dark-bg py-20 px-6 md:px-12 min-h-screen">
+  <div class="max-w-7xl mx-auto w-full">
+    
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-12 border-b border-yokai-white/10 pb-6">
+      <h2 class="text-xs md:text-sm font-inter font-bold text-yokai-purple tracking-[0.3em] uppercase">
+        {title}
+      </h2>
+      <span class="text-xs font-inter tracking-widest uppercase text-yokai-white/40">
+        {items.length} {items.length === 1 ? 'Item' : 'Items'}
+      </span>
+    </div>
+    
+    <!-- Modern E-Commerce Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 md:gap-x-10 md:gap-y-16">
+      {items.map((item, index) => (
+        <button 
+          class={`shop-grid-item group flex flex-col text-left cursor-pointer transition-all duration-300 w-full ${!item.available ? 'opacity-60' : 'hover:-translate-y-1'}`}
+          data-index={index}
+          data-item={JSON.stringify(item)}
+        >
+          <!-- Product Image Container -->
+          <div class="w-full aspect-[4/5] bg-[#1a1a24] rounded-lg overflow-hidden relative mb-6 border border-yokai-white/5 group-hover:border-yokai-purple/30 transition-colors">
+            
+            <!-- Image -->
+            <img 
+              src={item.imageUrl || `https://picsum.photos/seed/${item.id}/600/800`} 
+              class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 mix-blend-lighten" 
+              alt={item.name}
+              loading="lazy"
+            />
+            
+            <!-- Sold Out Badge -->
+            {!item.available && (
+              <div class="absolute top-4 left-4 bg-red-600/90 text-white text-[9px] font-bold tracking-widest uppercase px-3 py-1.5 rounded-sm backdrop-blur-sm">
+                Sold Out
+              </div>
+            )}
+            
+            <!-- Hover Action Overlay -->
+            {item.available && (
+              <div class="absolute inset-0 bg-yokai-dark-bg/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
+                <span class="bg-yokai-white text-yokai-dark-bg text-[10px] font-bold tracking-[0.2em] uppercase px-6 py-3 rounded-full transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 shadow-xl">
+                  Quick View
+                </span>
+              </div>
+            )}
+          </div>
+          
+          <!-- Product Info -->
+          <div class="flex flex-col gap-2">
+            <h3 class="text-lg md:text-xl font-bold font-jakarta text-yokai-white uppercase tracking-tight line-clamp-1 group-hover:text-yokai-purple transition-colors">
+              {item.name}
+            </h3>
+            
+            <p class="text-sm md:text-base font-inter font-medium text-yokai-white/70">
+              {item.price ? `Rp ${item.price.toLocaleString('id-ID')}` : 'TBA'}
+            </p>
+          </div>
+        </button>
+      ))}
+    </div>
+
+    <!-- Empty State -->
+    {items.length === 0 && (
+      <div class="w-full py-24 flex flex-col items-center justify-center text-center border border-dashed border-yokai-white/20 rounded-xl">
+        <svg class="w-12 h-12 text-yokai-white/20 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+        </svg>
+        <p class="text-yokai-white/40 font-inter uppercase tracking-widest text-sm">{emptyMessage}</p>
+      </div>
+    )}
+    
+  </div>
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const items = document.querySelectorAll('.shop-grid-item');
+
+    items.forEach(item => {
+      // Click to open modal
+      item.addEventListener('click', (e) => {
+        const itemData = (e.currentTarget as HTMLElement).getAttribute('data-item');
+        if (itemData) {
+          const parsedItem = JSON.parse(itemData);
+          if (parsedItem.available) {
+            const event = new CustomEvent('open-shop-modal', { detail: parsedItem });
+            document.dispatchEvent(event);
+          }
+        }
+      });
+    });
+  });
+</script>

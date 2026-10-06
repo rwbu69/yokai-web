@@ -3,7 +3,23 @@ interface Props {
   activePage?: string;
 }
 
+import { sanityClient } from '../lib/sanity';
+
 const { activePage = 'home' } = Astro.props;
+
+interface NavEvent {
+  name: string;
+  path: string;
+}
+let recentEvents = await sanityClient.fetch<NavEvent[]>(`*[_type == "event"] | order(date desc)[0...3] { name, "path": "/events/" + slug.current }`) ?? [];
+
+if (recentEvents.length === 0) {
+  recentEvents = [
+    { name: 'Yokai Fest 2026', path: '/events/yokai-fest-2026' },
+    { name: 'Neon Battle Vol. 3', path: '/events/neon-battle-vol-3' },
+    { name: 'Underground Cyalume', path: '/events/underground-cyalume' }
+  ];
+}
 
 const navItems = [
   { name: 'Home', path: '/', key: 'home' },
@@ -16,6 +32,17 @@ const navItems = [
     ]
   },
   { name: 'Updates', path: '/updates', key: 'updates' },
+  {
+    name: 'Events',
+    key: 'events',
+    path: '/events',
+    dropdown: recentEvents.length > 0 ? [
+      ...recentEvents,
+      { name: 'View All Events', path: '/events' }
+    ] : [
+      { name: 'Event Archive', path: '/events' }
+    ]
+  },
   {
     name: 'Library',
     key: 'library',
@@ -126,24 +153,24 @@ const navItems = [
 </header>
 
 <!-- Mobile Overlay -->
-<div id="mobile-overlay" class="fixed inset-0 bg-[#120c24]/98 backdrop-blur-2xl z-40 flex flex-col justify-center opacity-0 pointer-events-none transition-opacity duration-500">
+<div id="mobile-overlay" class="fixed inset-0 bg-[#120c24]/98 backdrop-blur-2xl z-40 flex flex-col opacity-0 pointer-events-none transition-opacity duration-500 overflow-y-auto pt-28 pb-12">
   <!-- Sharp Accents -->
-  <div class="absolute top-0 left-0 w-1.5 h-full bg-yokai-purple/80"></div>
-  <div class="absolute bottom-12 right-8 w-24 h-24 border-r-2 border-b-2 border-yokai-purple/20 pointer-events-none"></div>
+  <div class="fixed top-0 left-0 w-1.5 h-full bg-yokai-purple/80 z-0"></div>
+  <div class="fixed bottom-12 right-8 w-24 h-24 border-r-2 border-b-2 border-yokai-purple/20 pointer-events-none z-0"></div>
 
-  <nav class="flex flex-col gap-8 w-full px-10">
+  <nav class="flex flex-col gap-5 md:gap-6 w-full px-10 relative z-10">
     {navItems.map((item, idx) => {
       const isActive = activePage === item.key;
       if (item.dropdown) {
         return (
           <div class="w-full flex flex-col">
             <div class="mobile-nav-item flex items-end justify-between border-b border-white/10 pb-2" style="opacity: 0; transform: translateY(20px);">
-              <span class={`text-2xl font-black font-jakarta tracking-wider uppercase ${isActive ? 'text-yokai-purple' : 'text-yokai-white'}`}>
+              <span class={`text-xl md:text-2xl font-black font-jakarta tracking-wider uppercase ${isActive ? 'text-yokai-purple' : 'text-yokai-white'}`}>
                 {item.name}
               </span>
               <span class="font-inter text-[9px] tracking-[0.4em] text-yokai-white/30 mb-1">0{idx + 1}</span>
             </div>
-            <div class="flex flex-col gap-4 mt-5 pl-4 border-l-2 border-yokai-purple/30 mobile-nav-sub" style="opacity: 0; transform: translateY(10px);">
+            <div class="flex flex-col gap-3 mt-3 pl-4 border-l-2 border-yokai-purple/30 mobile-nav-sub" style="opacity: 0; transform: translateY(10px);">
               {item.dropdown.map((subItem) => (
                 <a href={subItem.path} class="text-[10px] font-bold tracking-[0.3em] uppercase text-yokai-white/60 hover:text-yokai-white transition-colors duration-300">
                   {subItem.name}
@@ -156,7 +183,7 @@ const navItems = [
       return (
         <div class="w-full flex flex-col">
           <a href={item.path} class="mobile-nav-item flex items-end justify-between border-b border-white/10 pb-2" style="opacity: 0; transform: translateY(20px);">
-            <span class={`text-2xl font-black font-jakarta tracking-wider uppercase transition-colors duration-300 ${isActive ? 'text-yokai-purple' : 'text-yokai-white'}`}>
+            <span class={`text-xl md:text-2xl font-black font-jakarta tracking-wider uppercase transition-colors duration-300 ${isActive ? 'text-yokai-purple' : 'text-yokai-white'}`}>
               {item.name}
             </span>
             <span class="font-inter text-[9px] tracking-[0.4em] text-yokai-white/30 mb-1">0{idx + 1}</span>

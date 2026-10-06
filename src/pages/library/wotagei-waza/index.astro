@@ -1,12 +1,11 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
-import PostHero from '@components/blog/PostHero.astro';
-import PostGrid from '@components/blog/PostGrid.astro';
+import ArchiveGrid from '@components/premium/ArchiveGrid.astro';
 import Breadcrumbs from '@components/common/Breadcrumbs.astro';
 
 import { sanityClient, urlFor } from '../../../lib/sanity';
 
-const query = `*[_type == "waza" && wazaType == "wotagei"] | order(dateDesc) {
+const query = `*[_type == "waza" && wazaType == "wotagei"] | order(date desc) {
   "id": slug.current,
   title,
   titleJp,
@@ -27,33 +26,27 @@ interface ProjectedLibraryItem {
 
 const formattedPosts = posts.map((post: ProjectedLibraryItem) => ({
   id: post.id,
-  data: {
-    title: post.title,
-    titleJp: post.titleJp,
-    description: post.description,
-    date: post.date,
-    coverImage: post.coverImage ? urlFor(post.coverImage).width(800).url() : '',
-  }
+  title: post.title,
+  titleJp: post.titleJp,
+  href: `/library/wotagei-waza/${post.id}`,
+  imageUrl: post.coverImage ? urlFor(post.coverImage).width(800).format('webp').url() : undefined
 }));
-
-formattedPosts.sort(
-  (a: { data: { date: string } }, b: { data: { date: string } }) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf()
-);
 ---
 
 <BaseLayout title={`Wotagei Waza | Yokai Library`} activePage="library">
-  <main class="min-h-screen bg-yokai-light-bg">
-    <!-- Dark Header Section -->
-    <div class="bg-yokai-dark-blue rounded-b-[3rem] shadow-[0_10px_40px_rgba(42,30,82,0.1)] relative z-10">
-      <PostHero title={"Wotagei Waza"} description={"Daftar waza wotagei umum."} />
+  <main class="min-h-screen bg-yokai-dark-bg flex flex-col pt-24">
+    
+    <div class="max-w-7xl mx-auto px-6 md:px-12 w-full mb-12">
+      <Breadcrumbs paths={[{ name: 'Library' }, { name: 'Wotagei Waza' }]} theme="dark" />
+      <h1 class="font-jakarta font-black text-4xl md:text-6xl uppercase tracking-tighter text-yokai-white mt-8">
+        Wotagei Waza
+      </h1>
+      <p class="font-inter text-yokai-white/50 tracking-widest uppercase mt-4 text-sm max-w-lg">
+        The complete lexicon of foundational and advanced wotagei movements.
+      </p>
     </div>
     
-    <!-- Light Grid Section -->
-    <div class="pt-8 pb-20 relative z-0">
-      <Breadcrumbs paths={[{ name: 'Library' }, { name: 'Wotagei Waza' }]} />
-      <div class="mt-8">
-        <PostGrid posts={formattedPosts} collection="wotagei-waza" showSearch={true} />
-      </div>
-    </div>
+    <!-- Archive Grid -->
+    <ArchiveGrid items={formattedPosts} searchPlaceholder="SEARCH WAZA..." />
   </main>
 </BaseLayout>

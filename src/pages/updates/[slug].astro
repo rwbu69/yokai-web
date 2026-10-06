@@ -8,8 +8,8 @@
  * - category tidak di-fetch — sudah dihapus dari schema
  */
 import BaseLayout from '@layouts/BaseLayout.astro';
-import PostHeader from '@components/blog/PostHeader.astro';
-import PostLayout from '@components/blog/PostLayout.astro';
+import CinematicHero from '@components/premium/CinematicHero.astro';
+import EditorialProse from '@components/premium/EditorialProse.astro';
 import RelatedPosts from '@components/blog/RelatedPosts.astro';
 import Breadcrumbs from '@components/common/Breadcrumbs.astro';
 
@@ -36,34 +36,38 @@ interface SanityUpdateDetail {
 // ── getStaticPaths — generate semua slug dari Sanity ─────────────────────────
 
 export async function getStaticPaths() {
-  const slugs = await sanityClient.fetch<SanityUpdateSlug[]>(`
-    *[_type == "update"] {
-      "slug": slug.current
+  const allPosts = await sanityClient.fetch<any[]>(`
+    *[_type == "update"] | order(date desc) {
+      "slug": slug.current,
+      "id": slug.current,
+      title,
+      date,
+      image {
+        asset,
+        hotspot
+      },
+      tags,
+      excerpt,
+      "description": excerpt,
+      content
     }
   `) ?? [];
 
-  return slugs
-    .filter((p) => !!p.slug) // skip entri tanpa slug
-    .map((p) => ({ params: { slug: p.slug } }));
+  return allPosts
+    .filter((p) => !!p.slug)
+    .map((post) => {
+      const relatedPostsRaw = allPosts
+        .filter((p) => p.slug !== post.slug)
+        .slice(0, 3);
+        
+      return { 
+        params: { slug: post.slug },
+        props: { post, relatedPostsRaw }
+      };
+    });
 }
 
-// ── Fetch Detail Post ─────────────────────────────────────────────────────────
-
-const { slug } = Astro.params;
-
-const post = await sanityClient.fetch<SanityUpdateDetail | null>(`
-  *[_type == "update" && slug.current == $slug][0] {
-    title,
-    date,
-    image {
-      asset,
-      hotspot
-    },
-    tags,
-    excerpt,
-    content
-  }
-`, { slug });
+const { post, relatedPostsRaw } = Astro.props;
 
 if (!post) {
   return Astro.redirect('/404');
@@ -72,21 +76,6 @@ if (!post) {
 const coverImageUrl = post.image?.asset
   ? urlFor(post.image).width(1200).format('webp').url()
   : '';
-
-// ── Fetch Related Posts ───────────────────────────────────────────────────────
-
-const relatedPostsRaw = await sanityClient.fetch<import('@lib/sanity').SanityUpdate[]>(`
-  *[_type == "update" && slug.current != $slug] | order(date desc)[0...3] {
-    "id": slug.current,
-    title,
-    "description": excerpt,
-    date,
-    image {
-      asset,
-      hotspot
-    }
-  }
-`, { slug }) ?? [];
 
 const relatedPosts = relatedPostsRaw.map((p) => ({
   id: p._id,
@@ -107,25 +96,32 @@ const relatedPosts = relatedPostsRaw.map((p) => ({
   description={post.excerpt}
   ogImage={coverImageUrl}
 >
-  <main class="min-h-screen bg-yokai-light-bg">
-    <PostHeader
-      title={post.title}
-      coverImage={coverImageUrl}
-      date={post.date}
-      tags={post.tags}
+  <main class="min-h-screen bg-yokai-dark-bg">
+    <CinematicHero 
+      title={post.title} 
+      date={new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} 
+      imageUrl={coverImageUrl} 
     />
-    <PostLayout backUrl="/updates" backText={`Kembali ke Updates`}>
+    
+    <div class="relative z-20 -mt-24 px-6 md:px-24 w-full flex justify-between items-center mix-blend-difference text-yokai-white">
       <Breadcrumbs paths={[{ name: 'Updates', href: '/updates' }, { name: post.title }]} />
-      
+      <a href="/updates" class="text-[10px] font-inter uppercase tracking-[0.2em] font-bold border-b border-yokai-white/30 hover:border-yokai-white transition-colors">
+        Kembali
+      </a>
+    </div>
+
+    <EditorialProse title="News & Updates">
       {typeof post.content === 'string' ? (
         <div set:html={parseMarkdown(post.content)} />
       ) : (
         <PortableText value={post.content ?? []} />
       )}
-      
-      {relatedPosts.length > 0 && (
+    </EditorialProse>
+    
+    {relatedPosts.length > 0 && (
+      <section class="bg-yokai-white py-16 border-t border-yokai-dark-bg/10">
         <RelatedPosts posts={relatedPosts} collection="updates" />
-      )}
-    </PostLayout>
+      </section>
+    )}
   </main>
 </BaseLayout>

@@ -24,7 +24,7 @@ export default defineConfig({
       projectId: PUBLIC_SANITY_PROJECT_ID || 'your-project-id',
       dataset: PUBLIC_SANITY_DATASET || 'production',
       apiVersion: '2025-02-19',
-      useCdn: false,
+      useCdn: true,
       studioBasePath: '/admin',
     }),
     react(),

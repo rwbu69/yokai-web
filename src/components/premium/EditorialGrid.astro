@@ -1,0 +1,85 @@
+---
+export interface EditorialGridItem {
+  id: string;
+  title: string;
+  description: string;
+  author?: string;
+  date: string;
+  imageUrl?: string;
+  href: string;
+}
+
+export interface Props {
+  items: EditorialGridItem[];
+  emptyMessage?: string;
+}
+
+const { items = [], emptyMessage = "No items found." } = Astro.props;
+---
+
+<div class="w-full max-w-7xl mx-auto px-6 md:px-12 pb-24">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
+    {items.map((item) => (
+      <a 
+        href={item.href} 
+        class="group flex flex-col no-underline text-yokai-white"
+      >
+        <!-- Image Cover -->
+        <div class="w-full aspect-[16/9] mb-6 overflow-hidden bg-yokai-white/5 border border-yokai-white/10 relative">
+          {item.imageUrl ? (
+            <img 
+              src={item.imageUrl} 
+              alt={item.title} 
+              loading="lazy"
+              decoding="async"
+              class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+            />
+          ) : (
+            <div class="w-full h-full flex items-center justify-center font-inter text-xs text-yokai-white/20 uppercase tracking-widest">
+              No Cover
+            </div>
+          )}
+        </div>
+
+        <!-- Meta -->
+        <div class="flex items-center gap-3 mb-3 border-b border-yokai-white/10 pb-3">
+          <span class="font-inter text-[10px] font-bold tracking-widest uppercase text-yokai-purple">
+            {new Date(item.date).toLocaleDateString('id-ID')}
+          </span>
+          {item.author && (
+            <>
+              <span class="w-1 h-1 rounded-full bg-yokai-white/20"></span>
+              <span class="font-inter text-[10px] tracking-widest uppercase text-yokai-white/40">
+                {item.author}
+              </span>
+            </>
+          )}
+        </div>
+
+        <!-- Title -->
+        <h3 class="font-jakarta font-black text-2xl uppercase tracking-tight mb-3 group-hover:text-yokai-purple transition-colors duration-300 line-clamp-2 leading-tight">
+          {item.title}
+        </h3>
+
+        <!-- Excerpt -->
+        <p class="font-inter text-sm text-yokai-white/60 line-clamp-3 leading-relaxed mb-6 flex-grow">
+          {item.description}
+        </p>
+
+        <!-- Read More Button -->
+        <div class="inline-flex items-center gap-2 mt-auto">
+          <span class="font-inter text-[10px] font-bold tracking-[0.2em] uppercase text-yokai-white group-hover:text-yokai-purple transition-colors duration-300">Read Article</span>
+          <svg class="w-4 h-4 text-yokai-white group-hover:text-yokai-purple transition-colors duration-300 transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+          </svg>
+        </div>
+      </a>
+    ))}
+
+    {items.length === 0 && (
+      <div class="col-span-full py-12 text-center border-t border-yokai-white/10">
+        <p class="font-inter text-sm text-yokai-white/30 uppercase tracking-widest">{emptyMessage}</p>
+      </div>
+    )}
+  </div>
+</div>

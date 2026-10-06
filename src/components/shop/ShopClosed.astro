@@ -4,20 +4,37 @@
  */
 interface Props {
   message: string;
+  type?: 'cheki' | 'merch';
 }
-const { message } = Astro.props;
+const { message, type = 'merch' } = Astro.props;
 ---
-<div class="w-full flex-grow flex flex-col items-center justify-center px-6 text-center">
-  <div class="border border-yokai-white/10 bg-yokai-dark-bg/30 backdrop-blur-md px-8 py-10 flex flex-col items-center justify-center max-w-md w-full rounded-sm">
-    <svg class="w-6 h-6 text-yokai-white/30 mb-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-    <h2 class="font-jakarta font-bold uppercase tracking-[0.2em] text-yokai-white/60 text-xs mb-4">
-      {message}
-    </h2>
-    <div class="w-12 h-[1px] bg-yokai-white/10 mb-4"></div>
-    <p class="font-inter text-yokai-white/40 text-[10px] tracking-widest uppercase">
-      Follow our social media for updates.
-      <br/>
-      <a href="https://instagram.com/yokai_ind" target="_blank" rel="noopener noreferrer" class="text-yokai-purple/80 hover:text-yokai-purple transition-colors mt-2 inline-block font-medium">@yokai_ind</a>
-    </p>
+<div class="w-full max-w-7xl mx-auto px-6 md:px-12 pb-32 pt-12 relative z-10">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-start">
+    
+    <!-- Left Column: Status Stamp -->
+    <div class="lg:col-span-3 flex flex-col gap-1 mt-2">
+      <span class="font-inter text-[10px] font-bold text-yokai-white/30 tracking-[0.3em] uppercase">
+        STATUS
+      </span>
+      <span class="font-jakarta text-xs font-bold text-yokai-purple tracking-widest uppercase">
+        ORDER TUTUP
+      </span>
+      <div class="w-full h-[1px] bg-yokai-white/10 mt-6 hidden lg:block"></div>
+    </div>
+
+    <!-- Right Column: Message & CTA -->
+    <div class="lg:col-span-7 lg:col-start-5 flex flex-col">
+      <h2 class="font-jakarta font-black uppercase text-yokai-white text-3xl md:text-5xl tracking-tighter leading-none mb-8">
+        {message}
+      </h2>
+      
+      <div class="w-full h-[1px] bg-yokai-white/10 mb-8"></div>
+      
+      <a href="https://instagram.com/yokai.ind" target="_blank" rel="noopener noreferrer" class="group inline-flex items-center gap-4 text-yokai-white/70 hover:text-yokai-purple transition-colors uppercase font-inter text-[10px] font-bold tracking-[0.3em] w-fit">
+        <span>Terhubung di @yokai.ind</span>
+        <svg class="w-4 h-4 transform group-hover:translate-x-2 transition-transform duration-300 ease-out" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+      </a>
+    </div>
+    
   </div>
 </div>

@@ -1,8 +1,7 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
-import PostHeader from '@components/blog/PostHeader.astro';
-import PostLayout from '@components/blog/PostLayout.astro';
-import Breadcrumbs from '@components/common/Breadcrumbs.astro';
+import ArticleHeader from '@components/premium/ArticleHeader.astro';
+import ArticleBody from '@components/premium/ArticleBody.astro';
 
 import { sanityClient, urlFor } from '../../../lib/sanity';
 import { PortableText } from 'astro-portabletext';
@@ -10,50 +9,55 @@ import { parseMarkdown } from '../../../lib/markdown';
 
 export async function getStaticPaths() {
   const query = `*[_type == "article" && draft != true] {
-    "slug": slug.current
+    "slug": slug.current,
+    title,
+    date,
+    author,
+    coverImage,
+    tags,
+    body
   }`;
   const posts = await sanityClient.fetch(query) || [];
-  return posts.map((post: import('@lib/sanity').SanityArticle | import('@lib/sanity').SanityWaza) => ({
-    params: { slug: post.slug }
+  return posts.map((post: any) => ({
+    params: { slug: post.slug },
+    props: { post }
   }));
 }
 
-const { slug } = Astro.params;
-
-const query = `*[_type == "article" && slug.current == $slug][0] {
-  title,
-  date,
-  author,
-  coverImage,
-  tags,
-  body
-}`;
-
-const post = await sanityClient.fetch(query, { slug });
+const { post } = Astro.props;
 
 if (!post) {
   return Astro.redirect('/404');
 }
 
-const coverImageUrl = post.coverImage ? urlFor(post.coverImage).width(1200).url() : '';
+const coverImageUrl = post.coverImage ? urlFor(post.coverImage).width(1200).format('webp').url() : '';
+
+const breadcrumbs = [
+  { name: 'Library', href: '/library/articles' }, // Usually we don't have a library root, they go directly to the section
+  { name: 'Articles', href: '/library/articles' },
+  { name: post.title }
+];
 ---
 
 <BaseLayout title={`${post.title} | Articles`} activePage="library" ogImage={coverImageUrl}>
-  <main class="min-h-screen bg-yokai-light-bg">
-    <PostHeader
-      title={post.title}
-      coverImage={coverImageUrl}
-      date={post.date}
+  <main class="min-h-screen bg-yokai-dark-bg flex flex-col">
+    
+    <ArticleHeader 
+      title={post.title} 
+      date={new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} 
       author={post.author}
-      tags={post.tags}
+      category="Article"
+      imageUrl={coverImageUrl}
+      breadcrumbs={breadcrumbs}
     />
-    <PostLayout backUrl="/library/articles" backText={`Kembali ke Articles`}>
-      <Breadcrumbs paths={[{ name: 'Library' }, { name: 'Articles', href: '/library/articles' }, { name: post.title }]} />
+    
+    <ArticleBody>
       {typeof post.body === 'string' ? (
         <div set:html={parseMarkdown(post.body)} />
       ) : (
         <PortableText value={post.body ?? []} />
       )}
-    </PostLayout>
+    </ArticleBody>
+    
   </main>
 </BaseLayout>

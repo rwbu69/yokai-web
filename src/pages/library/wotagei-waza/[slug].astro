@@ -1,8 +1,7 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
-import PostHeader from '@components/blog/PostHeader.astro';
-import PostLayout from '@components/blog/PostLayout.astro';
-import Breadcrumbs from '@components/common/Breadcrumbs.astro';
+import ArticleHeader from '@components/premium/ArticleHeader.astro';
+import ArticleBody from '@components/premium/ArticleBody.astro';
 
 import { sanityClient, urlFor } from '../../../lib/sanity';
 import { PortableText } from 'astro-portabletext';
@@ -10,52 +9,57 @@ import { parseMarkdown } from '../../../lib/markdown';
 
 export async function getStaticPaths() {
   const query = `*[_type == "waza" && wazaType == "wotagei"] {
-    "slug": slug.current
+    "slug": slug.current,
+    title,
+    titleJp,
+    date,
+    coverImage,
+    tags,
+    honke,
+    body
   }`;
   const posts = await sanityClient.fetch(query) || [];
-  return posts.map((post: import('@lib/sanity').SanityArticle | import('@lib/sanity').SanityWaza) => ({
-    params: { slug: post.slug }
+  return posts.map((post: any) => ({
+    params: { slug: post.slug },
+    props: { post }
   }));
 }
 
-const { slug } = Astro.params;
-
-const query = `*[_type == "waza" && wazaType == "wotagei" && slug.current == $slug][0] {
-  title,
-  titleJp,
-  date,
-  coverImage,
-  tags,
-  honke,
-  body
-}`;
-
-const post = await sanityClient.fetch(query, { slug });
+const { post } = Astro.props;
 
 if (!post) {
   return Astro.redirect('/404');
 }
 
-const coverImageUrl = post.coverImage ? urlFor(post.coverImage).width(1200).url() : '';
+const coverImageUrl = post.coverImage ? urlFor(post.coverImage).width(1200).format('webp').url() : '';
+
+const breadcrumbs = [
+  { name: 'Library', href: '/library/wotagei-waza' }, 
+  { name: 'Wotagei Waza', href: '/library/wotagei-waza' },
+  { name: post.title }
+];
 ---
 
 <BaseLayout title={`${post.title} | Wotagei Waza`} activePage="library" ogImage={coverImageUrl}>
-  <main class="min-h-screen bg-yokai-light-bg">
-    <PostHeader
-      title={post.title}
-      titleJp={post.titleJp}
-      coverImage={coverImageUrl}
-      date={post.date}
-      tags={post.tags}
-      honke={post.honke}
+  <main class="min-h-screen bg-yokai-dark-bg flex flex-col">
+    
+    <ArticleHeader 
+      title={post.title} 
+      date={post.date ? new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : undefined} 
+      author={post.honke}
+      category="Wotagei Waza"
+      imageUrl={coverImageUrl}
+      breadcrumbs={breadcrumbs}
     />
-    <PostLayout backUrl="/library/wotagei-waza" backText={`Kembali ke Wotagei Waza`}>
-      <Breadcrumbs paths={[{ name: 'Library' }, { name: 'Wotagei Waza', href: '/library/wotagei-waza' }, { name: post.title }]} />
+    
+    <ArticleBody>
+      {post.titleJp && <h2 class="text-xl text-yokai-purple/80 uppercase tracking-widest font-inter mb-8 border-b border-yokai-white/10 pb-4 text-center">{post.titleJp}</h2>}
       {typeof post.body === 'string' ? (
         <div set:html={parseMarkdown(post.body)} />
       ) : (
         <PortableText value={post.body ?? []} />
       )}
-    </PostLayout>
+    </ArticleBody>
+    
   </main>
 </BaseLayout>

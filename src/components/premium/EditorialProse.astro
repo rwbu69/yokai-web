@@ -1,0 +1,21 @@
+---
+export interface Props {
+  title?: string;
+  emptyMessage?: string;
+  hasContent?: boolean;
+}
+
+const { title = "The Chronicle", emptyMessage = "No records found.", hasContent = true } = Astro.props;
+---
+
+<section class="w-full bg-yokai-dark-bg text-yokai-white py-16 px-6 md:px-12">
+  <div class="max-w-3xl mx-auto w-full">
+    {hasContent ? (
+      <div class="prose prose-invert prose-lg md:prose-xl prose-headings:font-jakarta prose-headings:font-black prose-p:font-inter prose-a:text-yokai-purple prose-a:no-underline hover:prose-a:underline prose-img:rounded-lg max-w-none">
+        <slot />
+      </div>
+    ) : (
+      <p class="text-yokai-white/50 italic text-xl font-inter text-center">{emptyMessage}</p>
+    )}
+  </div>
+</section>
