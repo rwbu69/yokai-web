@@ -7,19 +7,6 @@ import { sanityClient } from '../lib/sanity';
 
 const { activePage = 'home' } = Astro.props;
 
-interface NavEvent {
-  name: string;
-  path: string;
-}
-let recentEvents = await sanityClient.fetch<NavEvent[]>(`*[_type == "event"] | order(date desc)[0...3] { name, "path": "/events/" + slug.current }`) ?? [];
-
-if (recentEvents.length === 0) {
-  recentEvents = [
-    { name: 'Yokai Fest 2026', path: '/events/yokai-fest-2026' },
-    { name: 'Neon Battle Vol. 3', path: '/events/neon-battle-vol-3' },
-    { name: 'Underground Cyalume', path: '/events/underground-cyalume' }
-  ];
-}
 
 const navItems = [
   { name: 'Home', path: '/', key: 'home' },
@@ -32,17 +19,7 @@ const navItems = [
     ]
   },
   { name: 'Updates', path: '/updates', key: 'updates' },
-  {
-    name: 'Events',
-    key: 'events',
-    path: '/events',
-    dropdown: recentEvents.length > 0 ? [
-      ...recentEvents,
-      { name: 'View All Events', path: '/events' }
-    ] : [
-      { name: 'Event Archive', path: '/events' }
-    ]
-  },
+  { name: 'Events', path: '/events', key: 'events' },
   {
     name: 'Library',
     key: 'library',
