@@ -60,6 +60,11 @@ export async function getStaticPaths() {
   });
 }
 
+interface Props {
+  eventData: any;
+  battles: any[];
+}
+
 const { slug } = Astro.params;
 const { eventData, battles } = Astro.props;
 

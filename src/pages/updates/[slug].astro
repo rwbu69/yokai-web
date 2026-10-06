@@ -67,6 +67,11 @@ export async function getStaticPaths() {
     });
 }
 
+interface Props {
+  post: any;
+  relatedPostsRaw: any[];
+}
+
 const { post, relatedPostsRaw } = Astro.props;
 
 if (!post) {
