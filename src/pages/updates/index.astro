@@ -15,6 +15,7 @@ import EditorialList from '@components/premium/EditorialList.astro';
 import Projects from '@components/landing/Projects.astro';
 import LivePerformances from '@components/landing/LivePerformances.astro';
 import InContentCTA from '@components/common/InContentCTA.astro';
+import updatesHeroImage from '../../assets/updates/hero.webp';
 
 import { sanityClient, urlFor } from '../../lib/sanity';
 import type { SanityImage } from '../../lib/sanity';
@@ -34,7 +35,10 @@ const query = `{
   "projects": *[_type == "project"] | order(sortOrder asc, releaseDate desc)[0...3],
   "performances": *[_type == "livePerformance"] | order(sortOrder asc, date desc)[0...3],
   "sns": *[_type == "snsUpdate"] | order(date desc)[0...4],
-  "config": *[_type == "updatesConfig"][0]
+  "config": *[_type == "updatesConfig"][0] {
+    ...,
+    heroImage { asset, hotspot }
+  }
 }`;
 
 const data = await sanityClient.fetch(query) || {};
@@ -43,6 +47,10 @@ const projectsData = data.projects || [];
 const performancesData = data.performances || [];
 const snsUpdates = data.sns || [];
 const config = data.config || {};
+
+const heroImageUrl = config.heroImage?.asset 
+  ? urlFor(config.heroImage).width(1920).format('webp').url() 
+  : updatesHeroImage.src;
 
 interface ProjectedLibraryItem {
   id: string;
@@ -78,7 +86,7 @@ const ytPerformancesLink = config.performancesYoutubeLink || 'https://www.youtub
 <BaseLayout title={`Updates | Yokai`} activePage="updates">
   <main class="min-h-screen bg-yokai-dark-bg">
     <!-- Cinematic Hero -->
-    <CinematicHero title="Updates" fallbackImageSeed="updates-hero" />
+    <CinematicHero title="Updates" imageUrl={heroImageUrl} />
     <!-- Latest Projects -->
     <div class="relative z-0 border-b border-yokai-dark-blue/10 bg-yokai-white">
       <Projects 

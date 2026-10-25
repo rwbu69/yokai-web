@@ -6,6 +6,13 @@ export default defineType({
   type: 'document',
   fields: [
     defineField({
+      name: 'heroImage',
+      title: 'Hero Image',
+      type: 'image',
+      options: { hotspot: true },
+      description: 'Gambar hero utama untuk halaman Updates (opsional, fallback ke foto default tim Yokai).',
+    }),
+    defineField({
       name: 'projectsYoutubeLink',
       title: 'Projects CTA Link',
       type: 'url',
