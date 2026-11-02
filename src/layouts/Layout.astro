@@ -5,35 +5,61 @@ interface Props {
 	title: string;
 	description?: string;
 	ogImage?: string;
+	robots?: string;
 }
 
 const { 
 	title, 
-	description = "Turning Wotagei into Art", 
-	ogImage = "/og-image.jpg" 
+	description = "Yokai is an independent Wotagei performance team from Yogyakarta, Indonesia.",
+	ogImage = "/og-image.jpg",
+	robots = "index, follow",
 } = Astro.props;
+
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site || Astro.url).href;
+const imageUrl = new URL(ogImage, Astro.site || Astro.url).href;
+const structuredData = JSON.stringify({
+	"@context": "https://schema.org",
+	"@type": "PerformingGroup",
+	name: "Yokai",
+	url: "https://yokai.id",
+	logo: "https://yokai.id/icon.svg",
+	description,
+	address: {
+		"@type": "PostalAddress",
+		addressLocality: "Yogyakarta",
+		addressCountry: "ID",
+	},
+	sameAs: [
+		"https://instagram.com/yokai.ind",
+		"https://www.youtube.com/@yokai_ind",
+	],
+}).replace(/</g, '\\u003c');
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="id">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="description" content={description} />
 		<meta name="viewport" content="width=device-width" />
+		<meta name="robots" content={robots} />
+		<link rel="canonical" href={canonicalUrl} />
 		
 		<!-- Open Graph / Facebook -->
 		<meta property="og:type" content="website" />
-		<meta property="og:url" content={Astro.url.href} />
+		<meta property="og:url" content={canonicalUrl} />
 		<meta property="og:title" content={title} />
 		<meta property="og:description" content={description} />
-		<meta property="og:image" content={new URL(ogImage, Astro.site || Astro.url).href} />
+		<meta property="og:image" content={imageUrl} />
+		<meta property="og:locale" content="id_ID" />
 
 		<!-- Twitter -->
-		<meta property="twitter:card" content="summary_large_image" />
-		<meta property="twitter:url" content={Astro.url.href} />
-		<meta property="twitter:title" content={title} />
-		<meta property="twitter:description" content={description} />
-		<meta property="twitter:image" content={new URL(ogImage, Astro.site || Astro.url).href} />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:url" content={canonicalUrl} />
+		<meta name="twitter:title" content={title} />
+		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content={imageUrl} />
+		<script type="application/ld+json" set:html={structuredData}></script>
 		<link rel="icon" type="image/svg+xml" href="/icon.svg" />
 		<link rel="shortcut icon" href="/icon.svg" />
 		<link rel="apple-touch-icon" href="/icon.svg" />
@@ -47,4 +73,3 @@ const {
 		<slot />
 	</body>
 </html>
-

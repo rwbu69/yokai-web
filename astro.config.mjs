@@ -1,6 +1,7 @@
 import { defineConfig } from 'astro/config';
 import sanity from '@sanity/astro';
 import react from '@astrojs/react';
+import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import { loadEnv } from 'vite';
 import path from 'path';
@@ -13,10 +14,10 @@ const { PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET } = loadEnv(
   process.cwd(),
   ''
 );
-
+  
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://yokai-website.lovelyrwbu69.workers.dev',
+  site: 'https://yokai.id',
   output: 'static',
 
   integrations: [
@@ -28,6 +29,9 @@ export default defineConfig({
       studioBasePath: '/admin',
     }),
     react(),
+    sitemap({
+      filter: (page) => !page.includes('/admin') && !page.includes('/shop/order-success'),
+    }),
   ],
 
   vite: {
