@@ -19,27 +19,6 @@ const query = `*[_type == "event"] | order(date desc) {
 }`;
 
 let events = await sanityClient.fetch<EventItem[]>(query) ?? [];
-
-// Placeholder data fallback
-if (events.length === 0) {
-  events = [
-    {
-      name: 'Yokai Fest 2026',
-      slug: { current: 'yokai-fest-2026' },
-      date: '2026-11-15T00:00:00.000Z'
-    },
-    {
-      name: 'Neon Battle Vol. 3',
-      slug: { current: 'neon-battle-vol-3' },
-      date: '2026-08-20T00:00:00.000Z'
-    },
-    {
-      name: 'Underground Cyalume',
-      slug: { current: 'underground-cyalume' },
-      date: '2025-12-10T00:00:00.000Z'
-    }
-  ];
-}
 ---
 
 <BaseLayout title="Events | Yokai Web Studio" activePage="events">
@@ -59,10 +38,8 @@ if (events.length === 0) {
         
         <!-- Background Image -->
         <div class="absolute inset-0 z-0">
-          {event.coverImage?.asset ? (
+          {event.coverImage?.asset && (
             <img src={urlFor(event.coverImage).width(1920).height(1080).url()} alt={event.name} class="w-full h-full object-cover" />
-          ) : (
-            <img src={`https://picsum.photos/seed/${event.slug.current}/1920/1080`} alt={event.name} class="w-full h-full object-cover" />
           )}
           <!-- Gradient overlay for text readability -->
           <div class="absolute inset-0 bg-yokai-dark-bg/60 bg-gradient-to-t from-yokai-dark-bg/90 via-yokai-dark-bg/30 to-yokai-dark-bg/80"></div>

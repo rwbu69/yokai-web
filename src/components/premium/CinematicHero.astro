@@ -6,17 +6,16 @@ export interface Props {
   date?: string;
   videoUrl?: string | null;
   imageUrl?: string | ImageMetadata | null;
-  fallbackImageSeed?: string;
 }
 
-const { title, date, videoUrl, imageUrl, fallbackImageSeed = 'hero' } = Astro.props;
+const { title, date, videoUrl, imageUrl } = Astro.props;
 const resolvedImageUrl = typeof imageUrl === 'object' && imageUrl !== null ? (imageUrl as ImageMetadata).src : imageUrl;
 ---
 
 <section class="relative w-full min-h-screen flex items-end justify-center overflow-hidden bg-yokai-dark-bg">
   <!-- Visual/Video Background -->
   <div class="absolute inset-0 z-0">
-    {videoUrl ? (
+    {videoUrl && (
       <video 
         src={videoUrl}
         autoplay 
@@ -25,17 +24,10 @@ const resolvedImageUrl = typeof imageUrl === 'object' && imageUrl !== null ? (im
         playsinline
         class="w-full h-full object-cover"
       ></video>
-    ) : resolvedImageUrl ? (
+    )}
+    {!videoUrl && resolvedImageUrl && (
       <img 
         src={resolvedImageUrl} 
-        alt={title}
-        loading="eager"
-        decoding="async"
-        class="w-full h-full object-cover object-center"
-      />
-    ) : (
-      <img 
-        src={`https://picsum.photos/seed/${fallbackImageSeed}/1920/1080`}
         alt={title}
         loading="eager"
         decoding="async"

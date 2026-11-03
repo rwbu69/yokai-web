@@ -2,7 +2,6 @@
 /**
  * LivePerformances.astro
  */
-import { performances as localPerformances } from './performances';
 import InContentCTA from '../common/InContentCTA.astro';
 
 import type { SanityLivePerformance } from '@lib/sanity';
@@ -22,7 +21,7 @@ const {
   bottomCtaLink = '/gallery/videos'
 } = Astro.props;
 
-const activePerformances = performances && performances.length > 0 ? performances : localPerformances;
+const activePerformances = performances ?? [];
 
 // Parse youtubeId
 const getYouTubeId = (urlOrId: string) => {

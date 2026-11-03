@@ -2,8 +2,6 @@
 /**
  * Projects.astro
  */
-import { projects as localProjects } from './projects';
-
 interface Props {
   projects: import('@lib/sanity').SanityProject[];
   ctaText?: string;
@@ -19,8 +17,7 @@ interface AnyProject {
   date?: string;
 }
 
-// Use sanity data if available, fallback to local
-const activeProjects: AnyProject[] = projects && projects.length > 0 ? (projects as AnyProject[]) : (localProjects as AnyProject[]);
+const activeProjects: AnyProject[] = projects ?? [];
 
 // For Sanity, video ID has to be parsed from youtubeUrl
 const getYouTubeId = (urlOrId: string) => {

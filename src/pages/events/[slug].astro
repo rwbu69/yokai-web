@@ -25,37 +25,10 @@ export async function getStaticPaths() {
     }
   `) ?? [];
 
-  if (eventsWithBattles.length === 0) {
-    eventsWithBattles = [
-      { 
-        slug: 'yokai-fest-2026', 
-        _id: '1', 
-        name: 'Yokai Fest 2026', 
-        date: '2026-11-15T00:00:00.000Z', 
-        heroVideoUrl: 'https://cdn.pixabay.com/video/2019/11/10/28848-372957790_tiny.mp4',
-        highlightPhotos: [{ asset: {} }, { asset: {} }, { asset: {} }],
-        impressions: [{ _type: 'block', children: [{ _type: 'span', text: 'This was an amazing event! The crowd went absolutely wild during the final battles. The energy in the room was palpable from start to finish.' }] }, { _type: 'block', children: [{ _type: 'span', text: 'We witnessed new techniques and a level of passion that redefines wotagei. Every battler brought their absolute best to the floor.' }] }],
-        battles: [] 
-      },
-      { slug: 'neon-battle-vol-3', _id: '2', name: 'Neon Battle Vol. 3', date: '2026-08-20T00:00:00.000Z', impressions: [], battles: [] },
-      { slug: 'underground-cyalume', _id: '3', name: 'Underground Cyalume', date: '2025-12-10T00:00:00.000Z', impressions: [], battles: [] }
-    ];
-  }
-
   return eventsWithBattles.map((event: any) => {
-    let battles = event.battles || [];
-    if (battles.length === 0) {
-      battles = [
-        { _id: 'b1', category: 'Rookie', battler1: 'Ryu', battler2: 'Ken', downloadUrl: '#' },
-        { _id: 'b2', category: 'Rookie', battler1: 'Kira', battler2: 'L', downloadUrl: '#' },
-        { _id: 'b3', category: 'Open', battler1: 'Dante', battler2: 'Vergil', downloadUrl: '#' },
-        { _id: 'b4', category: 'Cyalume Dance', battler1: 'Miku', battler2: 'Luka', downloadUrl: '#' },
-        { _id: 'b5', category: '1v1', battler1: 'Naruto', battler2: 'Sasuke', downloadUrl: '#' },
-      ];
-    }
     return {
       params: { slug: event.slug },
-      props: { eventData: event, battles }
+      props: { eventData: event, battles: event.battles || [] }
     };
   });
 }
@@ -65,7 +38,6 @@ interface Props {
   battles: any[];
 }
 
-const { slug } = Astro.params;
 const { eventData, battles } = Astro.props;
 
 if (!eventData) {
@@ -79,6 +51,7 @@ battles.forEach((b: any) => {
   categorizedBattles[b.category].push(b);
 });
 const categories = Object.keys(categorizedBattles);
+const highlightPhotos = (eventData.highlightPhotos || []).filter((photo: any) => photo.asset?._ref);
 ---
 
 <BaseLayout title={`${eventData.name} | Yokai Events`} activePage="events">
@@ -87,7 +60,7 @@ const categories = Object.keys(categorizedBattles);
   <section class="relative w-full min-h-screen flex items-end justify-center overflow-hidden bg-yokai-dark-bg">
     <!-- Visual/Video Background -->
     <div class="absolute inset-0 z-0">
-      {eventData.heroVideoUrl ? (
+      {eventData.heroVideoUrl && (
         <video 
           src={eventData.heroVideoUrl}
           autoplay 
@@ -96,15 +69,11 @@ const categories = Object.keys(categorizedBattles);
           playsinline
           class="w-full h-full object-cover"
         ></video>
-      ) : eventData.coverImage?.asset ? (
+      )}
+      {!eventData.heroVideoUrl && eventData.coverImage?.asset && (
         <img 
           src={urlFor(eventData.coverImage).width(1920).url()} 
           alt={eventData.name}
-          class="w-full h-full object-cover"
-        />
-      ) : (
-        <img 
-          src={`https://picsum.photos/seed/${slug}-hero/1920/1080`}
           class="w-full h-full object-cover"
         />
       )}
@@ -126,16 +95,15 @@ const categories = Object.keys(categorizedBattles);
   </section>
 
   <!-- The Chronicle (Storytelling) -->
-  {((eventData.impressions && eventData.impressions.length > 0) || (eventData.highlightPhotos && eventData.highlightPhotos.length > 0)) && (
+  {((eventData.impressions && eventData.impressions.length > 0) || highlightPhotos.length > 0) && (
     <section class="w-full bg-yokai-white text-yokai-dark-bg py-32 px-6 md:px-24">
       <div class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-20">
         <!-- Highlights overlap -->
-        {eventData.highlightPhotos && eventData.highlightPhotos.length > 0 && (
+        {highlightPhotos.length > 0 && (
           <div class="w-full lg:w-1/2 relative min-h-[400px]">
-            {eventData.highlightPhotos.map((photo: any, i: number) => {
-              const isPlaceholder = !photo.asset?._ref;
-              const imgUrl = isPlaceholder ? `https://picsum.photos/seed/${i + eventData._id}/600/800` : urlFor(photo).width(600).url();
-              
+            {highlightPhotos.map((photo: any, i: number) => {
+              const imgUrl = urlFor(photo).width(600).url();
+
               // Editorial overlapping positioning
               const positions = [
                 'z-10 top-0 left-0 w-2/3 h-[300px]',
@@ -180,7 +148,7 @@ const categories = Object.keys(categorizedBattles);
       <div class="w-full md:w-1/4 lg:w-1/5 pr-0 md:pr-12 border-b md:border-b-0 md:border-r border-yokai-white/10 mb-12 md:mb-0">
         <div class="md:sticky md:top-32">
           <h2 class="text-[10px] font-inter text-yokai-purple font-bold tracking-[0.4em] uppercase mb-12">
-            The Roster Board
+            The Matches
           </h2>
           <div class="flex flex-col gap-6" id="category-filters">
             <button class="filter-btn text-left text-2xl font-jakarta font-black uppercase text-yokai-white tracking-widest transition-colors hover:text-yokai-purple" data-category="all">
@@ -206,7 +174,7 @@ const categories = Object.keys(categorizedBattles);
           <input 
             type="text" 
             id="search-battler" 
-            placeholder="SEARCH FIGHTER NICKNAME..." 
+            placeholder="SEARCH NICKNAME..."
             class="w-full bg-yokai-white/5 border-2 border-yokai-white/10 text-yokai-white pl-16 pr-8 py-5 font-jakarta font-bold text-xl uppercase tracking-widest focus:outline-none focus:border-yokai-purple focus:bg-yokai-purple/10 transition-all placeholder-yokai-white/20"
           />
         </div>
@@ -216,7 +184,7 @@ const categories = Object.keys(categorizedBattles);
           <div class="flex items-center gap-16">
             <span class="w-16 text-center">NO.</span>
             <span class="w-32">CATEGORY</span>
-            <span>FIGHTERS</span>
+            <span>NAME</span>
           </div>
           <span class="pr-8">ACTION</span>
         </div>
